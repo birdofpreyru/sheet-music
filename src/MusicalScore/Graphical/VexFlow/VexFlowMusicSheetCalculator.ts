@@ -1,4 +1,5 @@
 import { MusicSheetCalculator } from "../MusicSheetCalculator";
+import { Font } from "../../../Common/DataObjects/Font";
 import { VexFlowGraphicalSymbolFactory } from "./VexFlowGraphicalSymbolFactory";
 import { GraphicalMeasure } from "../GraphicalMeasure";
 import { StaffLine } from "../StaffLine";
@@ -713,10 +714,15 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
 
   protected handleVoiceEntryLyrics(voiceEntry: VoiceEntry, graphicalStaffEntry: GraphicalStaffEntry, lyricWords: LyricWord[]): void {
     voiceEntry.LyricsEntries.forEach((key: number, lyricsEntry: LyricsEntry) => {
-      const graphicalLyricEntry: GraphicalLyricEntry = new GraphicalLyricEntry(lyricsEntry,
-                                                                               graphicalStaffEntry,
-                                                                               this.rules.LyricsHeight,
-                                                                               this.rules.StaffHeight);
+      const font: Font = lyricsEntry.Font;
+      const size: number = (font && font.Size)
+        || this.rules.DefaultLyricsHeight;
+      const graphicalLyricEntry: GraphicalLyricEntry = new GraphicalLyricEntry(
+        lyricsEntry,
+        graphicalStaffEntry,
+        size,
+        this.rules.StaffHeight,
+      );
 
       graphicalStaffEntry.LyricsEntries.push(graphicalLyricEntry);
 
