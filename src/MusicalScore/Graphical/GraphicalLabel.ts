@@ -22,7 +22,7 @@ export class GraphicalLabel extends Clickable {
         super();
         this.label = label;
         this.boundingBox = new BoundingBox(this, parent);
-        this.label.fontHeight = textHeight;
+        this.label.font.Size = textHeight;
         this.label.textAlignment = alignment;
     }
 
@@ -44,8 +44,11 @@ export class GraphicalLabel extends Clickable {
         const labelMarginBorderFactor: number = EngravingRules.Rules.LabelMarginBorderFactor;
 
         const widthToHeightRatio: number =
-            MusicSheetCalculator.TextMeasurer.computeTextWidthToHeightRatio(this.Label.text, this.Label.font, this.Label.fontStyle);
-        const height: number = this.Label.fontHeight;
+            MusicSheetCalculator.TextMeasurer.computeTextWidthToHeightRatio(
+              this.Label.text,
+              this.Label.font,
+            );
+        const height: number = this.Label.font.Size;
         const width: number = height * widthToHeightRatio;
         const bbox: BoundingBox = this.PositionAndShape;
 

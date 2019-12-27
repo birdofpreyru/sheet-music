@@ -12,8 +12,7 @@ import {NoteEnum} from "../../../Common/DataObjects/Pitch";
 import {VexFlowGraphicalNote} from "./VexFlowGraphicalNote";
 import {GraphicalNote} from "../GraphicalNote";
 import {SystemLinesEnum} from "../SystemLinesEnum";
-import {FontStyles} from "../../../Common/Enums/FontStyles";
-import {Fonts} from "../../../Common/Enums/Fonts";
+import { Font } from "../../../Common/DataObjects/Font";
 import {OutlineAndFillStyleEnum, OUTLINE_AND_FILL_STYLE_DICT} from "../DrawingEnums";
 import * as log from "loglevel";
 import { ArticulationEnum, StemDirectionType } from "../../VoiceData/VoiceEntry";
@@ -21,7 +20,6 @@ import { SystemLinePosition } from "../SystemLinePosition";
 import { GraphicalVoiceEntry } from "../GraphicalVoiceEntry";
 import { OrnamentEnum, OrnamentContainer } from "../../VoiceData/OrnamentContainer";
 import { Notehead, NoteHeadShape } from "../../VoiceData/Notehead";
-import { unitInPixels } from "./VexFlowMusicSheetDrawer";
 import { EngravingRules } from "../EngravingRules";
 import { Note } from "../..";
 import StaveNote = Vex.Flow.StaveNote;
@@ -201,7 +199,7 @@ export class VexFlowConverter {
                     // https://github.com/0xfe/vexflow/issues/579 The author reports that he needs to add some negative x shift
                     // if the measure has no modifiers.
                     alignCenter = true;
-                    xShift = EngravingRules.Rules.WholeRestXShiftVexflow * unitInPixels; // TODO find way to make dependent on the modifiers
+                    xShift = EngravingRules.Rules.WholeRestXShiftVexflow * EngravingRules.UnitToPx; // TODO find way to make dependent on the modifiers
                     // affects VexFlowStaffEntry.calculateXPosition()
                 }
                 break;
@@ -645,60 +643,29 @@ export class VexFlowConverter {
 
     /**
      * Construct a string which can be used in a CSS font property
-     * @param fontSize
-     * @param fontStyle
      * @param font
      * @returns {string}
      */
-    public static font(fontSize: number, fontStyle: FontStyles = FontStyles.Regular, font: Fonts = Fonts.TimesNewRoman): string {
-        let style: string = "normal";
-        let weight: string = "normal";
-        const family: string = "'" + EngravingRules.Rules.DefaultFontFamily + "'"; // default "'Times New Roman'"
+    public static font(font: Font): string {
+      const f: Font = font.clone().mergeDefaults(
+        EngravingRules.Rules.DefaultFont,
+      );
+      const style: string = f.Italic ? "italic" : "normal";
 
-        switch (fontStyle) {
-            case FontStyles.Bold:
-                weight = "bold";
-                break;
-            case FontStyles.Italic:
-                style = "italic";
-                break;
-            case FontStyles.BoldItalic:
-                style = "italic";
-                weight = "bold";
-                break;
-            case FontStyles.Underlined:
-                // TODO
-                break;
-            default:
-                break;
-        }
-
-        switch (font) { // currently not used
-            case Fonts.Kokila:
-                // TODO Not Supported
-                break;
-            default:
-        }
-
-
-        return  style + " " + weight + " " + Math.floor(fontSize) + "px " + family;
+      /* TODO: Implement underlined. */
+      return `${style} ${f.Weight} ${Math.floor(f.Size)}px '${f.Family}'`;
     }
 
     /**
      * Converts the style into a string that VexFlow RenderContext can understand
      * as the weight of the font
      */
-    public static fontStyle(style: FontStyles): string {
-        switch (style) {
-            case FontStyles.Bold:
-                return "bold";
-            case FontStyles.Italic:
-                return "italic";
-            case FontStyles.BoldItalic:
-                return "italic bold";
-            default:
-                return "normal";
-        }
+    public static fontStyle(font: Font): string {
+      let res: string = font.Weight;
+      if (font.Italic) {
+        res += " italic";
+      }
+      return res;
     }
 
     /**

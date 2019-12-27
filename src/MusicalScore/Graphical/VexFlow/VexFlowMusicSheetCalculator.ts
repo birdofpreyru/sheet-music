@@ -23,7 +23,6 @@ import { VexFlowMeasure } from "./VexFlowMeasure";
 import { VexFlowTextMeasurer } from "./VexFlowTextMeasurer";
 import Vex = require("vexflow");
 import * as log from "loglevel";
-import { unitInPixels } from "./VexFlowMusicSheetDrawer";
 import { VexFlowGraphicalNote } from "./VexFlowGraphicalNote";
 import { TechnicalInstruction } from "../../VoiceData/Instructions/TechnicalInstruction";
 import { GraphicalLyricEntry } from "../GraphicalLyricEntry";
@@ -130,7 +129,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     if (allVoices.length > 0) {
       // FIXME: The following ``+ 5.0'' is temporary: it was added as a workaround for
       // FIXME: a more relaxed formatting of voices
-      minStaffEntriesWidth = formatter.preCalculateMinTotalWidth(allVoices) / unitInPixels + 5.0;
+      minStaffEntriesWidth = formatter.preCalculateMinTotalWidth(allVoices) / EngravingRules.UnitToPx + 5.0;
       // firstMeasure.formatVoices = (w: number) => {
       //     formatter.format(allVoices, w);
       // };
@@ -196,7 +195,9 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
           //vexflowMeasure.formatVoices = formatVoicesDefault;
 
           // format now for minimum width, calculateMeasureWidthFromLyrics later
-          vexflowMeasure.formatVoices(minStaffEntriesWidth * unitInPixels);
+          vexflowMeasure.formatVoices(
+            minStaffEntriesWidth * EngravingRules.UnitToPx,
+          );
         } else {
           //(measure as VexFlowMeasure).formatVoices = undefined;
           // TODO why was the formatVoices function disabled for other measures? would now disable the new align rests option.
@@ -538,12 +539,12 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
           //duration: metronomeExpression.beatUnit
           duration: "q"
       },
-      EngravingRules.Rules.MetronomeMarkYShift * unitInPixels);
+      EngravingRules.Rules.MetronomeMarkYShift * EngravingRules.UnitToPx);
        // -50, -30), 0); //needs Vexflow PR
        //.setShiftX(-50);
 
     (<any>vfStave.getModifiers()[vfStave.getModifiers().length - 1]).setShiftX(
-      EngravingRules.Rules.MetronomeMarkXShift * unitInPixels
+      EngravingRules.Rules.MetronomeMarkXShift * EngravingRules.UnitToPx
     );
     // TODO calculate bounding box of metronome mark instead of hacking skyline to fix lyricist collision
     const skyline: number[] = this.graphicalMusicSheet.MeasureList[0][0].ParentStaffLine.SkyLine;

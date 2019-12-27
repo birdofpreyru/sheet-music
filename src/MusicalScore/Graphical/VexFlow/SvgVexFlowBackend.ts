@@ -2,8 +2,7 @@ import Vex = require("vexflow");
 
 import {VexFlowBackend} from "./VexFlowBackend";
 import {VexFlowConverter} from "./VexFlowConverter";
-import {FontStyles} from "../../../Common/Enums/FontStyles";
-import {Fonts} from "../../../Common/Enums/Fonts";
+import { Font } from "../../../Common/DataObjects/Font";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";
 import { EngravingRules } from "..";
@@ -51,19 +50,35 @@ export class SvgVexFlowBackend extends VexFlowBackend {
     public translate(x: number, y: number): void {
         // TODO: implement this
     }
-    public renderText(fontHeight: number, fontStyle: FontStyles, font: Fonts, text: string,
-                      heightInPixel: number, screenPosition: PointF2D, color: string = undefined): void {
+    public renderText(
+      font: Font,
+      text: string,
+      screenPosition: PointF2D,
+      color: string = undefined,
+    ): void {
         this.ctx.save();
 
         if (color) {
             this.ctx.attributes.fill = color;
             this.ctx.attributes.stroke = color;
         }
-        this.ctx.setFont(EngravingRules.Rules.DefaultFontFamily, fontHeight, VexFlowConverter.fontStyle(fontStyle));
+        this.ctx.setFont(
+          font.Family,
+          font.Size,
+          VexFlowConverter.fontStyle(font),
+        );
         // font size is set by VexFlow in `pt`. This overwrites the font so it's set to px instead
-        this.ctx.attributes["font-size"] = `${fontHeight}px`;
-        this.ctx.state["font-size"] = `${fontHeight}px`;
-        this.ctx.fillText(text, screenPosition.x, screenPosition.y + heightInPixel);
+        this.ctx.attributes["font-size"] = `${
+          font.Size * EngravingRules.UnitToPx
+        }px`;
+        this.ctx.state["font-size"] = `${
+          font.Size * EngravingRules.UnitToPx
+        }px`;
+        this.ctx.fillText(
+          text,
+          screenPosition.x,
+          screenPosition.y + EngravingRules.UnitToPx * font.Size,
+        );
         this.ctx.restore();
     }
     public renderRectangle(rectangle: RectangleF2D, styleId: number, alpha: number = 1): void {

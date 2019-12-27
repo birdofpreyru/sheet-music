@@ -62,7 +62,6 @@ import { AbstractGraphicalInstruction } from "./AbstractGraphicalInstruction";
 import { GraphicalInstantaneousTempoExpression } from "./GraphicalInstantaneousTempoExpression";
 import { InstantaneousTempoExpression, TempoEnum } from "../VoiceData/Expressions/InstantaneousTempoExpression";
 import { ContinuousTempoExpression } from "../VoiceData/Expressions/ContinuousExpressions/ContinuousTempoExpression";
-import { FontStyles } from "../../Common/Enums/FontStyles";
 import { AbstractTempoExpression } from "../VoiceData/Expressions/AbstractTempoExpression";
 import { GraphicalInstantaneousDynamicExpression } from "./GraphicalInstantaneousDynamicExpression";
 import { ContDynamicEnum } from "../VoiceData/Expressions/ContinuousExpressions/ContinuousDynamicExpression";
@@ -502,7 +501,6 @@ export abstract class MusicSheetCalculator {
      * @param lyricVersesNumber
      */
     protected calculateSingleStaffLineLyricsPosition(staffLine: StaffLine, lyricVersesNumber: number[]): GraphicalStaffEntry[] {
-        let numberOfVerses: number = 0;
         let lyricsStartYPosition: number = this.rules.StaffHeight; // Add offset to prevent collision
         const lyricsStaffEntriesList: GraphicalStaffEntry[] = [];
         const skyBottomLineCalculator: SkyBottomLineCalculator = staffLine.SkyBottomLineCalculator;
@@ -518,7 +516,6 @@ export abstract class MusicSheetCalculator {
                 const staffEntry: GraphicalStaffEntry = measure.staffEntries[idx2];
                 if (staffEntry.LyricsEntries.length > 0) {
                     lyricsStaffEntriesList.push(staffEntry);
-                    numberOfVerses = Math.max(numberOfVerses, staffEntry.LyricsEntries.length);
 
                     // Position of Staffentry relative to StaffLine
                     const staffEntryPositionX: number = staffEntry.PositionAndShape.RelativePosition.x +
@@ -529,9 +526,10 @@ export abstract class MusicSheetCalculator {
 
                     // if more than one LyricEntry in StaffEntry, find minMarginLeft, maxMarginRight of all corresponding Labels
                     for (let i: number = 0; i < staffEntry.LyricsEntries.length; i++) {
-                        const lyricsEntryLabel: GraphicalLabel = staffEntry.LyricsEntries[i].GraphicalLabel;
-                        minMarginLeft = Math.min(minMarginLeft, staffEntryPositionX + lyricsEntryLabel.PositionAndShape.BorderMarginLeft);
-                        maxMarginRight = Math.max(maxMarginRight, staffEntryPositionX + lyricsEntryLabel.PositionAndShape.BorderMarginRight);
+                      const entry: GraphicalLyricEntry = staffEntry.LyricsEntries[i];
+                      const lyricsEntryLabel: GraphicalLabel = entry.GraphicalLabel;
+                      minMarginLeft = Math.min(minMarginLeft, staffEntryPositionX + lyricsEntryLabel.PositionAndShape.BorderMarginLeft);
+                      maxMarginRight = Math.max(maxMarginRight, staffEntryPositionX + lyricsEntryLabel.PositionAndShape.BorderMarginRight);
                     }
 
                     // check BottomLine in this range and take the maximum between the two values
@@ -542,8 +540,8 @@ export abstract class MusicSheetCalculator {
         }
 
         /* Calculates the height of each verse line, based on its content. */
-        const verseLineHeight: number[] = new Array(numberOfVerses);
-        for (let i: number = 0; i < numberOfVerses; i++) {
+        const verseLineHeight: number[] = new Array(lyricVersesNumber.length);
+        for (let i: number = 0; i < verseLineHeight.length; i++) {
           verseLineHeight[i] = -1;
         }
         for (const staffEntry of lyricsStaffEntriesList) {
@@ -563,8 +561,10 @@ export abstract class MusicSheetCalculator {
         /* Calculates y-positions of verse lines. */
         const versePosY: number[] = [];
         let pos: number = this.leadSheet ? 3.4 : lyricsStartYPosition;
-        for (let i: number = 0; i < numberOfVerses; i++) {
-          pos += verseLineHeight[i] + this.rules.VerticalBetweenLyricsDistance;
+        for (let i: number = 0; i < verseLineHeight.length; i++) {
+          if (verseLineHeight[i] > 0.0) {
+            pos += verseLineHeight[i] + this.rules.VerticalBetweenLyricsDistance;
+          }
           versePosY.push(pos);
         }
 
@@ -1339,19 +1339,25 @@ export abstract class MusicSheetCalculator {
         return;
     }
 
-    protected calculateLabel(staffLine: StaffLine,
-                             relative: PointF2D,
-                             combinedString: string,
-                             style: FontStyles,
-                             placement: PlacementEnum,
-                             fontHeight: number,
-                             textAlignment: TextAlignmentEnum = TextAlignmentEnum.CenterBottom): GraphicalLabel {
+    protected calculateLabel(
+      staffLine: StaffLine,
+      relative: PointF2D,
+      combinedString: string,
+      font: Font,
+      placement: PlacementEnum,
+      textAlignment: TextAlignmentEnum = TextAlignmentEnum.CenterBottom,
+    ): GraphicalLabel {
         const label: Label = new Label(combinedString, textAlignment);
-        label.fontHeight = fontHeight;
+        label.font = font;
 
         // TODO_RR: TextHeight from first Entry
-        const graphLabel: GraphicalLabel = new GraphicalLabel(label, fontHeight, label.textAlignment, staffLine.PositionAndShape);
-        graphLabel.Label.fontStyle = style;
+        const graphLabel: GraphicalLabel = new GraphicalLabel(
+          label,
+          font.Size,
+          label.textAlignment,
+          staffLine.PositionAndShape,
+        );
+        graphLabel.Label.font = font;
         const marginFactor: number = 1.1;
 
         if (placement === PlacementEnum.Below) {
@@ -1458,13 +1464,21 @@ export abstract class MusicSheetCalculator {
                 if (EngravingRules.Rules.CompactMode) {
                     textAlignment = TextAlignmentEnum.LeftBottom;
                 }
-                const graphLabel: GraphicalLabel = this.calculateLabel(staffLine,
-                                                                       relative,
-                                                                       entry.label,
-                                                                       multiTempoExpression.getFontstyleOfFirstEntry(),
-                                                                       entry.Expression.Placement,
-                                                                       EngravingRules.Rules.UnknownTextHeight,
-                                                                       textAlignment);
+
+                let font: Font = multiTempoExpression.getFontOfFirstEntry();
+                if (font.Size === undefined) {
+                  font = font.clone();
+                  font.Size = EngravingRules.Rules.UnknownTextHeight;
+                }
+
+                const graphLabel: GraphicalLabel = this.calculateLabel(
+                  staffLine,
+                  relative,
+                  entry.label,
+                  font,
+                  entry.Expression.Placement,
+                  textAlignment,
+                );
 
                 if (entry.Expression instanceof InstantaneousTempoExpression) {
                     //already added?

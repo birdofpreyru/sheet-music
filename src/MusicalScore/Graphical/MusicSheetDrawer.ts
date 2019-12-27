@@ -141,8 +141,10 @@ export abstract class MusicSheetDrawer {
             return;
         }
         const screenPosition: PointF2D = this.applyScreenTransformation(graphicalLabel.PositionAndShape.AbsolutePosition);
-        const heightInPixel: number = this.calculatePixelDistance(label.fontHeight);
-        const widthInPixel: number = heightInPixel * this.textMeasurer.computeTextWidthToHeightRatio(label.text, label.font, label.fontStyle);
+        const heightInPixel: number = this.calculatePixelDistance(
+          label.font.Size,
+        );
+        const widthInPixel: number = heightInPixel * this.textMeasurer.computeTextWidthToHeightRatio(label.text, label.font);
         const bitmapWidth: number = Math.ceil(widthInPixel);
         const bitmapHeight: number = Math.ceil(heightInPixel * 1.2);
         switch (label.textAlignment) {

@@ -1,6 +1,7 @@
 import { PagePlacementEnum } from "./GraphicalMusicPage";
 //import {MusicSymbol} from "./MusicSymbol";
 import * as log from "loglevel";
+import { Font } from "../../Common/DataObjects/Font";
 import { TextAlignmentEnum } from "../../Common/Enums/TextAlignment";
 import { PlacementEnum } from "../VoiceData/Expressions/AbstractExpression";
 import { AutoBeamOptions, AlignRestOption, FillEmptyMeasuresWithWholeRests } from "../../OpenSheetMusicDisplay/OSMDOptions";
@@ -12,6 +13,10 @@ export class EngravingRules {
     private static rules: EngravingRules;
     /** A unit of distance. 1.0 is the distance between lines of a stave for OSMD, which is 10 pixels in Vexflow. */
     private static unit: number = 1.0;
+
+    /* Number of pixels in one unit. */
+    private static unitToPx: number = 10.0;
+
     private samplingUnit: number;
     private staccatoShorteningFactor: number;
     /** Height (size) of the sheet title. */
@@ -196,7 +201,7 @@ export class EngravingRules {
     private defaultColorStem: string;
     private defaultColorLabel: string;
     private defaultColorTitle: string;
-    private defaultFontFamily: string;
+    private defaultFont: Font;
     private maxMeasureToDrawIndex: number;
     private minMeasureToDrawIndex: number;
     /** Whether to render a label for the composer of the piece at the top of the sheet. */
@@ -423,7 +428,15 @@ export class EngravingRules {
         this.defaultColorStem = this.defaultColorNotehead;
         this.defaultColorLabel = this.defaultColorNotehead;
         this.defaultColorTitle = this.defaultColorNotehead;
-        this.defaultFontFamily = "Times New Roman"; // what OSMD was initially optimized for
+
+        this.defaultFont = new Font(
+          "Times New Roman",
+          undefined,
+          "normal",
+          false,
+          false,
+        );
+
         this.maxMeasureToDrawIndex = Number.MAX_VALUE;
         this.minMeasureToDrawIndex = 0;
         this.renderComposer = true;
@@ -453,6 +466,9 @@ export class EngravingRules {
     }
     public static get Rules(): EngravingRules {
         return EngravingRules.rules !== undefined ? EngravingRules.rules : (EngravingRules.rules = new EngravingRules());
+    }
+    public static get UnitToPx(): number {
+      return EngravingRules.unitToPx;
     }
     public get SamplingUnit(): number {
         return this.samplingUnit;
@@ -1463,11 +1479,11 @@ export class EngravingRules {
     public set DefaultColorTitle(value: string) {
         this.defaultColorTitle = value;
     }
-    public get DefaultFontFamily(): string {
-        return this.defaultFontFamily;
+    public get DefaultFont(): Font {
+        return this.defaultFont;
     }
-    public set DefaultFontFamily(value: string) {
-        this.defaultFontFamily = value;
+    public set DefaultFont(value: Font) {
+        this.defaultFont = value;
     }
     public get MaxMeasureToDrawIndex(): number {
         return this.maxMeasureToDrawIndex;

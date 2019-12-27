@@ -2,7 +2,6 @@ import Vex = require("vexflow");
 import { GraphicalStaffEntry } from "../GraphicalStaffEntry";
 import { VexFlowMeasure } from "./VexFlowMeasure";
 import { SourceStaffEntry } from "../../VoiceData/SourceStaffEntry";
-import { unitInPixels } from "./VexFlowMusicSheetDrawer";
 import { VexFlowVoiceEntry } from "./VexFlowVoiceEntry";
 import { Note } from "../../VoiceData/Note";
 import { EngravingRules } from "../EngravingRules";
@@ -34,7 +33,7 @@ export class VexFlowStaffEntry extends GraphicalStaffEntry {
                     continue;
                 }
                 gve.applyBordersFromVexflow();
-                this.PositionAndShape.RelativePosition.x = gve.vfStaveNote.getBoundingBox().getX() / unitInPixels;
+                this.PositionAndShape.RelativePosition.x = gve.vfStaveNote.getBoundingBox().getX() / EngravingRules.UnitToPx;
                 const sourceNote: Note = gve.notes[0].sourceNote;
                 if (sourceNote.isRest() && sourceNote.Length.RealValue === this.parentMeasure.parentSourceMeasure.ActiveTimeSignature.RealValue) {
                     // whole rest: length = measure length. (4/4 in a 4/4 time signature, 3/4 in a 3/4 time signature, 1/4 in a 1/4 time signature, etc.)

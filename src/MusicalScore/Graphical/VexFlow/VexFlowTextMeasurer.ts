@@ -1,7 +1,6 @@
 import {ITextMeasurer} from "../../Interfaces/ITextMeasurer";
-import {Fonts} from "../../../Common/Enums/Fonts";
-import {FontStyles} from "../../../Common/Enums/FontStyles";
 import {VexFlowConverter} from "./VexFlowConverter";
+import { Font } from "../../../Common/DataObjects";
 /**
  * Created by Matthias on 21.06.2016.
  */
@@ -13,8 +12,7 @@ export class VexFlowTextMeasurer implements ITextMeasurer {
     }
     // The context of a canvas used internally to compute font sizes
     private context: CanvasRenderingContext2D;
-    public fontSize: number = 20;
-    public fontSizeStandard: number = this.fontSize;
+    public defaultFontSize: number = 20;
 
     /**
      *
@@ -23,13 +21,21 @@ export class VexFlowTextMeasurer implements ITextMeasurer {
      * @param style
      * @returns {number}
      */
-    public computeTextWidthToHeightRatio(text: string, font: Fonts, style: FontStyles, fontSize: number = this.fontSize): number {
-        this.context.font = VexFlowConverter.font(fontSize, style, font);
-        return this.context.measureText(text).width / fontSize;
+    public computeTextWidthToHeightRatio(
+      text: string,
+      font: Font,
+    ): number {
+      let f: Font = font;
+      if (f.Size === undefined) {
+        f = f.clone();
+        f.Size = this.defaultFontSize;
+      }
+      this.context.font = VexFlowConverter.font(font);
+      return this.context.measureText(text).width / f.Size;
     }
 
-    public setFontSize(fontSize: number = this.fontSizeStandard): number {
-        this.fontSize = fontSize;
-        return fontSize;
+    public setDefaultFontSize(value: number = 20): number {
+      this.defaultFontSize = value;
+      return value;
     }
 }

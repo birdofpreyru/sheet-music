@@ -1,8 +1,8 @@
+import { Font } from "../../../Common/DataObjects/Font";
 import {Fraction} from "../../../Common/DataObjects/Fraction";
 import {SourceMeasure} from "../SourceMeasure";
 import {InstantaneousTempoExpression} from "./InstantaneousTempoExpression";
 import {PlacementEnum} from "./AbstractExpression";
-import {FontStyles} from "../../../Common/Enums/FontStyles";
 import {AbstractTempoExpression} from "./AbstractTempoExpression";
 import {ContinuousTempoExpression} from "./ContinuousExpressions/ContinuousTempoExpression";
 
@@ -58,15 +58,19 @@ export class MultiTempoExpression {
         }
         return placement;
     }
-    public getFontstyleOfFirstEntry(): FontStyles {
-        let fontStyle: FontStyles = FontStyles.Regular;
-        if (this.expressions[0].Expression instanceof InstantaneousTempoExpression) {
-            fontStyle = FontStyles.Bold;
-        } else if (this.expressions[0].Expression instanceof ContinuousTempoExpression) {
-            fontStyle = FontStyles.Italic;
-        }
-        return fontStyle;
+
+    public getFontOfFirstEntry(): Font {
+      const res: Font = new Font();
+      if (this.expressions[0].Expression
+        instanceof InstantaneousTempoExpression) {
+        res.Weight = "bold";
+      } else if (this.expressions[0].Expression
+        instanceof ContinuousTempoExpression) {
+        res.Italic = true;
+      }
+      return res;
     }
+
     //public getFirstEntry(graphicalLabel: GraphicalLabel): AbstractGraphicalExpression {
     //    let indexOfFirstNotInstDynExpr: number = 0;
     //    if (this.expressions.length > 0) {

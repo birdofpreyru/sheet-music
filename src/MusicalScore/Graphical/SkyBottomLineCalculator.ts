@@ -6,7 +6,6 @@ import { StaffLine } from "./StaffLine";
 import { PointF2D } from "../../Common/DataObjects/PointF2D";
 import { CanvasVexFlowBackend } from "./VexFlow/CanvasVexFlowBackend";
 import { VexFlowMeasure } from "./VexFlow/VexFlowMeasure";
-import { unitInPixels } from "./VexFlow/VexFlowMusicSheetDrawer";
 import * as log from "loglevel";
 import { BoundingBox } from "./BoundingBox";
 /**
@@ -146,8 +145,13 @@ export class SkyBottomLineCalculator {
             log.debug(`SkyLine calculation was not correct (${this.mSkyLine.length} instead of ${arrayLength})`);
         }
         // Remap the values from 0 to +/- height in units
-        this.mSkyLine = this.mSkyLine.map(v => (v - Math.max(...this.mSkyLine)) / unitInPixels);
-        this.mBottomLine = this.mBottomLine.map(v => (v - Math.min(...this.mBottomLine)) / unitInPixels + this.mRules.StaffHeight);
+        this.mSkyLine = this.mSkyLine.map(
+          v => (v - Math.max(...this.mSkyLine)) / EngravingRules.UnitToPx,
+        );
+        this.mBottomLine = this.mBottomLine.map(
+          v => (v - Math.min(...this.mBottomLine)) / EngravingRules.UnitToPx
+            + this.mRules.StaffHeight,
+          );
     }
 
     /**
