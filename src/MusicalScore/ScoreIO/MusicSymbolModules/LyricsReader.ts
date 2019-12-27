@@ -1,3 +1,4 @@
+import {Font} from "../../../Common/DataObjects/Font";
 import {LyricWord} from "../../VoiceData/Lyrics/LyricsWord";
 import {VoiceEntry} from "../../VoiceData/VoiceEntry";
 import {IXmlElement} from "../../../Common/FileIO/Xml";
@@ -31,6 +32,7 @@ export class LyricsReader {
                             syllabic = lyricNode.element("syllabic").value;
                         }
                         if (textNode !== undefined) {
+                            const font: Font = Font.Read(textNode);
                             const text: string = textNode.value;
                             // <elision> separates Multiple syllabels on a single LyricNote
                             // "-" text indicating separated syllabel should be ignored
@@ -92,12 +94,26 @@ export class LyricsReader {
                                 if (this.openLyricWords[currentLyricVerseNumber] !== undefined) { // word end given or some word still open
                                     this.currentLyricWord = this.openLyricWords[currentLyricVerseNumber];
                                     const syllableNumber: number = this.currentLyricWord.Syllables.length;
-                                    lyricsEntry = new LyricsEntry(text, currentLyricVerseNumber, this.currentLyricWord, currentVoiceEntry, syllableNumber);
+                                    lyricsEntry = new LyricsEntry(
+                                      text,
+                                      currentLyricVerseNumber,
+                                      this.currentLyricWord,
+                                      currentVoiceEntry,
+                                      syllableNumber,
+                                      font,
+                                    );
                                     this.currentLyricWord.Syllables.push(lyricsEntry);
                                     delete this.openLyricWords[currentLyricVerseNumber];
                                     this.currentLyricWord = undefined;
                                 } else { // single syllable given or end given while no word has been started
-                                    lyricsEntry = new LyricsEntry(text, currentLyricVerseNumber, undefined, currentVoiceEntry);
+                                    lyricsEntry = new LyricsEntry(
+                                      text,
+                                      currentLyricVerseNumber,
+                                      undefined,
+                                      currentVoiceEntry,
+                                      -1,
+                                      font,
+                                    );
                                 }
                                 lyricsEntry.extend = lyricNode.element("extend") !== undefined;
                             } else if (syllabic === "begin") { // first finishing, if a word already is open (can only happen, when wrongly given)
