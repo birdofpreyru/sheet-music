@@ -1,6 +1,7 @@
 import {ITextMeasurer} from "../../Interfaces/ITextMeasurer";
 import {VexFlowConverter} from "./VexFlowConverter";
 import { Font } from "../../../Common/DataObjects";
+import { EngravingRules } from "../EngravingRules";
 /**
  * Created by Matthias on 21.06.2016.
  */
@@ -31,7 +32,7 @@ export class VexFlowTextMeasurer implements ITextMeasurer {
         f.Size = this.defaultFontSize;
       }
       this.context.font = VexFlowConverter.font(font);
-      return this.context.measureText(text).width / f.Size;
+      return this.context.measureText(text).width / EngravingRules.UnitToPx / f.Size;
     }
 
     public setDefaultFontSize(value: number = 20): number {

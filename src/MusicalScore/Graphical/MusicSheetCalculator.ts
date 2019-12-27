@@ -561,6 +561,10 @@ export abstract class MusicSheetCalculator {
         /* Calculates y-positions of verse lines. */
         const versePosY: number[] = [];
         let pos: number = this.leadSheet ? 3.4 : lyricsStartYPosition;
+
+        /* An extra spacing from the staff is handy for many fonts. */
+        pos += this.rules.VerticalBetweenLyricsDistance;
+
         for (let i: number = 0; i < verseLineHeight.length; i++) {
           if (verseLineHeight[i] > 0.0) {
             pos += verseLineHeight[i] + this.rules.VerticalBetweenLyricsDistance;

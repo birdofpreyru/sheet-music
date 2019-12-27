@@ -1480,10 +1480,10 @@ export class EngravingRules {
         this.defaultColorTitle = value;
     }
     public get DefaultFont(): Font {
-        return this.defaultFont;
+        return this.defaultFont.clone();
     }
     public set DefaultFont(value: Font) {
-        this.defaultFont = value;
+        this.defaultFont = value.clone();
     }
     public get MaxMeasureToDrawIndex(): number {
         return this.maxMeasureToDrawIndex;

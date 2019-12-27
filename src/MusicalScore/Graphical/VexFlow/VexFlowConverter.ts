@@ -651,9 +651,8 @@ export class VexFlowConverter {
         EngravingRules.Rules.DefaultFont,
       );
       const style: string = f.Italic ? "italic" : "normal";
-
       /* TODO: Implement underlined. */
-      return `${style} ${f.Weight} ${Math.floor(f.Size)}px '${f.Family}'`;
+      return `${style} ${f.Weight} ${Math.floor(f.Size * EngravingRules.UnitToPx)}px '${f.Family}'`;
     }
 
     /**
