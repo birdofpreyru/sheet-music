@@ -1,3 +1,7 @@
+This file contains the change log of base OpenSheetMusicDisplay library. \
+The changelog of this customized fork is inside the GitHub releases page: \
+https://github.com/birdofpreyru/sheet-music/releases
+
 ## [0.7.2](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/0.7.1...0.7.2) (2019-12-13)
 
 
