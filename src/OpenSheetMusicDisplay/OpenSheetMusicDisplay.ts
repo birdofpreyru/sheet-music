@@ -77,8 +77,18 @@ export class OpenSheetMusicDisplay {
     /**
      * Load a MusicXML file
      * @param content is either the url of a file, or the root node of a MusicXML document, or the string content of a .xml/.mxl file
+     * @param {Object} [options] Optional. Additional options.
+     * @param {Function} [options.preProcessHook] Optional. If provided,
+     *  the loaded XML document will be passed to this hook just before
+     *  it is used to create OSMD data models, thus giving a chance to update
+     *  its content.
      */
-    public load(content: string | Document): Promise<{}> {
+    public load(
+      content: string | Document,
+      options: {
+        preProcessHook?: Function,
+      } = {},
+    ): Promise<{}> {
         // Warning! This function is asynchronous! No error handling is done here.
         this.reset();
         if (typeof content === "string") {
@@ -126,6 +136,10 @@ export class OpenSheetMusicDisplay {
             return Promise.reject(new Error("OpenSheetMusicDisplay: The document which was provided is invalid"));
         }
         const xmlDocument: Document = (<Document>content);
+        if (options.preProcessHook) {
+          options.preProcessHook(xmlDocument);
+        }
+
         const xmlDocumentNodes: NodeList = xmlDocument.childNodes;
         log.debug("[OSMD] load(), Document url: " + xmlDocument.URL);
 
