@@ -17,7 +17,6 @@ import StaveNote = Vex.Flow.StaveNote;
 import StemmableNote = Vex.Flow.StemmableNote;
 import NoteSubGroup = Vex.Flow.NoteSubGroup;
 import * as log from "loglevel";
-import {unitInPixels} from "./VexFlowMusicSheetDrawer";
 import {Tuplet} from "../../VoiceData/Tuplet";
 import {RepetitionInstructionEnum, RepetitionInstruction, AlignmentType} from "../../VoiceData/Instructions/RepetitionInstruction";
 import {SystemLinePosition} from "../SystemLinePosition";
@@ -129,9 +128,9 @@ export class VexFlowMeasure extends GraphicalMeasure {
             // but just add a little extra space for repetitions (cosmetics):
             case SystemLinesEnum.BoldThinDots:
             case SystemLinesEnum.DotsThinBold:
-                return 10.0 / unitInPixels;
+                return 10.0 / EngravingRules.UnitToPx;
             case SystemLinesEnum.DotsBoldBoldDots:
-                return 10.0 / unitInPixels;
+                return 10.0 / EngravingRules.UnitToPx;
             default:
                 return 0;
         }
@@ -329,7 +328,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
     public setWidth(width: number): void {
         super.setWidth(width);
         // Set the width of the Vex.Flow.Stave
-        this.stave.setWidth(width * unitInPixels);
+        this.stave.setWidth(width * EngravingRules.UnitToPx);
         // Force the width of the Begin Instructions
         //this.stave.setNoteStartX(this.beginInstructionsWidth * UnitInPixels);
     }
@@ -408,7 +407,13 @@ export class VexFlowMeasure extends GraphicalMeasure {
         if (this.formatVoices) {
             // set the width of the voices to the current measure width:
             // (The width of the voices does not include the instructions (StaveModifiers))
-            this.formatVoices((this.PositionAndShape.Size.width - this.beginInstructionsWidth - this.endInstructionsWidth) * unitInPixels);
+            this.formatVoices(
+              (
+                this.PositionAndShape.Size.width
+                  - this.beginInstructionsWidth
+                  - this.endInstructionsWidth
+              ) * EngravingRules.UnitToPx,
+            );
         }
     }
 
@@ -1132,8 +1137,8 @@ export class VexFlowMeasure extends GraphicalMeasure {
             }
         }
 
-        this.beginInstructionsWidth = vfBeginInstructionsWidth / unitInPixels;
-        this.endInstructionsWidth = vfEndInstructionsWidth / unitInPixels;
+        this.beginInstructionsWidth = vfBeginInstructionsWidth / EngravingRules.UnitToPx;
+        this.endInstructionsWidth = vfEndInstructionsWidth / EngravingRules.UnitToPx;
     }
 }
 

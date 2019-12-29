@@ -1,5 +1,6 @@
 // created from 'create-ts-index'
 
+export * from "./Font";
 export * from "./Fraction";
 export * from "./Matrix2D";
 export * from "./MusicSheetErrors";

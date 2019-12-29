@@ -3,7 +3,7 @@ import { GraphicalObject } from "../GraphicalObject";
 import { VexFlowStaffLine } from "./VexFlowStaffLine";
 import { BoundingBox } from "../BoundingBox";
 import { VexFlowMeasure } from "./VexFlowMeasure";
-import { unitInPixels } from "./VexFlowMusicSheetDrawer";
+import { EngravingRules } from "../EngravingRules";
 
 /**
  * Class that defines a instrument bracket at the beginning of a line.
@@ -34,6 +34,7 @@ export class VexFlowInstrumentBracket extends GraphicalObject {
         // Last line in last stave
         const botY: number = con.bottom_stave.getYForLine(con.bottom_stave.getNumLines() - 1) + con.thickness;
         // Set bounding box position and size in OSMD units
+        const unitInPixels: number = EngravingRules.UnitToPx;
         this.PositionAndShape.AbsolutePosition.x = (con.top_stave.getX() - 2 + con.x_shift) / unitInPixels;
         this.PositionAndShape.AbsolutePosition.y = topY / unitInPixels;
         this.PositionAndShape.Size.height = (botY - topY) / unitInPixels;

@@ -1,8 +1,10 @@
+import {Font} from "../../../Common/DataObjects/Font";
 import {LyricWord} from "./LyricsWord";
 import {VoiceEntry} from "../VoiceEntry";
 
 export class LyricsEntry {
-    constructor(text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1) {
+    constructor(text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1, font: Font = undefined) {
+        this.font = font;
         this.text = text;
         this.word = word;
         this.parent = parent;
@@ -11,6 +13,7 @@ export class LyricsEntry {
             this.syllableIndex = syllableNumber;
         }
     }
+    private font: Font;
     private text: string;
     private word: LyricWord;
     private parent: VoiceEntry;
@@ -18,6 +21,9 @@ export class LyricsEntry {
     private syllableIndex: number;
     public extend: boolean;
 
+    public get Font(): Font {
+        return this.font;
+    }
     public get Text(): string {
         return this.text;
     }

@@ -103,4 +103,18 @@ export class IXmlElement {
         }
         return ret;
     }
+
+    /**
+     * Gets the attribute value.
+     * @param name Attribute name.
+     * @param [defaultValue] The value if the attribute is undefined.
+     * @returns Attribute value.
+     */
+    public getAttributeValue(
+      name: string,
+      defaultValue: string = undefined,
+    ): string {
+      const attr: IXmlAttribute = this.attribute(name);
+      return attr ? attr.value : defaultValue;
+    }
 }

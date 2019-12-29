@@ -1,11 +1,11 @@
 import Vex = require("vexflow");
 
+import { Font } from "../../../Common/DataObjects/Font";
 import {VexFlowBackend} from "./VexFlowBackend";
-import {FontStyles} from "../../../Common/Enums/FontStyles";
-import {Fonts} from "../../../Common/Enums/Fonts";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";
 import {VexFlowConverter} from "./VexFlowConverter";
+import { EngravingRules } from "../EngravingRules";
 
 export class CanvasVexFlowBackend extends VexFlowBackend {
 
@@ -52,18 +52,18 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
     public translate(x: number, y: number): void {
         this.CanvasRenderingCtx.translate(x, y);
     }
-    public renderText(fontHeight: number, fontStyle: FontStyles, font: Fonts, text: string,
-                      heightInPixel: number, screenPosition: PointF2D, color: string = undefined): void  {
+    public renderText(
+      font: Font,
+      text: string,
+      screenPosition: PointF2D,
+      color: string = undefined,
+    ): void  {
         const old: string = this.CanvasRenderingCtx.font;
         this.CanvasRenderingCtx.save();
-        this.CanvasRenderingCtx.font = VexFlowConverter.font(
-            fontHeight,
-            fontStyle,
-            font
-        );
+        this.CanvasRenderingCtx.font = VexFlowConverter.font(font);
         this.CanvasRenderingCtx.fillStyle = color;
         this.CanvasRenderingCtx.strokeStyle = color;
-        this.CanvasRenderingCtx.fillText(text, screenPosition.x, screenPosition.y + heightInPixel);
+        this.CanvasRenderingCtx.fillText(text, screenPosition.x, screenPosition.y + font.Size * EngravingRules.UnitToPx);
         this.CanvasRenderingCtx.restore();
         this.CanvasRenderingCtx.font = old;
     }

@@ -1,9 +1,7 @@
-import {Fonts} from "../../Common/Enums/Fonts";
-import {FontStyles} from "../../Common/Enums/FontStyles";
+import { Font } from "../../Common/DataObjects/Font";
 
 export interface ITextMeasurer {
-    fontSize: number;
-    fontSizeStandard: number;
-    computeTextWidthToHeightRatio(text: string, font: Fonts, style: FontStyles): number;
-    setFontSize(fontSize: number): number;
+  defaultFontSize: number;
+  computeTextWidthToHeightRatio(text: string, font: Font): number;
+  setDefaultFontSize(value: number): number;
 }
