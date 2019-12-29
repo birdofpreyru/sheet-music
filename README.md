@@ -7,4 +7,4 @@
 
 A customized fork of
 [OpenSheetMusicDisplay](https://www.npmjs.com/package/opensheetmusicdisplay)
-library..
+library.
