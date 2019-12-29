@@ -2,7 +2,7 @@ import Vex = require("vexflow");
 import { VoiceEntry } from "../../VoiceData/VoiceEntry";
 import { GraphicalVoiceEntry } from "../GraphicalVoiceEntry";
 import { GraphicalStaffEntry } from "../GraphicalStaffEntry";
-import { unitInPixels } from "./VexFlowMusicSheetDrawer";
+import { EngravingRules } from "../EngravingRules";
 
 export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
     private mVexFlowStaveNote: Vex.Flow.StemmableNote;
@@ -19,6 +19,7 @@ export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
         const boundingBox: any = staveNote.getBoundingBox();
         const modifierWidth: number = staveNote.getNoteHeadBeginX() - boundingBox.x;
 
+        const unitInPixels: number = EngravingRules.UnitToPx;
         this.PositionAndShape.RelativePosition.y = boundingBox.y / unitInPixels;
         this.PositionAndShape.BorderTop = 0;
         this.PositionAndShape.BorderBottom = boundingBox.h / unitInPixels;

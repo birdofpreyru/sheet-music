@@ -16,7 +16,12 @@ export class GraphicalLyricEntry {
     private graphicalLabel: GraphicalLabel;
     private graphicalStaffEntry: GraphicalStaffEntry;
 
-    constructor(lyricsEntry: LyricsEntry, graphicalStaffEntry: GraphicalStaffEntry, lyricsHeight: number, staffHeight: number) {
+    constructor(
+      lyricsEntry: LyricsEntry,
+      graphicalStaffEntry: GraphicalStaffEntry,
+      lyricsHeight: number,
+      staffHeight: number,
+    ) {
         this.lyricsEntry = lyricsEntry;
         this.graphicalStaffEntry = graphicalStaffEntry;
         const lyricsTextAlignment: TextAlignmentEnum = EngravingRules.Rules.LyricsAlignmentStandard;
@@ -28,7 +33,11 @@ export class GraphicalLyricEntry {
             // lyricsTextAlignment = TextAlignmentAndPlacement.CenterBottom;
         }
         this.graphicalLabel = new GraphicalLabel(
-            new Label(lyricsEntry.Text),
+            new Label(
+              lyricsEntry.Text,
+              undefined,
+              lyricsEntry.Font,
+            ),
             lyricsHeight,
             lyricsTextAlignment,
             graphicalStaffEntry.PositionAndShape

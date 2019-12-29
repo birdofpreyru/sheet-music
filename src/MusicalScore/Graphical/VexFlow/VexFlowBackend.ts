@@ -1,6 +1,5 @@
 import * as Vex from "vexflow";
-import {FontStyles} from "../../../Common/Enums/FontStyles";
-import {Fonts} from "../../../Common/Enums/Fonts";
+import { Font } from "../../../Common/DataObjects/Font";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";
 
@@ -42,8 +41,12 @@ export abstract class VexFlowBackend {
   public abstract clear(): void;
 
   public abstract translate(x: number, y: number): void;
-  public abstract renderText(fontHeight: number, fontStyle: FontStyles, font: Fonts, text: string,
-                             heightInPixel: number, screenPosition: PointF2D, color?: string): void;
+  public abstract renderText(
+    font: Font,
+    text: string,
+    screenPosition: PointF2D,
+    color?: string,
+  ): void;
   /**
    * Renders a rectangle with the given style to the screen.
    * It is given in screen coordinates.

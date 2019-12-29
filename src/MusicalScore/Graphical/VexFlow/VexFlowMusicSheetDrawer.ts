@@ -27,13 +27,6 @@ import { GraphicalContinuousDynamicExpression } from "../GraphicalContinuousDyna
 import { VexFlowContinuousDynamicExpression } from "./VexFlowContinuousDynamicExpression";
 import { DrawingParameters } from "../DrawingParameters";
 
-/**
- * This is a global constant which denotes the height in pixels of the space between two lines of the stave
- * (when zoom = 1.0)
- * @type number
- */
-export const unitInPixels: number = 10;
-
 export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     private backend: VexFlowBackend;
     private zoom: number = 1.0;
@@ -77,7 +70,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      * @returns {number} the distance in pixels
      */
     public calculatePixelDistance(unitDistance: number): number {
-        return unitDistance * unitInPixels;
+      return unitDistance * EngravingRules.UnitToPx;
     }
 
     protected drawStaffLine(staffLine: StaffLine): void {
@@ -135,8 +128,8 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
 
     protected drawMeasure(measure: VexFlowMeasure): void {
         measure.setAbsoluteCoordinates(
-            measure.PositionAndShape.AbsolutePosition.x * unitInPixels,
-            measure.PositionAndShape.AbsolutePosition.y * unitInPixels
+          measure.PositionAndShape.AbsolutePosition.x * EngravingRules.UnitToPx,
+          measure.PositionAndShape.AbsolutePosition.y * EngravingRules.UnitToPx,
         );
         measure.draw(this.backend.getContext());
 
@@ -158,7 +151,12 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     public drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number = 0.2): void {
         start = this.applyScreenTransformation(start);
         stop = this.applyScreenTransformation(stop);
-        this.backend.renderLine(start, stop, color, lineWidth * unitInPixels);
+        this.backend.renderLine(
+          start,
+          stop,
+          color,
+          lineWidth * EngravingRules.UnitToPx,
+        );
     }
 
     protected drawSkyLine(staffline: StaffLine): void {
@@ -360,8 +358,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      */
     protected renderLabel(graphicalLabel: GraphicalLabel, layer: number, bitmapWidth: number,
                           bitmapHeight: number, heightInPixel: number, screenPosition: PointF2D): void {
-        const height: number = graphicalLabel.Label.fontHeight * unitInPixels;
-        const { fontStyle, font, text } = graphicalLabel.Label;
+        const { font, text } = graphicalLabel.Label;
         let color: string;
         if (EngravingRules.Rules.ColoringEnabled) {
             color = graphicalLabel.Label.colorDefault;
@@ -369,7 +366,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
                 color = EngravingRules.Rules.DefaultColorLabel;
             }
         }
-        this.backend.renderText(height, fontStyle, font, text, heightInPixel, screenPosition, color);
+        this.backend.renderText(font, text, screenPosition, color);
     }
 
     /**
@@ -390,7 +387,10 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      * @returns {PointF2D}
      */
     protected applyScreenTransformation(point: PointF2D): PointF2D {
-        return new PointF2D(point.x * unitInPixels, point.y * unitInPixels);
+        return new PointF2D(
+          point.x * EngravingRules.UnitToPx,
+          point.y * EngravingRules.UnitToPx,
+        );
     }
 
     /**
@@ -399,6 +399,11 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      * @returns {RectangleF2D}
      */
     protected applyScreenTransformationForRect(rectangle: RectangleF2D): RectangleF2D {
-        return new RectangleF2D(rectangle.x * unitInPixels, rectangle.y * unitInPixels, rectangle.width * unitInPixels, rectangle.height * unitInPixels);
+        return new RectangleF2D(
+          rectangle.x * EngravingRules.UnitToPx,
+          rectangle.y * EngravingRules.UnitToPx,
+          rectangle.width * EngravingRules.UnitToPx,
+          rectangle.height * EngravingRules.UnitToPx,
+        );
     }
 }

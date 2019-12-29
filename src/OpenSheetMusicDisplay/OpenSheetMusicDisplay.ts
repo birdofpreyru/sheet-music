@@ -27,7 +27,7 @@ import { AutoColorSet } from "../MusicalScore";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.7.2-release"; // getter: this.Version
+    private version: string = "0.7.2-dev"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -77,8 +77,18 @@ export class OpenSheetMusicDisplay {
     /**
      * Load a MusicXML file
      * @param content is either the url of a file, or the root node of a MusicXML document, or the string content of a .xml/.mxl file
+     * @param {Object} [options] Optional. Additional options.
+     * @param {Function} [options.preProcessHook] Optional. If provided,
+     *  the loaded XML document will be passed to this hook just before
+     *  it is used to create OSMD data models, thus giving a chance to update
+     *  its content.
      */
-    public load(content: string | Document): Promise<{}> {
+    public load(
+      content: string | Document,
+      options: {
+        preProcessHook?: Function,
+      } = {},
+    ): Promise<{}> {
         // Warning! This function is asynchronous! No error handling is done here.
         this.reset();
         if (typeof content === "string") {
@@ -126,6 +136,10 @@ export class OpenSheetMusicDisplay {
             return Promise.reject(new Error("OpenSheetMusicDisplay: The document which was provided is invalid"));
         }
         const xmlDocument: Document = (<Document>content);
+        if (options.preProcessHook) {
+          options.preProcessHook(xmlDocument);
+        }
+
         const xmlDocumentNodes: NodeList = xmlDocument.childNodes;
         log.debug("[OSMD] load(), Document url: " + xmlDocument.URL);
 
@@ -360,7 +374,7 @@ export class OpenSheetMusicDisplay {
             EngravingRules.Rules.DefaultColorTitle = options.defaultColorTitle;
         }
         if (options.defaultFontFamily) {
-            EngravingRules.Rules.DefaultFontFamily = options.defaultFontFamily; // default "Times New Roman", also used if font family not found
+          EngravingRules.Rules.DefaultFont.Family = options.defaultFontFamily; // default "Times New Roman", also used if font family not found
         }
         if (options.drawUpToMeasureNumber) {
             EngravingRules.Rules.MaxMeasureToDrawIndex = options.drawUpToMeasureNumber - 1;
