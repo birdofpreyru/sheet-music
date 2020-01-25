@@ -47,6 +47,7 @@ import { ContinuousDynamicExpression } from "../../VoiceData/Expressions/Continu
 import { VexFlowContinuousDynamicExpression } from "./VexFlowContinuousDynamicExpression";
 import { InstantaneousTempoExpression } from "../../VoiceData/Expressions";
 import { AlignRestOption } from "../../../OpenSheetMusicDisplay";
+import { VexFlowStaffLine } from "./VexFlowStaffLine";
 
 export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
   /** space needed for a dash for lyrics spacing, calculated once */
@@ -520,7 +521,13 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       graphicalContinuousDynamic.StartMeasure = startMeasure;
 
       if (!graphicalContinuousDynamic.IsVerbal && continuousDynamic.EndMultiExpression) {
-        this.calculateGraphicalContinuousDynamic(graphicalContinuousDynamic, dynamicStartPosition);
+        try {
+          this.calculateGraphicalContinuousDynamic(graphicalContinuousDynamic, dynamicStartPosition);
+        } catch (e) {
+          // TODO this sometimes fails when the measure range to draw doesn't include all the dynamic's measures, method needs to be adjusted
+          //   see calculateGraphicalContinuousDynamic(), also in MusicSheetCalculator.
+
+        }
       } else if (graphicalContinuousDynamic.IsVerbal) {
         this.calculateGraphicalVerbalContinuousDynamic(graphicalContinuousDynamic, dynamicStartPosition);
       } else {
@@ -684,6 +691,25 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
 
   protected calculateMoodAndUnknownExpression(multiExpression: MultiExpression, measureIndex: number, staffIndex: number): void {
     return;
+  }
+
+  /**
+   * Re-adjust the x positioning of expressions. Update the skyline afterwards
+   */
+  protected calculateExpressionAlignements(): void {
+    for (const graphicalMusicPage of this.graphicalMusicSheet.MusicPages) {
+        for (const musicSystem of graphicalMusicPage.MusicSystems) {
+            for (const staffLine of musicSystem.StaffLines) {
+              try {
+                (<VexFlowStaffLine>staffLine).AlignmentManager.alignDynamicExpressions();
+                staffLine.AbstractExpressions.forEach(ae => ae.updateSkyBottomLine());
+              } catch (e) {
+                // TODO still necessary when calculation of expression fails, see calculateDynamicExpressionsForMultiExpression()
+                //   see calculateGraphicalContinuousDynamic(), also in MusicSheetCalculator.
+              }
+            }
+        }
+    }
   }
 
   /**

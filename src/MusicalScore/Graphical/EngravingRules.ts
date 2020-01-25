@@ -220,6 +220,8 @@ export class EngravingRules {
     private fingeringPosition: PlacementEnum;
     private fingeringInsideStafflines: boolean;
 
+    private fixStafflineBoundingBox: boolean; // TODO temporary workaround
+
     constructor() {
         // global variables
         this.samplingUnit = EngravingRules.unit * 3;
@@ -450,6 +452,8 @@ export class EngravingRules {
         this.renderLyrics = true;
         this.fingeringPosition = PlacementEnum.Left; // easier to get bounding box, and safer for vertical layout
         this.fingeringInsideStafflines = false;
+
+        this.fixStafflineBoundingBox = false; // TODO temporary workaround
 
         this.populateDictionaries();
         try {
@@ -1562,6 +1566,12 @@ export class EngravingRules {
     }
     public set FingeringInsideStafflines(value: boolean) {
         this.fingeringInsideStafflines = value;
+    }
+    public set FixStafflineBoundingBox(value: boolean) { // TODO temporary workaround
+        this.fixStafflineBoundingBox = value;
+    }
+    public get FixStafflineBoundingBox(): boolean {
+        return this.fixStafflineBoundingBox;
     }
 
     /**
