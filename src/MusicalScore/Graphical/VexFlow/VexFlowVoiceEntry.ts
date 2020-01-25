@@ -2,7 +2,6 @@ import Vex = require("vexflow");
 import { VoiceEntry } from "../../VoiceData/VoiceEntry";
 import { GraphicalVoiceEntry } from "../GraphicalVoiceEntry";
 import { GraphicalStaffEntry } from "../GraphicalStaffEntry";
-import { unitInPixels } from "./VexFlowMusicSheetDrawer";
 import { EngravingRules } from "../EngravingRules";
 import { GraphicalNote } from "..";
 import { NoteEnum } from "../../../Common/DataObjects/Pitch";
