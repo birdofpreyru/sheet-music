@@ -136,37 +136,47 @@ export class OpenSheetMusicDisplay {
             return Promise.reject(new Error("OpenSheetMusicDisplay: The document which was provided is invalid"));
         }
         const xmlDocument: Document = (<Document>content);
+
+        /* Note: remaining part of the logic, which should follow after
+         * the pre-process hook, if given. Because the codebase uses ES5,
+         * this is done in such ugly way for now. */
+        const finalize: Function = () => {
+          const xmlDocumentNodes: NodeList = xmlDocument.childNodes;
+          log.debug("[OSMD] load(), Document url: " + xmlDocument.URL);
+
+          let scorePartwiseElement: Element;
+          for (let i: number = 0, length: number = xmlDocumentNodes.length; i < length; i += 1) {
+              const node: Node = xmlDocumentNodes[i];
+              if (node.nodeType === Node.ELEMENT_NODE && node.nodeName.toLowerCase() === "score-partwise") {
+                  scorePartwiseElement = <Element>node;
+                  break;
+              }
+          }
+          if (!scorePartwiseElement) {
+              console.error("Could not parse MusicXML, no valid partwise element found");
+              return Promise.reject(new Error("OpenSheetMusicDisplay: Document is not a valid 'partwise' MusicXML"));
+          }
+          const score: IXmlElement = new IXmlElement(scorePartwiseElement);
+          const reader: MusicSheetReader = new MusicSheetReader();
+          this.sheet = reader.createMusicSheet(score, "Untitled Score");
+          if (this.sheet === undefined) {
+              // error loading sheet, probably already logged, do nothing
+              return Promise.reject(new Error("given music sheet was incomplete or could not be loaded."));
+          }
+          log.info(`[OSMD] Loaded sheet ${this.sheet.TitleString} successfully.`);
+
+          this.updateGraphic();
+
+          return Promise.resolve({});
+        };
+
         if (options.preProcessHook) {
-          options.preProcessHook(xmlDocument);
+          const x: Promise<{}> = options.preProcessHook(xmlDocument);
+          if (x.then) {
+            return x.then(() => finalize());
+          }
         }
-
-        const xmlDocumentNodes: NodeList = xmlDocument.childNodes;
-        log.debug("[OSMD] load(), Document url: " + xmlDocument.URL);
-
-        let scorePartwiseElement: Element;
-        for (let i: number = 0, length: number = xmlDocumentNodes.length; i < length; i += 1) {
-            const node: Node = xmlDocumentNodes[i];
-            if (node.nodeType === Node.ELEMENT_NODE && node.nodeName.toLowerCase() === "score-partwise") {
-                scorePartwiseElement = <Element>node;
-                break;
-            }
-        }
-        if (!scorePartwiseElement) {
-            console.error("Could not parse MusicXML, no valid partwise element found");
-            return Promise.reject(new Error("OpenSheetMusicDisplay: Document is not a valid 'partwise' MusicXML"));
-        }
-        const score: IXmlElement = new IXmlElement(scorePartwiseElement);
-        const reader: MusicSheetReader = new MusicSheetReader();
-        this.sheet = reader.createMusicSheet(score, "Untitled Score");
-        if (this.sheet === undefined) {
-            // error loading sheet, probably already logged, do nothing
-            return Promise.reject(new Error("given music sheet was incomplete or could not be loaded."));
-        }
-        log.info(`[OSMD] Loaded sheet ${this.sheet.TitleString} successfully.`);
-
-        this.updateGraphic();
-
-        return Promise.resolve({});
+        return finalize();
     }
 
     /**
