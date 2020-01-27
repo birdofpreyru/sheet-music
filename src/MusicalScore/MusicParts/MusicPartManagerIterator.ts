@@ -47,7 +47,13 @@ export class MusicPartManagerIterator {
             }
             this.currentTempoChangingExpression = this.activeTempoExpression;
         } catch (err) {
-            log.info("MusicPartManagerIterator: " + err);
+          log.info("MusicPartManagerIterator: " + err);
+
+          /* In the base OSMD code the error is not propagated from here,
+           * I am not sure, whether it was on purpose or not, but as it hides
+           * legit errors and makes debugging painful in the case I am working
+           * on, I add this throw here for now. */
+          throw err;
         }
 
     }
@@ -65,8 +71,8 @@ export class MusicPartManagerIterator {
     private currentDynamicChangingExpressions: DynamicsContainer[] = [];
     private currentTempoChangingExpression: MultiTempoExpression;
     // FIXME: replace these two with a real Dictionary!
-    private repetitionIterationCountDictKeys: Repetition[];
-    private repetitionIterationCountDictValues: number[];
+    private repetitionIterationCountDictKeys: Repetition[] = [];
+    private repetitionIterationCountDictValues: number[] = [];
     private currentRepetition: Repetition = undefined;
     private endReached: boolean = false;
     private frontReached: boolean = false;
