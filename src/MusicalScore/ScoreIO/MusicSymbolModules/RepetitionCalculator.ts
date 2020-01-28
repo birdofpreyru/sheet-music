@@ -7,11 +7,12 @@
  * them work on simple repetitions like I likely to have in my scores. */
 
 import {SourceMeasure} from "../../VoiceData/SourceMeasure";
-import {Repetition} from "../../MusicSource/Repetition";
+import {Repetition, RepetitionEndingPart} from "../../MusicSource/Repetition";
 import {RepetitionInstruction, RepetitionInstructionEnum, AlignmentType} from "../../VoiceData/Instructions/RepetitionInstruction";
 import {RepetitionInstructionComparer} from "../../VoiceData/Instructions/RepetitionInstruction";
 import {ArgumentOutOfRangeException} from "../../Exceptions";
 import {MusicSheet} from "../../MusicSheet";
+import { SourceMusicPart } from "../../MusicSource";
 
 export class RepetitionCalculator {
   private musicSheet: MusicSheet;
@@ -29,6 +30,7 @@ export class RepetitionCalculator {
   public calculateRepetitions(musicSheet: MusicSheet, repetitionInstructions: RepetitionInstruction[]): void {
     this.musicSheet = <MusicSheet>musicSheet;
     this.repetitionInstructions = repetitionInstructions;
+    console.log(repetitionInstructions);
     const sourceMeasures: SourceMeasure[] = this.musicSheet.SourceMeasures;
     for (let idx: number = 0, len: number = this.repetitionInstructions.length; idx < len; ++idx) {
       const instruction: RepetitionInstruction = this.repetitionInstructions[idx];
@@ -81,6 +83,13 @@ export class RepetitionCalculator {
           }
         }
         if (!rep) {
+          /* TODO: This exception can be hit by a legit sheet with the opening
+           * repetition sign omitted. In the standard music notation it means
+           * that repetition should happen from the beginning. In this case
+           * we should create a new Repetition, and also a new repetition
+           * start instruction. Don't wanna handle it right now, as it
+           * requires understanding of all code related to repetition
+           * instructions, and where they all should be registered. */
           throw Error("Repetitions calculation failed");
         }
         rep.BackwardJumpInstructions.push(currentRepetitionInstruction);
@@ -90,16 +99,49 @@ export class RepetitionCalculator {
         this.currentMeasure.LastRepetitionInstructions.push(currentRepetitionInstruction);
         break;
       }
-      case RepetitionInstructionEnum.Ending:
+      case RepetitionInstructionEnum.Ending: {
+        /* TODO: For now it picks up just the last created repetition, which
+         * is probably not correct in complex music sheets. */
+        const rep: Repetition = this.musicSheet.Repetitions[
+          this.musicSheet.Repetitions.length - 1
+        ];
+        currentRepetitionInstruction.parentRepetition = rep;
+
         // set ending start or end
-        if (currentRepetitionInstruction.alignment === AlignmentType.Begin) {  // ending start
+        /* TODO: Set forwardJumpInstruction of the Repetition! */
+        if (currentRepetitionInstruction.alignment === AlignmentType.Begin) {
+          /* ending start */
+          const part: SourceMusicPart = new SourceMusicPart(
+            this.musicSheet,
+            currentRepetitionInstruction.measureIndex,
+          );
+          const ending: RepetitionEndingPart = new RepetitionEndingPart(part);
+
+          /* TODO: Most probably this is valid only in the most simple case
+           * with two alternative endings. */
+          /*
+          if (!rep.EndingParts.length) {
+            rep.forwardJumpInstruction = currentRepetitionInstruction;
+          }
+          */
+
+          rep.EndingParts.push(ending);
+          currentRepetitionInstruction.endingIndices.forEach((index) => {
+            rep.EndingIndexDict[index] = ending;
+          });
+
           this.currentMeasure.FirstRepetitionInstructions.push(currentRepetitionInstruction);
-        } else { // ending end
+        } else {
+          /* ending end */
           for (let idx: number = 0, len: number = currentRepetitionInstruction.endingIndices.length; idx < len; ++idx) {
             this.currentMeasure.LastRepetitionInstructions.push(currentRepetitionInstruction);
+            rep.EndingIndexDict[currentRepetitionInstruction.endingIndices[idx]].part.setEndIndex(
+              currentRepetitionInstruction.measureIndex,
+            );
           }
         }
         break;
+      }
       case RepetitionInstructionEnum.Segno:
         this.currentMeasure.FirstRepetitionInstructions.push(currentRepetitionInstruction);
         break;

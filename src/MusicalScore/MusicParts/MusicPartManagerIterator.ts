@@ -1,6 +1,6 @@
 import {MusicPartManager} from "./MusicPartManager";
 import {Fraction} from "../../Common/DataObjects/Fraction";
-import {Repetition} from "../MusicSource/Repetition";
+import {Repetition, RepetitionEndingPart} from "../MusicSource/Repetition";
 import {DynamicsContainer} from "../VoiceData/HelperObjects/DynamicsContainer";
 import {MappingSourceMusicPart} from "../MusicSource/MappingSourceMusicPart";
 import {SourceMeasure} from "../VoiceData/SourceMeasure";
@@ -9,7 +9,7 @@ import {Instrument} from "../Instrument";
 import {VerticalSourceStaffEntryContainer} from "../VoiceData/VerticalSourceStaffEntryContainer";
 import {RhythmInstruction} from "../VoiceData/Instructions/RhythmInstruction";
 import {AbstractNotationInstruction} from "../VoiceData/Instructions/AbstractNotationInstruction";
-import {RepetitionInstruction} from "../VoiceData/Instructions/RepetitionInstruction";
+import {RepetitionInstruction, RepetitionInstructionEnum, AlignmentType} from "../VoiceData/Instructions/RepetitionInstruction";
 import {ContinuousDynamicExpression} from "../VoiceData/Expressions/ContinuousExpressions/ContinuousDynamicExpression";
 import {InstantaneousDynamicExpression} from "../VoiceData/Expressions/InstantaneousDynamicExpression";
 import {MultiTempoExpression} from "../VoiceData/Expressions/MultiTempoExpression";
@@ -330,6 +330,23 @@ export class MusicPartManagerIterator {
             if (repetitionInstruction.parentRepetition === undefined) { continue; }
             const currentRepetition: Repetition = repetitionInstruction.parentRepetition;
             this.currentRepetition = currentRepetition;
+
+            /* TODO: Probably, there is a more elegant way to check this,
+             * using the information stored in the repetition object. */
+            /* Jump towards an alternative repetition ending. */
+            if (repetitionInstruction.type === RepetitionInstructionEnum.Ending
+              && repetitionInstruction.alignment === AlignmentType.Begin
+              && repetitionInstruction.endingIndices.indexOf(this.getRepetitionIterationCount(currentRepetition) - 1) >= 0) {
+              const target: RepetitionEndingPart = currentRepetition.EndingIndexDict[this.getRepetitionIterationCount(currentRepetition)];
+              const targetStartIndex: number = target.part.StartIndex;
+
+              /* The jump itself. */
+              this.currentMeasureIndex = targetStartIndex;
+              this.currentMeasure = this.manager.MusicSheet.SourceMeasures[this.currentMeasureIndex];
+              this.currentVoiceEntryIndex = 0;
+              this.jumpResponsibleRepetition = currentRepetition;
+            }
+
             if (currentRepetition.StartIndex === this.currentMeasureIndex) {
                 if (
                   this.JumpResponsibleRepetition !== undefined &&
@@ -355,6 +372,9 @@ export class MusicPartManagerIterator {
                     return;
                 }
             }
+            /* TODO: Not sure, why these forward jumps are handled here?
+             * At least in the case of alternative endings, this should be
+             * handled at the measure start. */
             if (repetitionInstruction === currentRepetition.forwardJumpInstruction) {
                 if (
                   this.JumpResponsibleRepetition !== undefined
