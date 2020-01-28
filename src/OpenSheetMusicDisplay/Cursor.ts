@@ -102,10 +102,17 @@ export class Cursor {
           gseArr.sort((a, b) => a.PositionAndShape.AbsolutePosition.x <= b.PositionAndShape.AbsolutePosition.x ? -1 : 1 )[0];
     x = gse.PositionAndShape.AbsolutePosition.x;
     const musicSystem: MusicSystem = gse.parentMeasure.parentMusicSystem;
-    y = musicSystem.PositionAndShape.AbsolutePosition.y + musicSystem.StaffLines[0].PositionAndShape.RelativePosition.y;
+    /* TODO: The cursor height and pos (i.e. what exactly it highlights)
+     * should be modifiable through options. */
+    console.log(musicSystem);
+    y = musicSystem.PositionAndShape.AbsolutePosition.y
+      + musicSystem.StaffLines[0].PositionAndShape.RelativePosition.y
+      + musicSystem.PositionAndShape.BorderTop;
     const endY: number = musicSystem.PositionAndShape.AbsolutePosition.y +
       musicSystem.StaffLines[musicSystem.StaffLines.length - 1].PositionAndShape.RelativePosition.y + 4.0;
     height = endY - y;
+    height = musicSystem.PositionAndShape.BoundingMarginRectangle.height;
+    // height += 10;
 
     // The following code is not necessary (for now, but it could come useful later):
     // it highlights the notes under the cursor.
