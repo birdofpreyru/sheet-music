@@ -102,7 +102,7 @@ export class RepetitionCalculator {
       case RepetitionInstructionEnum.Ending: {
         /* TODO: For now it picks up just the last created repetition, which
          * is probably not correct in complex music sheets. */
-        const rep: Repetition = this.musicSheet.Repetitions[
+        let rep: Repetition = this.musicSheet.Repetitions[
           this.musicSheet.Repetitions.length - 1
         ];
         currentRepetitionInstruction.parentRepetition = rep;
@@ -135,6 +135,19 @@ export class RepetitionCalculator {
           /* ending end */
           for (let idx: number = 0, len: number = currentRepetitionInstruction.endingIndices.length; idx < len; ++idx) {
             this.currentMeasure.LastRepetitionInstructions.push(currentRepetitionInstruction);
+            const p: RepetitionEndingPart = rep.EndingIndexDict[currentRepetitionInstruction.endingIndices[idx]];
+
+            /* This handles the calse when the next repetition starts right
+             * after the previous one, and the previous one has alternative
+             * endings. In this case, the last ending of the previous
+             * repetition may be contained in the measure already contained
+             * in the new repetition. */
+            if (!p) {
+              rep = this.musicSheet.Repetitions[
+                this.musicSheet.Repetitions.length - 2
+              ];
+            }
+
             rep.EndingIndexDict[currentRepetitionInstruction.endingIndices[idx]].part.setEndIndex(
               currentRepetitionInstruction.measureIndex,
             );
