@@ -96,7 +96,7 @@ export class OpenSheetMusicDisplay {
                 // This is a zip file, unpack it first
                 return MXLHelper.MXLtoXMLstring(str).then(
                     (x: string) => {
-                        return self.load(x);
+                        return self.load(x, options);
                     },
                     (err: any) => {
                         log.debug(err);
@@ -108,7 +108,7 @@ export class OpenSheetMusicDisplay {
             if (str.substr(0, 3) === "\uf7ef\uf7bb\uf7bf") {
                 log.debug("[OSMD] UTF with BOM detected, truncate first three bytes and pass along: " + str);
                 // UTF with BOM detected, truncate first three bytes and pass along
-                return self.load(str.substr(3));
+                return self.load(str.substr(3), options);
             }
             if (str.substr(0, 5) === "<?xml") {
                 log.debug("[OSMD] Finally parsing XML content, length: " + str.length);
@@ -120,7 +120,7 @@ export class OpenSheetMusicDisplay {
                 // Assume now "str" is a URL
                 // Retrieve the file at the given URL
                 return AJAX.ajax(str).then(
-                    (s: string) => { return self.load(s); },
+                    (s: string) => { return self.load(s, options); },
                     (exc: Error) => { throw exc; }
                 );
             } else {
