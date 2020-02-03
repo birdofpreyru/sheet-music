@@ -1,6 +1,6 @@
 {
   "name": "@dr.pogodin/sheet-music",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "A customized fork of the OpenSheetMusicDisplay library.",
   "main": "build/opensheetmusicdisplay.min.js",
   "typings": "build/dist/src/",
@@ -44,12 +44,12 @@
   },
   "homepage": "https://dr.pogodin.studio",
   "dependencies": {
+    "@types/vexflow": "^1.2.33",
     "es6-promise": "^4.2.5",
     "jszip": "^3.0.0",
     "loglevel": "^1.5.0",
     "typescript-collections": "^1.1.2",
-    "@types/vexflow": "^1.2.33",
-    "vexflow": "^1.2.89"
+    "vexflow": "^1.2.90"
   },
   "devDependencies": {
     "@types/chai": "^4.0.3",
@@ -83,9 +83,9 @@
     "tslint-loader": "^3.5.3",
     "typedoc": "^0.16.0",
     "typescript": "^2.6.1",
-    "webpack": "^4.39.3",
+    "webpack": "^4.41.5",
     "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.8.0",
+    "webpack-dev-server": "^3.10.2",
     "webpack-merge": "^4.1.2",
     "webpack-visualizer-plugin": "^0.1.11"
   },

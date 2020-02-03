@@ -33,30 +33,26 @@ export class OpenSheetMusicDisplay {
     /**
      * Creates and attaches an OpenSheetMusicDisplay object to an HTML element container.<br>
      * After the constructor, use load() and render() to load and render a MusicXML file.
-     * @param container The container element OSMD will be rendered into.<br>
-     *                  Either a string specifying the ID of an HTML container element,<br>
-     *                  or a reference to the HTML element itself (e.g. div)
-     * @param options An object for rendering options like the backend (svg/canvas) or autoResize.<br>
-     *                For defaults see the OSMDOptionsStandard method in the [[OSMDOptions]] class.
+     * @param {string|HTMLElement} [container]
+     *  The container element OSMD will be rendered into.<br>
+     *  Either a string specifying the ID of an HTML container element,<br>
+     *  or a reference to the HTML element itself (e.g. div) <br>
+     *  If not set at construction time, it should be set before rendering
+     *  via a dedicated setContainer() call.
+     * @param {IOSMDOptions} [options]
+     *  An object for rendering options like the backend (svg/canvas) or
+     *  autoResize.<br>
+     *  For defaults see the OSMDOptionsStandard method in the [[OSMDOptions]] class.
      */
     constructor(container: string | HTMLElement,
                 options: IOSMDOptions = OSMDOptions.OSMDOptionsStandard()) {
-        // Store container element
-        if (typeof container === "string") {
-            // ID passed
-            this.container = document.getElementById(<string>container);
-        } else if (container && "appendChild" in <any>container) {
-            // Element passed
-            this.container = <HTMLElement>container;
-        }
-        if (!this.container) {
-            throw new Error("Please pass a valid div container to OpenSheetMusicDisplay");
-        }
-
         if (options.autoResize === undefined) {
             options.autoResize = true;
         }
         this.setOptions(options);
+        if (container) {
+          this.setContainer(container);
+        }
     }
 
     public cursor: Cursor;
@@ -100,7 +96,7 @@ export class OpenSheetMusicDisplay {
                 // This is a zip file, unpack it first
                 return MXLHelper.MXLtoXMLstring(str).then(
                     (x: string) => {
-                        return self.load(x);
+                        return self.load(x, options);
                     },
                     (err: any) => {
                         log.debug(err);
@@ -112,7 +108,7 @@ export class OpenSheetMusicDisplay {
             if (str.substr(0, 3) === "\uf7ef\uf7bb\uf7bf") {
                 log.debug("[OSMD] UTF with BOM detected, truncate first three bytes and pass along: " + str);
                 // UTF with BOM detected, truncate first three bytes and pass along
-                return self.load(str.substr(3));
+                return self.load(str.substr(3), options);
             }
             if (str.substr(0, 5) === "<?xml") {
                 log.debug("[OSMD] Finally parsing XML content, length: " + str.length);
@@ -124,7 +120,7 @@ export class OpenSheetMusicDisplay {
                 // Assume now "str" is a URL
                 // Retrieve the file at the given URL
                 return AJAX.ajax(str).then(
-                    (s: string) => { return self.load(s); },
+                    (s: string) => { return self.load(s, options); },
                     (exc: Error) => { throw exc; }
                 );
             } else {
@@ -227,13 +223,56 @@ export class OpenSheetMusicDisplay {
 
     /** States whether the render() function can be safely called. */
     public IsReadyToRender(): boolean {
-        return this.graphic !== undefined;
+        return Boolean(this.container && this.graphic);
     }
 
     /** Clears what OSMD has drawn on its canvas. */
     public clear(): void {
         this.drawer.clear();
         this.reset(); // without this, resize will draw loaded sheet again
+    }
+
+    /**
+     * Sets the rendering container.
+     * @param {string|HTMLElement} container The target rendering container,
+     *  specified by ID, or by the element reference.
+     */
+    public setContainer(container: string | HTMLElement): void {
+      if (this.container) {
+        /* TODO: Changing, or removing the container requires some updates
+         * inside the backend initialization routines, to correctly clean-up
+         * auxiliary objects created at the previous initialization. It looks
+         * like for now such functionality is not really needed, thus not
+         * implemented. */
+        throw Error("Changing container is not supported yet");
+      }
+      if (container) {
+        if (typeof container === "string") {
+          this.container = document.getElementById(<string>container);
+        } else if (container && "appendChild" in <any>container) {
+          this.container = <HTMLElement>container;
+        }
+      }
+
+      /* TODO: The case `container` is null will be supported along with
+       * the resolution of the previous TODO note in this method. */
+
+      if (!this.container) {
+        throw Error(
+          "Please pass in a valid div container for OpenSheetMusicDisplay",
+        );
+      }
+
+      /* Backend initialization. */
+      this.backend.initialize(this.container);
+      this.canvas = this.backend.getCanvas();
+      this.innerElement = this.backend.getInnerElement();
+      this.enableOrDisableCursor(this.drawingParameters.drawCursors);
+      this.drawer = new VexFlowMusicSheetDrawer(
+        this.canvas,
+        this.backend,
+        this.drawingParameters,
+      );
     }
 
     /** Set OSMD rendering options using an IOSMDOptions object.
@@ -269,12 +308,9 @@ export class OpenSheetMusicDisplay {
             } else {
                 this.backend = new CanvasVexFlowBackend();
             }
-            this.backend.initialize(this.container);
-            this.canvas = this.backend.getCanvas();
-            this.innerElement = this.backend.getInnerElement();
-            this.enableOrDisableCursor(this.drawingParameters.drawCursors);
-            // Create the drawer
-            this.drawer = new VexFlowMusicSheetDrawer(this.canvas, this.backend, this.drawingParameters);
+
+            /* Originally, the backend initialization used to be here,
+             * but it is moved inside setContainer() method now. */
         }
 
         // individual drawing parameters options
