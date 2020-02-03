@@ -30,7 +30,7 @@ export class RepetitionCalculator {
   public calculateRepetitions(musicSheet: MusicSheet, repetitionInstructions: RepetitionInstruction[]): void {
     this.musicSheet = <MusicSheet>musicSheet;
     this.repetitionInstructions = repetitionInstructions;
-    console.log(repetitionInstructions);
+    // console.log(repetitionInstructions);
     const sourceMeasures: SourceMeasure[] = this.musicSheet.SourceMeasures;
     for (let idx: number = 0, len: number = this.repetitionInstructions.length; idx < len; ++idx) {
       const instruction: RepetitionInstruction = this.repetitionInstructions[idx];
@@ -83,14 +83,21 @@ export class RepetitionCalculator {
           }
         }
         if (!rep) {
-          /* TODO: This exception can be hit by a legit sheet with the opening
-           * repetition sign omitted. In the standard music notation it means
-           * that repetition should happen from the beginning. In this case
-           * we should create a new Repetition, and also a new repetition
-           * start instruction. Don't wanna handle it right now, as it
-           * requires understanding of all code related to repetition
-           * instructions, and where they all should be registered. */
-          throw Error("Repetitions calculation failed");
+          /* TODO: This largerly repeats the block of code in the previous case,
+           * thus should be split into a dedicated function / method. */
+          rep = new Repetition(this.musicSheet, false);
+
+          /* TODO: In this case, the start repetition instruction does not
+           * exist. Creating it automatically should be possible, but
+           * cumbersome for me, as I am not much familiar with the relevant
+           * code. Thus, attempting to leave it undefined, in case it resolves
+           * the current problems I have. */
+
+          /* TODO: The actual number of repetitions should be somehow deduced
+           * from the actual music sheet data. */
+          rep.UserNumberOfRepetitions = 2;
+
+          this.musicSheet.Repetitions.push(rep);
         }
         rep.BackwardJumpInstructions.push(currentRepetitionInstruction);
         rep.endMarker = currentRepetitionInstruction;

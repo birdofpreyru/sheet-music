@@ -6,12 +6,21 @@ import { VoiceEntry, Instrument, Note, Staff, Voice, GraphicalStaffEntry, Graphi
 describe("OpenSheetMusicDisplay Main Export", () => {
     let container1: HTMLElement;
 
+    /*
+      TODO: The commit f5806e changed related behavior, on purpose making
+      the container optional, so that the library can be used for playback
+      only functionality, without rendering the sheet, thus without
+      a container. The test is commented, and not removed, because probably
+      it should be replaced by alternative tests covering the new
+      behavior.
+
     it("no container", (done: MochaDone) => {
         chai.expect(() => {
             return new OpenSheetMusicDisplay(undefined);
         }).to.throw(/container/);
         done();
     });
+    */
 
     it("container", (done: MochaDone) => {
         const div: HTMLElement = TestUtils.getDivElement(document);

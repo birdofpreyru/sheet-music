@@ -104,7 +104,7 @@ export class Cursor {
     const musicSystem: MusicSystem = gse.parentMeasure.parentMusicSystem;
     /* TODO: The cursor height and pos (i.e. what exactly it highlights)
      * should be modifiable through options. */
-    console.log(musicSystem);
+    // console.log(musicSystem);
     y = musicSystem.PositionAndShape.AbsolutePosition.y
       + musicSystem.StaffLines[0].PositionAndShape.RelativePosition.y
       + musicSystem.PositionAndShape.BorderTop;
