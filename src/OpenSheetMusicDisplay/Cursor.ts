@@ -18,6 +18,7 @@ export class Cursor {
     this.container = container;
     this.openSheetMusicDisplay = openSheetMusicDisplay;
     const curs: HTMLElement = document.createElement("img");
+    curs.setAttribute("data-cursor", "");
     curs.style.position = "absolute";
     curs.style.zIndex = "-1";
     this.cursorElement = <HTMLImageElement>curs;
