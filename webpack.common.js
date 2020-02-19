@@ -11,6 +11,7 @@ module.exports = {
         'es6-promise',
         'jszip',
         'loglevel',
+        'typescript-collections',
         'vexflow'
     ],
     output: {
