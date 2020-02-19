@@ -7,6 +7,12 @@ module.exports = {
         opensheetmusicdisplay: './src/index.ts', // Main index (OpenSheetMusicDisplay and other classes)
         demo: './demo/index.js' // Demo index
     },
+    externals: [
+        'es6-promise',
+        'jszip',
+        'loglevel',
+        'vexflow'
+    ],
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: '[name].js',

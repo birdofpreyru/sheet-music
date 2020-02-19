@@ -53,3 +53,4 @@ typings
 .idea/encodings.xml
 *.md
 node_modules/
+/dr.pogodin-sheet-music-*.tgz
