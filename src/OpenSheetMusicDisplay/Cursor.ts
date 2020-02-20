@@ -8,7 +8,7 @@ import {GraphicalMusicSheet} from "../MusicalScore/Graphical/GraphicalMusicSheet
 import {Instrument} from "../MusicalScore/Instrument";
 import {Note} from "../MusicalScore/VoiceData/Note";
 import {EngravingRules, Fraction} from "..";
-import {SourceMeasure} from "../MusicalScore";
+import {SourceMeasure, BoundingBox} from "../MusicalScore";
 
 /**
  * A cursor which can iterate through the music sheet.
@@ -113,6 +113,21 @@ export class Cursor {
       musicSystem.StaffLines[musicSystem.StaffLines.length - 1].PositionAndShape.RelativePosition.y + 4.0;
     height = endY - y;
     height = musicSystem.PositionAndShape.BoundingMarginRectangle.height;
+
+    /* Cursor should be wider than the widest lyrics under this staff
+     * entry. */
+    let width: number = 10.0;
+    gseArr.forEach((entry) => {
+      entry.LyricsEntries.forEach((lyrics) => {
+        const box: BoundingBox = lyrics.GraphicalLabel.PositionAndShape;
+        const w: number = box.Size.width * EngravingRules.UnitToPx;
+        if (width < w) {
+          width = w;
+        }
+      });
+    });
+    width += 20.0;
+
     // height += 10;
 
     // The following code is not necessary (for now, but it could come useful later):
@@ -134,9 +149,9 @@ export class Cursor {
     // This the current HTML Cursor:
     const cursorElement: HTMLImageElement = this.cursorElement;
     cursorElement.style.top = (y * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
-    cursorElement.style.left = ((x - 1.5) * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
+    cursorElement.style.left = ((10.0 * x - width / 2) * this.openSheetMusicDisplay.zoom) + "px";
     cursorElement.height = (height * 10.0 * this.openSheetMusicDisplay.zoom);
-    const newWidth: number = 3 * 10.0 * this.openSheetMusicDisplay.zoom;
+    const newWidth: number = width * this.openSheetMusicDisplay.zoom;
     if (newWidth !== cursorElement.width) {
       cursorElement.width = newWidth;
       this.updateStyle(newWidth);
