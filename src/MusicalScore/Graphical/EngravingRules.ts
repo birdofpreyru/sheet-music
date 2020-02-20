@@ -366,7 +366,7 @@ export class EngravingRules {
         this.repetitionEndingLineYUpperOffset = 0.3;
 
         // Lyrics
-        this.lyricsAlignmentStandard = TextAlignmentEnum.LeftBottom; // CenterBottom and LeftBottom tested, spacing-optimized
+        this.lyricsAlignmentStandard = TextAlignmentEnum.CenterBottom; // CenterBottom and LeftBottom tested, spacing-optimized
         this.defaultLyricsHeight = 2.0; // actually size of lyrics
         this.lyricsYOffsetToStaffHeight = 3.0; // distance between lyrics and staff. could partly be even lower/dynamic
         this.verticalBetweenLyricsDistance = 0.5;
