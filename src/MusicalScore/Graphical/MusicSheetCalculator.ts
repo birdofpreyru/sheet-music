@@ -530,6 +530,12 @@ export abstract class MusicSheetCalculator {
                       const lyricsEntryLabel: GraphicalLabel = entry.GraphicalLabel;
                       minMarginLeft = Math.min(minMarginLeft, staffEntryPositionX + lyricsEntryLabel.PositionAndShape.BorderMarginLeft);
                       maxMarginRight = Math.max(maxMarginRight, staffEntryPositionX + lyricsEntryLabel.PositionAndShape.BorderMarginRight);
+
+                      /* TODO: This update of color probably does not belong
+                       * here logically, but it works fine as this loop cycles
+                       * over all lyric entries. A better place, though should
+                       * be found in future. */
+                      entry.GraphicalLabel.Label.colorDefault = entry.LyricsEntry.Color;
                     }
 
                     // check BottomLine in this range and take the maximum between the two values

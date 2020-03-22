@@ -12,10 +12,12 @@ export class Label {
       text: string = "",
       alignment: TextAlignmentEnum = TextAlignmentEnum.CenterBottom,
       font: Font = new Font(),
+      color: string = undefined
     ) {
         this.text = text;
         this.textAlignment = alignment;
         this.font = font;
+        this.colorDefault = color;
     }
 
     public text: string;
