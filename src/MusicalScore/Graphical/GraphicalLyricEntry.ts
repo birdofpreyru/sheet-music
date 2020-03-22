@@ -37,6 +37,7 @@ export class GraphicalLyricEntry {
               lyricsEntry.Text,
               undefined,
               lyricsEntry.Font,
+              lyricsEntry.Color,
             ),
             lyricsHeight,
             lyricsTextAlignment,

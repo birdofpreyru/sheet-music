@@ -3,7 +3,8 @@ import {LyricWord} from "./LyricsWord";
 import {VoiceEntry} from "../VoiceEntry";
 
 export class LyricsEntry {
-    constructor(text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1, font: Font = undefined) {
+    constructor(
+      text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1, font: Font = undefined) {
         this.font = font;
         this.text = text;
         this.word = word;
@@ -13,6 +14,7 @@ export class LyricsEntry {
             this.syllableIndex = syllableNumber;
         }
     }
+    private color: string;
     private font: Font;
     private text: string;
     private word: LyricWord;
@@ -20,6 +22,9 @@ export class LyricsEntry {
     private verseNumber: number;
     private syllableIndex: number;
     public extend: boolean;
+
+    public get Color(): string { return this.color; }
+    public set Color(value: string) { this.color = value; }
 
     public get Font(): Font {
         return this.font;
