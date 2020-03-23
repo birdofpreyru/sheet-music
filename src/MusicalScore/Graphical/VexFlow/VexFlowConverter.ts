@@ -328,6 +328,12 @@ export class VexFlowConverter {
         for (let i: number = 0, len: number = numDots; i < len; ++i) {
             vfnote.addDotToAll();
         }
+
+        /* This hack gives rendered note elements same IDs as the source notes
+         * have (with extra `vf-` prefix). It allows to update rendered note
+         * attributes directly. */
+        vfnote['attrs'].id = baseNote.sourceNote.Uuid;
+
         return vfnote;
     }
 

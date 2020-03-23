@@ -12,12 +12,15 @@ import {Notehead} from "./Notehead";
 import {Arpeggio} from "./Arpeggio";
 import {NoteType} from "./NoteType";
 
+import * as shortid from "shortid";
+
 /**
  * Represents a single pitch with a duration (length)
  */
 export class Note {
 
     constructor(voiceEntry: VoiceEntry, parentStaffEntry: SourceStaffEntry, length: Fraction, pitch: Pitch) {
+        this.uuid = shortid();
         this.voiceEntry = voiceEntry;
         this.parentStaffEntry = parentStaffEntry;
         this.length = length;
@@ -82,6 +85,11 @@ export class Note {
      * because Note.Notehead is undefined for normal Noteheads to save space and time.
      */
     private noteheadColor: string;
+    private uuid: string;
+
+    get Uuid(): string {
+      return this.uuid;
+    }
 
     public get ParentVoiceEntry(): VoiceEntry {
         return this.voiceEntry;

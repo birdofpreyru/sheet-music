@@ -2,6 +2,8 @@ import {Font} from "../../../Common/DataObjects/Font";
 import {LyricWord} from "./LyricsWord";
 import {VoiceEntry} from "../VoiceEntry";
 
+import * as shortid from "shortid";
+
 export class LyricsEntry {
     constructor(
       text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1, font: Font = undefined) {
@@ -9,6 +11,7 @@ export class LyricsEntry {
         this.text = text;
         this.word = word;
         this.parent = parent;
+        this.uuid = shortid();
         this.verseNumber = verseNumber;
         if (syllableNumber >= 0) {
             this.syllableIndex = syllableNumber;
@@ -17,6 +20,7 @@ export class LyricsEntry {
     private color: string;
     private font: Font;
     private text: string;
+    private uuid: string;
     private word: LyricWord;
     private parent: VoiceEntry;
     private verseNumber: number;
@@ -35,6 +39,11 @@ export class LyricsEntry {
     public set Text(value: string) {
         this.text = value;
     }
+
+    public get Uuid(): string {
+      return this.uuid;
+    }
+
     public get Word(): LyricWord {
         return this.word;
     }

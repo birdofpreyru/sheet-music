@@ -12,13 +12,17 @@ export class Label {
       text: string = "",
       alignment: TextAlignmentEnum = TextAlignmentEnum.CenterBottom,
       font: Font = new Font(),
-      color: string = undefined
+      color: string = undefined,
+      uuid: string = undefined,
     ) {
+        this.uuid = uuid;
         this.text = text;
         this.textAlignment = alignment;
         this.font = font;
         this.colorDefault = color;
     }
+
+    public uuid: string;
 
     public text: string;
     public color: OSMDColor;
