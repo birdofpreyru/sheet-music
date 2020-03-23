@@ -1,6 +1,6 @@
 {
   "name": "@dr.pogodin/sheet-music",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "A customized fork of the OpenSheetMusicDisplay library.",
   "main": "build/opensheetmusicdisplay.min.js",
   "typings": "build/dist/src/",
@@ -48,6 +48,7 @@
     "es6-promise": "^4.2.5",
     "jszip": "^3.0.0",
     "loglevel": "^1.5.0",
+    "shortid": "^2.2.15",
     "typescript-collections": "^1.1.2",
     "vexflow": "^1.2.90"
   },

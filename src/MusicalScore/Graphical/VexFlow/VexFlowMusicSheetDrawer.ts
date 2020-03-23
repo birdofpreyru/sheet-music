@@ -366,7 +366,13 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
                 color = EngravingRules.Rules.DefaultColorLabel;
             }
         }
-        this.backend.renderText(font, text, screenPosition, color);
+        this.backend.renderText(
+          font,
+          text,
+          screenPosition,
+          color,
+          graphicalLabel.Label.uuid,
+        );
     }
 
     /**

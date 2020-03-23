@@ -46,6 +46,7 @@ export abstract class VexFlowBackend {
     text: string,
     screenPosition: PointF2D,
     color?: string,
+    uuid?: string,
   ): void;
   /**
    * Renders a rectangle with the given style to the screen.

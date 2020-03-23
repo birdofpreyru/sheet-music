@@ -55,6 +55,7 @@ export class SvgVexFlowBackend extends VexFlowBackend {
       text: string,
       screenPosition: PointF2D,
       color: string = undefined,
+      dataIdx: string = undefined,
     ): void {
         this.ctx.save();
 
@@ -74,11 +75,17 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         this.ctx.state["font-size"] = `${
           font.Size * EngravingRules.UnitToPx
         }px`;
+        if (dataIdx) {
+          this.ctx.attributes["data-idx"] = dataIdx;
+        }
         this.ctx.fillText(
           text,
           screenPosition.x,
           screenPosition.y + EngravingRules.UnitToPx * font.Size,
         );
+        if (dataIdx) {
+          delete this.ctx.attributes["data-idx"];
+        }
         this.ctx.restore();
     }
     public renderRectangle(rectangle: RectangleF2D, styleId: number, alpha: number = 1): void {
