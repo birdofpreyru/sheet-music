@@ -79,6 +79,7 @@ export class InstrumentReader {
   private divisions: number = 0;
   private currentMeasure: SourceMeasure;
   private previousMeasure: SourceMeasure;
+  private currentClefNumber: number = 1;
   private currentXmlMeasureIndex: number = 0;
   private currentStaff: Staff;
   private currentStaffEntry: SourceStaffEntry;
@@ -134,7 +135,16 @@ export class InstrumentReader {
     try {
       const xmlMeasureListArr: IXmlElement[] = this.xmlMeasureList[this.currentXmlMeasureIndex].elements();
       for (const xmlNode of xmlMeasureListArr) {
-        if (xmlNode.name === "note") {
+        if (xmlNode.name === "print") {
+          const newSystemAttr: IXmlAttribute = xmlNode.attribute("new-system");
+          if (newSystemAttr?.value === "yes") {
+            currentMeasure.printNewSystemXml = true;
+          }
+          const newPageAttr: IXmlAttribute = xmlNode.attribute("new-page");
+          if (newPageAttr?.value === "yes") {
+            currentMeasure.printNewPageXml = true;
+          }
+        } else if (xmlNode.name === "note") {
           let printObject: boolean = true;
           if (xmlNode.hasAttributes && xmlNode.attribute("print-object") &&
               xmlNode.attribute("print-object").value === "no") {
@@ -480,9 +490,12 @@ export class InstrumentReader {
           }
           const location: IXmlAttribute = xmlNode.attribute("location");
           if (location && location.value === "right") {
-            const stringValue: string = xmlNode.element("bar-style").value;
-            this.currentMeasure.endingBarStyleXml = stringValue;
-            this.currentMeasure.endingBarStyleEnum = SystemLinesEnumHelper.xmlBarlineStyleToSystemLinesEnum(stringValue);
+            const stringValue: string = xmlNode.element("bar-style")?.value;
+            // TODO apparently we didn't anticipate bar-style not existing (the ? above was missing). how to handle?
+            if (stringValue) {
+              this.currentMeasure.endingBarStyleXml = stringValue;
+              this.currentMeasure.endingBarStyleEnum = SystemLinesEnumHelper.xmlBarlineStyleToSystemLinesEnum(stringValue);
+            }
           }
           // TODO do we need to process bars with left location too?
         } else if (xmlNode.name === "sound") {
@@ -761,9 +774,6 @@ export class InstrumentReader {
           try {
             clefEnum = ClefEnum[signNode.value];
             if (!ClefInstruction.isSupportedClef(clefEnum)) {
-              if (clefEnum === ClefEnum.TAB && guitarPro) {
-                clefOctaveOffset = -1;
-              }
               errorMsg = ITextTranslation.translateText(
                 "ReaderErrorMessages/ClefError",
                 "Unsupported clef found -> using default clef."
@@ -771,6 +781,9 @@ export class InstrumentReader {
               this.musicSheet.SheetErrors.pushMeasureError(errorMsg);
               clefEnum = ClefEnum.G;
               line = 2;
+            }
+            if (clefEnum === ClefEnum.TAB) {
+              clefOctaveOffset = -1;
             }
           } catch (e) {
             errorMsg = ITextTranslation.translateText(
@@ -801,6 +814,10 @@ export class InstrumentReader {
         if (nodeList.hasAttributes && nodeList.attributes()[0].name === "number") {
           try {
             staffNumber = parseInt(nodeList.attributes()[0].value, 10);
+            if (staffNumber > this.currentClefNumber) {
+              staffNumber = this.currentClefNumber;
+            }
+            this.currentClefNumber = staffNumber + 1;
           } catch (err) {
             errorMsg = ITextTranslation.translateText(
               "ReaderErrorMessages/ClefError",
@@ -808,6 +825,7 @@ export class InstrumentReader {
             );
             this.musicSheet.SheetErrors.pushMeasureError(errorMsg);
             staffNumber = 1;
+            this.currentClefNumber = staffNumber + 1;
           }
         }
 

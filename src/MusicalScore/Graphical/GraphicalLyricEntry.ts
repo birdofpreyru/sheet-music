@@ -4,7 +4,6 @@ import {GraphicalLabel} from "./GraphicalLabel";
 import {GraphicalStaffEntry} from "./GraphicalStaffEntry";
 import {Label} from "../Label";
 import {PointF2D} from "../../Common/DataObjects/PointF2D";
-import { EngravingRules } from "./EngravingRules";
 import { TextAlignmentEnum } from "../../Common/Enums/TextAlignment";
 
 /**
@@ -24,7 +23,7 @@ export class GraphicalLyricEntry {
     ) {
         this.lyricsEntry = lyricsEntry;
         this.graphicalStaffEntry = graphicalStaffEntry;
-        const lyricsTextAlignment: TextAlignmentEnum = EngravingRules.Rules.LyricsAlignmentStandard;
+        const lyricsTextAlignment: TextAlignmentEnum = graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules.LyricsAlignmentStandard;
         // for small notes with long text, use center alignment
         // TODO use this, fix center+left alignment combination spacing
         if (lyricsEntry.Text.length >= 4
@@ -42,7 +41,8 @@ export class GraphicalLyricEntry {
             ),
             lyricsHeight,
             lyricsTextAlignment,
-            graphicalStaffEntry.PositionAndShape
+            this.graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules,
+            graphicalStaffEntry.PositionAndShape,
         );
         this.graphicalLabel.PositionAndShape.RelativePosition = new PointF2D(0, staffHeight);
         if (lyricsTextAlignment === TextAlignmentEnum.LeftBottom) {

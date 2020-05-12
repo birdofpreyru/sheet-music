@@ -6,21 +6,36 @@ import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";
 import {VexFlowConverter} from "./VexFlowConverter";
 import { EngravingRules } from "../EngravingRules";
+import {BackendType} from "../../../OpenSheetMusicDisplay";
+import {GraphicalMusicPage} from "../GraphicalMusicPage";
 
 export class CanvasVexFlowBackend extends VexFlowBackend {
+    constructor(rules: EngravingRules) {
+        super();
+        this.rules = rules;
+    }
 
-    public getBackendType(): number {
+    public getVexflowBackendType(): Vex.Flow.Renderer.Backends {
         return Vex.Flow.Renderer.Backends.CANVAS;
+    }
+
+    public getOSMDBackendType(): BackendType {
+        return BackendType.Canvas;
     }
 
     public initialize(container: HTMLElement): void {
         this.canvas = document.createElement("canvas");
+        if (!this.graphicalMusicPage) {
+            this.graphicalMusicPage = new GraphicalMusicPage(undefined);
+            this.graphicalMusicPage.PageNumber = 1;
+        }
+        this.canvas.id = "osmdCanvasVexFlowBackendCanvas" + this.graphicalMusicPage.PageNumber; // needed to extract image buffer from js
         this.inner = document.createElement("div");
         this.inner.style.position = "relative";
         this.canvas.style.zIndex = "0";
         this.inner.appendChild(this.canvas);
         container.appendChild(this.inner);
-        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getBackendType());
+        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getVexflowBackendType());
         this.ctx = <Vex.Flow.CanvasContext>this.renderer.getContext();
     }
 
@@ -30,10 +45,15 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
      * @param height Height of the canvas
      */
     public initializeHeadless(width: number = 300, height: number = 300): void {
+        if (!this.graphicalMusicPage) {
+            // not needed here yet, but just for future safety, make sure the page isn't undefined
+            this.graphicalMusicPage = new GraphicalMusicPage(undefined);
+            this.graphicalMusicPage.PageNumber = 1;
+        }
         this.canvas = document.createElement("canvas");
         (this.canvas as any).width = width;
         (this.canvas as any).height = height;
-        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getBackendType());
+        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getVexflowBackendType());
         this.ctx = <Vex.Flow.CanvasContext>this.renderer.getContext();
     }
 
@@ -43,6 +63,15 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
 
     public clear(): void {
         (<any>this.ctx).clearRect(0, 0, (<any>this.canvas).width, (<any>this.canvas).height);
+
+        // set background color if not transparent
+        if (this.rules.PageBackgroundColor !== undefined) {
+            this.ctx.save();
+            // note that this will hide the cursor
+            this.ctx.setFillStyle(this.rules.PageBackgroundColor);
+            this.ctx.fillRect(0, 0, (this.canvas as any).width, (this.canvas as any).height);
+            this.ctx.restore();
+        }
     }
 
     public scale(k: number): void {
@@ -60,7 +89,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
     ): void  {
         const old: string = this.CanvasRenderingCtx.font;
         this.CanvasRenderingCtx.save();
-        this.CanvasRenderingCtx.font = VexFlowConverter.font(font);
+        this.CanvasRenderingCtx.font = VexFlowConverter.font(font, this.rules);
         this.CanvasRenderingCtx.fillStyle = color;
         this.CanvasRenderingCtx.strokeStyle = color;
         this.CanvasRenderingCtx.fillText(text, screenPosition.x, screenPosition.y + font.Size * EngravingRules.UnitToPx);

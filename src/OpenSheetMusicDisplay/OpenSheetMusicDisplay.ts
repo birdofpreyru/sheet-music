@@ -1,3 +1,4 @@
+import { Font } from "../Common/DataObjects/Font";
 import { IXmlElement } from "./../Common/FileIO/Xml";
 import { VexFlowMusicSheetCalculator } from "./../MusicalScore/Graphical/VexFlow/VexFlowMusicSheetCalculator";
 import { VexFlowBackend } from "./../MusicalScore/Graphical/VexFlow/VexFlowBackend";
@@ -14,12 +15,14 @@ import { Promise } from "es6-promise";
 import { AJAX } from "./AJAX";
 import * as log from "loglevel";
 import { DrawingParametersEnum, DrawingParameters, ColoringModes } from "../MusicalScore/Graphical/DrawingParameters";
-import { IOSMDOptions, OSMDOptions, AutoBeamOptions } from "./OSMDOptions";
-import { EngravingRules } from "../MusicalScore/Graphical/EngravingRules";
+import { IOSMDOptions, OSMDOptions, AutoBeamOptions, BackendType } from "./OSMDOptions";
+import { EngravingRules, PageFormat } from "../MusicalScore/Graphical/EngravingRules";
 import { AbstractExpression } from "../MusicalScore/VoiceData/Expressions/AbstractExpression";
 import { Dictionary } from "typescript-collections";
 import { NoteEnum } from "..";
-import { AutoColorSet } from "../MusicalScore";
+import { AutoColorSet, GraphicalMusicPage } from "../MusicalScore";
+import jspdf = require("jspdf-yworks/dist/jspdf.min");
+import svg2pdf = require("svg2pdf.js/dist/svg2pdf.min");
 
 /**
  * The main class and control point of OpenSheetMusicDisplay.<br>
@@ -27,7 +30,7 @@ import { AutoColorSet } from "../MusicalScore";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.7.3-release"; // getter: this.Version
+    private version: string = "0.7.6-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -49,6 +52,7 @@ export class OpenSheetMusicDisplay {
         if (options.autoResize === undefined) {
             options.autoResize = true;
         }
+        this.backendType = BackendType.SVG; // default, can be changed by options
         this.setOptions(options);
         if (container) {
           this.setContainer(container);
@@ -57,15 +61,19 @@ export class OpenSheetMusicDisplay {
 
     public cursor: Cursor;
     public zoom: number = 1.0;
+    private zoomUpdated: boolean = false;
 
     private container: HTMLElement;
-    private canvas: HTMLElement;
-    private backend: VexFlowBackend;
-    private innerElement: HTMLElement;
+    private backendType: BackendType;
+    private needBackendUpdate: boolean;
     private sheet: MusicSheet;
     private drawer: VexFlowMusicSheetDrawer;
+    private drawBoundingBox: string;
+    private drawSkyLine: boolean;
+    private drawBottomLine: boolean;
     private graphic: GraphicalMusicSheet;
     private drawingParameters: DrawingParameters;
+    private rules: EngravingRules;
     private autoResizeEnabled: boolean;
     private resizeHandlerAttached: boolean;
     private followCursor: boolean;
@@ -87,10 +95,11 @@ export class OpenSheetMusicDisplay {
     ): Promise<{}> {
         // Warning! This function is asynchronous! No error handling is done here.
         this.reset();
+        //console.log("typeof content: " + typeof content);
         if (typeof content === "string") {
-
             const str: string = <string>content;
             const self: OpenSheetMusicDisplay = this;
+            // console.log("substring: " + str.substr(0, 5));
             if (str.substr(0, 4) === "\x50\x4b\x03\x04") {
                 log.debug("[OSMD] This is a zip file, unpack it first: " + str);
                 // This is a zip file, unpack it first
@@ -110,7 +119,7 @@ export class OpenSheetMusicDisplay {
                 // UTF with BOM detected, truncate first three bytes and pass along
                 return self.load(str.substr(3), options);
             }
-            if (str.substr(0, 5) === "<?xml") {
+            if (str.substr(0, 6).includes("<?xml")) { // first character is sometimes null, making first five characters '<?xm'.
                 log.debug("[OSMD] Finally parsing XML content, length: " + str.length);
                 // Parse the string representing an xml file
                 const parser: DOMParser = new DOMParser();
@@ -124,7 +133,7 @@ export class OpenSheetMusicDisplay {
                     (exc: Error) => { throw exc; }
                 );
             } else {
-                console.error("Missing else branch?");
+                console.error("[OSMD] osmd.load(string): Could not process string. Missing else branch?");
             }
         }
 
@@ -153,7 +162,7 @@ export class OpenSheetMusicDisplay {
               return Promise.reject(new Error("OpenSheetMusicDisplay: Document is not a valid 'partwise' MusicXML"));
           }
           const score: IXmlElement = new IXmlElement(scorePartwiseElement);
-          const reader: MusicSheetReader = new MusicSheetReader();
+          const reader: MusicSheetReader = new MusicSheetReader(undefined, this.rules);
           this.sheet = reader.createMusicSheet(score, "Untitled Score");
           if (this.sheet === undefined) {
               // error loading sheet, probably already logged, do nothing
@@ -161,6 +170,7 @@ export class OpenSheetMusicDisplay {
           }
           log.info(`[OSMD] Loaded sheet ${this.sheet.TitleString} successfully.`);
 
+          this.needBackendUpdate = true;
           this.updateGraphic();
 
           return Promise.resolve({});
@@ -179,7 +189,7 @@ export class OpenSheetMusicDisplay {
      * (Re-)creates the graphic sheet from the music sheet
      */
     public updateGraphic(): void {
-        const calc: MusicSheetCalculator = new VexFlowMusicSheetCalculator();
+        const calc: MusicSheetCalculator = new VexFlowMusicSheetCalculator(this.rules);
         this.graphic = new GraphicalMusicSheet(this.sheet, calc);
         if (this.drawingParameters.drawCursors && this.cursor) {
             this.cursor.init(this.sheet.MusicPartManager, this.graphic);
@@ -193,11 +203,31 @@ export class OpenSheetMusicDisplay {
         if (!this.graphic) {
             throw new Error("OpenSheetMusicDisplay: Before rendering a music sheet, please load a MusicXML file");
         }
-        this.drawer.clear(); // clear canvas before setting width
+        if (this.drawer) {
+            this.drawer.clear(); // clear canvas before setting width
+        }
+        // musicSheetCalculator.clearSystemsAndMeasures() // maybe? don't have reference though
+        // musicSheetCalculator.clearRecreatedObjects();
 
         // Set page width
-        const width: number = this.container.offsetWidth;
+        let width: number = this.container.offsetWidth;
+        if (this.rules.RenderSingleHorizontalStaffline) {
+            width = 32767; // set safe maximum (browser limit), will be reduced later
+            // reduced later in MusicSheetCalculator.calculatePageLabels (sets sheet.pageWidth to page.PositionAndShape.Size.width before labels)
+            // rough calculation:
+            // width = 600 * this.sheet.SourceMeasures.length;
+        }
+        // log.debug("[OSMD] render width: " + width);
+
         this.sheet.pageWidth = width / this.zoom / 10.0;
+        if (this.rules.PageFormat && !this.rules.PageFormat.IsUndefined) {
+            this.rules.PageHeight = this.sheet.pageWidth / this.rules.PageFormat.aspectRatio;
+            log.debug("[OSMD] PageHeight: " + this.rules.PageHeight);
+        } else {
+            log.debug("[OSMD] endless/undefined pageformat, id: " + this.rules.PageFormat.idString);
+            this.rules.PageHeight = 100001; // infinite page height // TODO maybe Number.MAX_VALUE or Math.pow(10, 20)?
+        }
+
         // Before introducing the following optimization (maybe irrelevant), tests
         // have to be modified to ensure that width is > 0 when executed
         //if (isNaN(width) || width === 0) {
@@ -206,18 +236,92 @@ export class OpenSheetMusicDisplay {
 
         // Calculate again
         this.graphic.reCalculate();
-        const height: number = this.graphic.MusicPages[0].PositionAndShape.BorderBottom * 10.0 * this.zoom;
+
         if (this.drawingParameters.drawCursors) {
             this.graphic.Cursors.length = 0;
         }
-        // Update Sheet Page
-        this.drawer.resize(width, height);
-        this.drawer.scale(this.zoom);
+
+        // needBackendUpdate is well intentioned, but we need to cover all cases.
+        //   backends also need an update when this.zoom was set from outside, which unfortunately doesn't have a setter method to set this in.
+        //   so just for compatibility, we need to assume users set osmd.zoom, so we'd need to check whether it was changed compared to last time.
+        if (true || this.needBackendUpdate) {
+            this.createOrRefreshRenderBackend();
+            this.needBackendUpdate = false;
+        }
+
+        this.drawer.setZoom(this.zoom);
         // Finally, draw
         this.drawer.drawSheet(this.graphic);
+
+        this.enableOrDisableCursor(this.drawingParameters.drawCursors);
+
         if (this.drawingParameters.drawCursors && this.cursor) {
             // Update the cursor position
             this.cursor.update();
+        }
+        this.zoomUpdated = false;
+        //console.log("[OSMD] render finished");
+    }
+
+    private createOrRefreshRenderBackend(): void {
+        // console.log("[OSMD] createOrRefreshRenderBackend()");
+
+        // Remove old backends
+        if (this.drawer && this.drawer.Backends) {
+            // removing single children to remove all is error-prone, because sometimes a random SVG-child remains.
+            // for (const backend of this.drawer.Backends) {
+            //     backend.removeFromContainer(this.container);
+            // }
+            if (this.drawer.Backends[0]) {
+                this.drawer.Backends[0].removeAllChildrenFromContainer(this.container);
+            }
+            this.drawer.Backends.clear();
+        }
+
+        // Create the drawer
+        this.drawingParameters.Rules = this.rules;
+        this.drawer = new VexFlowMusicSheetDrawer(this.drawingParameters); // note that here the drawer.drawableBoundingBoxElement is lost. now saved in OSMD.
+        this.drawer.drawableBoundingBoxElement = this.DrawBoundingBox;
+        this.drawer.bottomLineVisible = this.drawBottomLine;
+        this.drawer.skyLineVisible = this.drawSkyLine;
+
+        // Set page width
+        let width: number = this.container.offsetWidth;
+        if (this.rules.RenderSingleHorizontalStaffline) {
+            width = this.graphic.MusicPages[0].PositionAndShape.Size.width * 10 * this.zoom;
+            // this.container.style.width = width + "px";
+            // console.log("width: " + width)
+        }
+        // TODO width may need to be coordinated with render() where width is also used
+        let height: number;
+        const canvasDimensionsLimit: number = 32767; // browser limitation. Chrome/Firefox (16 bit, 32768 causes an error).
+        // Could be calculated by canvas-size module.
+        // see #678 on Github and here: https://stackoverflow.com/a/11585939/10295942
+
+        // TODO check if resize is necessary. set needResize or something when size was changed
+        for (const page of this.graphic.MusicPages) {
+            const backend: VexFlowBackend = this.createBackend(this.backendType, page);
+            const sizeWarningPartTwo: string = " exceeds CanvasBackend limit of 32767. Cutting off score.";
+            if (backend.getOSMDBackendType() === BackendType.Canvas && width > canvasDimensionsLimit) {
+                console.log("[OSMD] Warning: width of " + width + sizeWarningPartTwo);
+                width = canvasDimensionsLimit;
+            }
+            if (this.rules.PageFormat && !this.rules.PageFormat.IsUndefined) {
+                height = width / this.rules.PageFormat.aspectRatio;
+                // console.log("pageformat given. height: " + page.PositionAndShape.Size.height);
+            } else {
+                height = (page.PositionAndShape.Size.height + 15) * this.zoom * 10.0;
+                // console.log("pageformat not given. height: " + page.PositionAndShape.Size.height);
+            }
+            if (backend.getOSMDBackendType() === BackendType.Canvas && height > canvasDimensionsLimit) {
+                console.log("[OSMD] Warning: height of " + height + sizeWarningPartTwo);
+                height = Math.min(height, canvasDimensionsLimit); // this cuts off the the score, but doesn't break rendering.
+                // TODO optional: reduce zoom to fit the score within the limit.
+            }
+
+            backend.resize(width, height);
+            backend.clear(); // set bgcolor if defined (this.rules.PageBackgroundColor, see OSMDOptions)
+            this.drawer.Backends.push(backend);
         }
     }
 
@@ -264,6 +368,10 @@ export class OpenSheetMusicDisplay {
       }
 
       /* Backend initialization. */
+      /*
+        TODO: This was my custom workaround to allow OSMD without any container.
+        Presumably, it is worked around in alternative way in the upstrea,
+        thus this code can be removed. But it should be tested.
       this.backend.initialize(this.container);
       this.canvas = this.backend.getCanvas();
       this.innerElement = this.backend.getInnerElement();
@@ -273,6 +381,7 @@ export class OpenSheetMusicDisplay {
         this.backend,
         this.drawingParameters,
       );
+      */
     }
 
     /** Set OSMD rendering options using an IOSMDOptions object.
@@ -280,8 +389,12 @@ export class OpenSheetMusicDisplay {
      *  For example, setOptions({autoResize: false}) will disable autoResize even during runtime.
      */
     public setOptions(options: IOSMDOptions): void {
+        if (!this.rules) {
+            this.rules = new EngravingRules();
+        }
         if (!this.drawingParameters) {
             this.drawingParameters = new DrawingParameters();
+            this.drawingParameters.Rules = this.rules;
         }
         if (options === undefined || options === null) {
             log.warn("warning: osmd.setOptions() called without an options parameter, has no effect."
@@ -291,38 +404,39 @@ export class OpenSheetMusicDisplay {
         if (options.drawingParameters) {
             this.drawingParameters.DrawingParametersEnum =
                 (<any>DrawingParametersEnum)[options.drawingParameters.toLowerCase()];
+            if (this.drawingParameters.DrawingParametersEnum === DrawingParametersEnum.compacttight) {
+                // tight rendering mode, lower margins and safety distances between systems, staffs etc. may cause overlap.
+                // these options can afterwards be finetuned by setting osmd.rules.BetweenStaffDistance for example
+                this.rules.BetweenStaffDistance = 2.5;
+                this.rules.StaffDistance = 3.5;
+                this.rules.MinimumDistanceBetweenSystems = 1;
+                // this.rules.PageTopMargin = 0.0; // see this.rules.PageTopMarginNarrow used in compact mode
+                this.rules.PageBottomMargin = 1.0;
+                this.rules.PageLeftMargin = 2.0;
+                this.rules.PageRightMargin = 2.0;
+            }
         }
 
-        const updateExistingBackend: boolean = this.backend !== undefined;
-        if (options.backend !== undefined || this.backend === undefined) {
-            if (updateExistingBackend) {
-                // TODO doesn't work yet, still need to create a new OSMD object
-
-                this.drawer.clear();
-
-                // musicSheetCalculator.clearSystemsAndMeasures() // maybe? don't have reference though
-                // musicSheetCalculator.clearRecreatedObjects();
-            }
-            if (options.backend === undefined || options.backend.toLowerCase() === "svg") {
-                this.backend = new SvgVexFlowBackend();
-            } else {
-                this.backend = new CanvasVexFlowBackend();
-            }
-
-            /* Originally, the backend initialization used to be here,
-             * but it is moved inside setContainer() method now. */
+        const backendNotInitialized: boolean = !this.drawer || !this.drawer.Backends || this.drawer.Backends.length < 1;
+        let needBackendUpdate: boolean = backendNotInitialized;
+        if (options.backend !== undefined) {
+            const backendTypeGiven: BackendType = OSMDOptions.BackendTypeFromString(options.backend);
+            needBackendUpdate = needBackendUpdate || this.backendType !== backendTypeGiven;
+            this.backendType = backendTypeGiven;
         }
+        this.needBackendUpdate = needBackendUpdate;
+        // TODO this is a necessary step during the OSMD constructor. Maybe move this somewhere else
 
         // individual drawing parameters options
-        if (options.autoBeam !== undefined) {
-            EngravingRules.Rules.AutoBeamNotes = options.autoBeam;
+        if (options.autoBeam !== undefined) { // only change an option if it was given in options, otherwise it will be undefined
+            this.rules.AutoBeamNotes = options.autoBeam;
         }
         const autoBeamOptions: AutoBeamOptions = options.autoBeamOptions;
         if (autoBeamOptions) {
             if (autoBeamOptions.maintain_stem_directions === undefined) {
                 autoBeamOptions.maintain_stem_directions = false;
             }
-            EngravingRules.Rules.AutoBeamOptions = autoBeamOptions;
+            this.rules.AutoBeamOptions = autoBeamOptions;
             if (autoBeamOptions.groups && autoBeamOptions.groups.length) {
                 for (const fraction of autoBeamOptions.groups) {
                     if (fraction.length !== 2) {
@@ -333,21 +447,21 @@ export class OpenSheetMusicDisplay {
         }
 
         if (options.alignRests !== undefined) {
-            EngravingRules.Rules.AlignRests = options.alignRests;
+            this.rules.AlignRests = options.alignRests;
         }
         if (options.coloringMode !== undefined) {
             this.setColoringMode(options);
         }
         if (options.coloringEnabled !== undefined) {
-            EngravingRules.Rules.ColoringEnabled = options.coloringEnabled;
+            this.rules.ColoringEnabled = options.coloringEnabled;
         }
         if (options.colorStemsLikeNoteheads !== undefined) {
-            EngravingRules.Rules.ColorStemsLikeNoteheads = options.colorStemsLikeNoteheads;
+            this.rules.ColorStemsLikeNoteheads = options.colorStemsLikeNoteheads;
         }
         if (options.disableCursor) {
             this.drawingParameters.drawCursors = false;
-            this.enableOrDisableCursor(this.drawingParameters.drawCursors);
         }
+
         // alternative to if block: this.drawingsParameters.drawCursors = options.drawCursors !== false. No if, but always sets drawingParameters.
         // note that every option can be undefined, which doesn't mean the option should be set to false.
         if (options.drawHiddenNotes) {
@@ -372,70 +486,82 @@ export class OpenSheetMusicDisplay {
             this.drawingParameters.DrawPartNames = options.drawPartNames; // indirectly writes to EngravingRules
         }
         if (options.drawPartAbbreviations !== undefined) {
-            EngravingRules.Rules.RenderPartAbbreviations = options.drawPartAbbreviations;
+            this.rules.RenderPartAbbreviations = options.drawPartAbbreviations;
         }
         if (options.drawFingerings === false) {
-            EngravingRules.Rules.RenderFingerings = false;
+            this.rules.RenderFingerings = false;
         }
         if (options.drawMeasureNumbers !== undefined) {
-            EngravingRules.Rules.RenderMeasureNumbers = options.drawMeasureNumbers;
+            this.rules.RenderMeasureNumbers = options.drawMeasureNumbers;
         }
         if (options.drawLyrics !== undefined) {
-            EngravingRules.Rules.RenderLyrics = options.drawLyrics;
+            this.rules.RenderLyrics = options.drawLyrics;
         }
         if (options.drawSlurs !== undefined) {
-            EngravingRules.Rules.RenderSlurs = options.drawSlurs;
+            this.rules.RenderSlurs = options.drawSlurs;
         }
         if (options.measureNumberInterval !== undefined) {
-            EngravingRules.Rules.MeasureNumberLabelOffset = options.measureNumberInterval;
+            this.rules.MeasureNumberLabelOffset = options.measureNumberInterval;
         }
         if (options.fingeringPosition !== undefined) {
-            EngravingRules.Rules.FingeringPosition = AbstractExpression.PlacementEnumFromString(options.fingeringPosition);
+            this.rules.FingeringPosition = AbstractExpression.PlacementEnumFromString(options.fingeringPosition);
         }
         if (options.fingeringInsideStafflines !== undefined) {
-            EngravingRules.Rules.FingeringInsideStafflines = options.fingeringInsideStafflines;
+            this.rules.FingeringInsideStafflines = options.fingeringInsideStafflines;
+        }
+        if (options.newSystemFromXML !== undefined) {
+            this.rules.NewSystemAtXMLNewSystemAttribute = options.newSystemFromXML;
+        }
+        if (options.newPageFromXML !== undefined) {
+            this.rules.NewPageAtXMLNewPageAttribute = options.newPageFromXML;
         }
         if (options.fillEmptyMeasuresWithWholeRest !== undefined) {
-            EngravingRules.Rules.FillEmptyMeasuresWithWholeRest = options.fillEmptyMeasuresWithWholeRest;
+            this.rules.FillEmptyMeasuresWithWholeRest = options.fillEmptyMeasuresWithWholeRest;
         }
         if (options.followCursor !== undefined) {
             this.FollowCursor = options.followCursor;
         }
         if (options.setWantedStemDirectionByXml !== undefined) {
-            EngravingRules.Rules.SetWantedStemDirectionByXml = options.setWantedStemDirectionByXml;
+            this.rules.SetWantedStemDirectionByXml = options.setWantedStemDirectionByXml;
         }
         if (options.defaultColorNotehead) {
-            EngravingRules.Rules.DefaultColorNotehead = options.defaultColorNotehead;
+            this.rules.DefaultColorNotehead = options.defaultColorNotehead;
         }
         if (options.defaultColorRest) {
-            EngravingRules.Rules.DefaultColorRest = options.defaultColorRest;
+            this.rules.DefaultColorRest = options.defaultColorRest;
         }
         if (options.defaultColorStem) {
-            EngravingRules.Rules.DefaultColorStem = options.defaultColorStem;
+            this.rules.DefaultColorStem = options.defaultColorStem;
         }
         if (options.defaultColorLabel) {
-            EngravingRules.Rules.DefaultColorLabel = options.defaultColorLabel;
+            this.rules.DefaultColorLabel = options.defaultColorLabel;
         }
         if (options.defaultColorTitle) {
-            EngravingRules.Rules.DefaultColorTitle = options.defaultColorTitle;
+            this.rules.DefaultColorTitle = options.defaultColorTitle;
         }
         if (options.defaultFontFamily) {
-          EngravingRules.Rules.DefaultFont.Family = options.defaultFontFamily; // default "Times New Roman", also used if font family not found
+          this.rules.DefaultFont = new Font(
+            options.defaultFontFamily,
+            undefined,
+            "normal",
+            false,
+            false,
+          );
         }
         if (options.drawUpToMeasureNumber) {
-            EngravingRules.Rules.MaxMeasureToDrawIndex = options.drawUpToMeasureNumber - 1;
+            this.rules.MaxMeasureToDrawIndex = options.drawUpToMeasureNumber - 1;
         }
         if (options.drawFromMeasureNumber) {
-            EngravingRules.Rules.MinMeasureToDrawIndex = options.drawFromMeasureNumber - 1;
+            this.rules.MinMeasureToDrawIndex = options.drawFromMeasureNumber - 1;
         }
         if (options.tupletsRatioed) {
-            EngravingRules.Rules.TupletsRatioed = true;
+            this.rules.TupletsRatioed = true;
         }
         if (options.tupletsBracketed) {
-            EngravingRules.Rules.TupletsBracketed = true;
+            this.rules.TupletsBracketed = true;
         }
         if (options.tripletsBracketed) {
-            EngravingRules.Rules.TripletsBracketed = true;
+            this.rules.TripletsBracketed = true;
         }
         if (options.autoResize) {
             if (!this.resizeHandlerAttached) {
@@ -446,11 +572,20 @@ export class OpenSheetMusicDisplay {
             this.autoResizeEnabled = false;
             // we could remove the window EventListener here, but not necessary.
         }
+        if (options.pageFormat !== undefined) { // only change this option if it was given, see above
+            this.rules.PageFormat = OpenSheetMusicDisplay.StringToPageFormat(options.pageFormat);
+        }
+        if (options.pageBackgroundColor !== undefined) {
+            this.rules.PageBackgroundColor = options.pageBackgroundColor;
+        }
+        if (options.renderSingleHorizontalStaffline !== undefined) {
+            this.rules.RenderSingleHorizontalStaffline = options.renderSingleHorizontalStaffline;
+        }
     }
 
     public setColoringMode(options: IOSMDOptions): void {
         if (options.coloringMode === ColoringModes.XML) {
-            EngravingRules.Rules.ColoringMode = ColoringModes.XML;
+            this.rules.ColoringMode = ColoringModes.XML;
             return;
         }
         const noteIndices: NoteEnum[] = [NoteEnum.C, NoteEnum.D, NoteEnum.E, NoteEnum.F, NoteEnum.G, NoteEnum.A, NoteEnum.B, -1];
@@ -481,9 +616,9 @@ export class OpenSheetMusicDisplay {
             coloringSetCurrent.setValue(noteIndices[i], colorSetString[i]);
         }
         coloringSetCurrent.setValue(-1, colorSetString[7]);
-        EngravingRules.Rules.ColoringSetCurrent = coloringSetCurrent;
+        this.rules.ColoringSetCurrent = coloringSetCurrent;
 
-        EngravingRules.Rules.ColoringMode = options.coloringMode;
+        this.rules.ColoringMode = options.coloringMode;
     }
 
     /**
@@ -611,11 +746,9 @@ export class OpenSheetMusicDisplay {
     public enableOrDisableCursor(enable: boolean): void {
         this.drawingParameters.drawCursors = enable;
         if (enable) {
-            if (!this.cursor) {
-                this.cursor = new Cursor(this.innerElement, this);
-                if (this.sheet && this.graphic) { // else init is called in load()
-                    this.cursor.init(this.sheet.MusicPartManager, this.graphic);
-                }
+            this.cursor = new Cursor(this.drawer.Backends[0].getInnerElement(), this);
+            if (this.sheet && this.graphic) { // else init is called in load()
+                this.cursor.init(this.sheet.MusicPartManager, this.graphic);
             }
         } else { // disable cursor
             if (!this.cursor) {
@@ -628,8 +761,125 @@ export class OpenSheetMusicDisplay {
         }
     }
 
+    public createBackend(type: BackendType, page: GraphicalMusicPage): VexFlowBackend {
+        let backend: VexFlowBackend;
+        if (type === undefined || type === BackendType.SVG) {
+            backend = new SvgVexFlowBackend(this.rules);
+        } else {
+            backend = new CanvasVexFlowBackend(this.rules);
+        }
+        backend.graphicalMusicPage = page; // the page the backend renders on. needed to identify DOM element to extract image/SVG
+        backend.initialize(this.container);
+        return backend;
+    }
+
+    /** Standard page format options like A4 or Letter, in portrait and landscape. E.g. PageFormatStandards["A4_P"] or PageFormatStandards["Letter_L"]. */
+    public static PageFormatStandards: { [type: string]: PageFormat } = {
+        "A3_L": new PageFormat(420, 297, "A3_L"), // id strings should use underscores instead of white spaces to facilitate use as URL parameters.
+        "A3_P": new PageFormat(297, 420, "A3_P"),
+        "A4_L": new PageFormat(297, 210, "A4_L"),
+        "A4_P": new PageFormat(210, 297, "A4_P"),
+        "A5_L": new PageFormat(210, 148, "A5_L"),
+        "A5_P": new PageFormat(148, 210, "A5_P"),
+        "A6_L": new PageFormat(148, 105, "A6_L"),
+        "A6_P": new PageFormat(105, 148, "A6_P"),
+        "Endless": PageFormat.UndefinedPageFormat,
+        "Letter_L": new PageFormat(279.4, 215.9, "Letter_L"),
+        "Letter_P": new PageFormat(215.9, 279.4, "Letter_P")
+    };
+
+    public static StringToPageFormat(pageFormatString: string): PageFormat {
+        let pageFormat: PageFormat = PageFormat.UndefinedPageFormat; // default: 'endless' page height, take canvas/container width
+
+        // check for widthxheight parameter, e.g. "800x600"
+        if (pageFormatString.match("^[0-9]+x[0-9]+$")) {
+            const widthAndHeight: string[] = pageFormatString.split("x");
+            const width: number = Number.parseInt(widthAndHeight[0], 10);
+            const height: number = Number.parseInt(widthAndHeight[1], 10);
+            if (width > 0 && width < 32768 && height > 0 && height < 32768) {
+                pageFormat = new PageFormat(width, height, `customPageFormat${pageFormatString}`);
+            }
+        }
+
+        // check for formatId from OpenSheetMusicDisplay.PageFormatStandards
+        pageFormatString = pageFormatString.replace(" ", "_");
+        pageFormatString = pageFormatString.replace("Landscape", "L");
+        pageFormatString = pageFormatString.replace("Portrait", "P");
+        //console.log("change format to: " + formatId);
+        if (OpenSheetMusicDisplay.PageFormatStandards.hasOwnProperty(pageFormatString)) {
+            pageFormat = OpenSheetMusicDisplay.PageFormatStandards[pageFormatString];
+            return pageFormat;
+        }
+        return pageFormat;
+    }
+
+    /** Sets page format by string. Alternative to setOptions({pageFormat: PageFormatStandards.Endless}) for example. */
+    public setPageFormat(formatId: string): void {
+        const newPageFormat: PageFormat = OpenSheetMusicDisplay.StringToPageFormat(formatId);
+        this.needBackendUpdate = !(newPageFormat.Equals(this.rules.PageFormat));
+        this.rules.PageFormat = newPageFormat;
+    }
+
+    public setCustomPageFormat(width: number, height: number): void {
+        if (width > 0 && height > 0) {
+            const f: PageFormat = new PageFormat(width, height);
+            this.rules.PageFormat = f;
+        }
+    }
+
+    /**
+     * Creates a Pdf of the currently rendered MusicXML
+     * @param pdfName if no name is given, the composer and title of the piece will be used
+     */
+    public createPdf(pdfName: string = undefined): void {
+        if (this.backendType !== BackendType.SVG) {
+            console.log("[OSMD] osmd.createPdf(): Warning: createPDF is only supported for SVG background for now, not for Canvas." +
+                " Please use osmd.setOptions({backendType: SVG}).");
+            return;
+        }
+
+        if (pdfName === undefined) {
+            pdfName = this.sheet.FullNameString + ".pdf";
+        }
+
+        const backends: VexFlowBackend[] = this.drawer.Backends;
+        let svgElement: SVGElement = (<SvgVexFlowBackend>backends[0]).getSvgElement();
+
+        let pageWidth: number = 210;
+        let pageHeight: number = 297;
+        const engravingRulesPageFormat: PageFormat = this.rules.PageFormat;
+        if (engravingRulesPageFormat && !engravingRulesPageFormat.IsUndefined) {
+            pageWidth = engravingRulesPageFormat.width;
+            pageHeight = engravingRulesPageFormat.height;
+        } else {
+            pageHeight = pageWidth * svgElement.clientHeight / svgElement.clientWidth;
+        }
+
+        const orientation: string = pageHeight > pageWidth ? "p" : "l";
+        // create a new jsPDF instance
+        const pdf: any = new jspdf(orientation, "mm", [pageWidth, pageHeight]);
+        const scale: number = pageWidth / svgElement.clientWidth;
+        for (let idx: number = 0, len: number = backends.length; idx < len; ++idx) {
+            if (idx > 0) {
+                pdf.addPage();
+            }
+            svgElement = (<SvgVexFlowBackend>backends[idx]).getSvgElement();
+
+            // render the svg element
+            svg2pdf(svgElement, pdf, {
+                scale: scale,
+                xOffset: 0,
+                yOffset: 0
+            });
+        }
+
+        // simply save the created pdf
+        pdf.save(pdfName);
+    }
+
     //#region GETTER / SETTER
     public set DrawSkyLine(value: boolean) {
+        this.drawSkyLine = value;
         if (this.drawer) {
             this.drawer.skyLineVisible = value;
             this.render();
@@ -640,6 +890,7 @@ export class OpenSheetMusicDisplay {
     }
 
     public set DrawBottomLine(value: boolean) {
+        this.drawBottomLine = value;
         if (this.drawer) {
             this.drawer.bottomLineVisible = value;
             this.render();
@@ -650,11 +901,12 @@ export class OpenSheetMusicDisplay {
     }
 
     public set DrawBoundingBox(value: string) {
-        this.drawer.drawableBoundingBoxElement = value;
-        this.render();
+        this.drawBoundingBox = value;
+        this.drawer.drawableBoundingBoxElement = value; // drawer is sometimes created anew, losing this value, so it's saved in OSMD now.
+        this.render(); // may create new Drawer.
     }
     public get DrawBoundingBox(): string {
-        return this.drawer.drawableBoundingBoxElement;
+        return this.drawBoundingBox;
     }
 
     public get AutoResizeEnabled(): boolean {
@@ -662,6 +914,12 @@ export class OpenSheetMusicDisplay {
     }
     public set AutoResizeEnabled(value: boolean) {
         this.autoResizeEnabled = value;
+    }
+
+    public set Zoom(value: number) {
+        this.zoom = value;
+        this.zoomUpdated = true;
+        (this.graphic.GetCalculator as VexFlowMusicSheetCalculator).beamsNeedUpdate = this.zoomUpdated;
     }
 
     public set FollowCursor(value: boolean) {
@@ -685,7 +943,7 @@ export class OpenSheetMusicDisplay {
         return this.drawingParameters;
     }
     public get EngravingRules(): EngravingRules { // custom getter, useful for engraving parameter setting in Demo
-        return EngravingRules.Rules;
+        return this.rules;
     }
     /** Returns the version of OSMD this object is built from (the version you are using). */
     public get Version(): string {

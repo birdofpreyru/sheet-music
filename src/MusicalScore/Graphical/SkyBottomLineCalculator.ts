@@ -29,7 +29,7 @@ export class SkyBottomLineCalculator {
      */
     constructor(staffLineParent: StaffLine) {
         this.mStaffLineParent = staffLineParent;
-        this.mRules = EngravingRules.Rules;
+        this.mRules = staffLineParent.ParentMusicSystem.rules;
     }
 
     /**
@@ -42,7 +42,7 @@ export class SkyBottomLineCalculator {
         this.mBottomLine = [];
 
         // Create a temporary canvas outside the DOM to draw the measure in.
-        const tmpCanvas: any = new CanvasVexFlowBackend();
+        const tmpCanvas: any = new CanvasVexFlowBackend(this.StaffLineParent.ParentMusicSystem.rules);
         // search through all Measures
         for (const measure of this.StaffLineParent.Measures as VexFlowMeasure[]) {
             // must calculate first AbsolutePositions
@@ -150,8 +150,8 @@ export class SkyBottomLineCalculator {
         );
         this.mBottomLine = this.mBottomLine.map(
           v => (v - Math.min(...this.mBottomLine)) / EngravingRules.UnitToPx
-            + this.mRules.StaffHeight,
-          );
+            + this.StaffLineParent.StaffHeight
+        );
     }
 
     /**
@@ -413,7 +413,7 @@ export class SkyBottomLineCalculator {
                 const endPoint: number = Math.ceil(boundingBox.AbsolutePosition.x + boundingBox.BorderRight) ;
 
                 this.updateInRange(this.mSkyLine, startPoint, endPoint, currentTopBorder);
-            } else if (currentBottomBorder > this.mRules.StaffHeight) {
+            } else if (currentBottomBorder > this.StaffLineParent.StaffHeight) {
                 const startPoint: number = Math.floor(boundingBox.AbsolutePosition.x + boundingBox.BorderLeft);
                 const endPoint: number = Math.ceil(boundingBox.AbsolutePosition.x + boundingBox.BorderRight);
 

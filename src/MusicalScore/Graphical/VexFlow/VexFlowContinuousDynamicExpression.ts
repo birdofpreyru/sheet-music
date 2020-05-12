@@ -16,6 +16,7 @@ export class VexFlowContinuousDynamicExpression extends GraphicalContinuousDynam
               new Label(continuousDynamic.Label),
               textHeight ? textHeight : this.rules.ContinuousDynamicTextHeight,
               TextAlignmentEnum.LeftCenter,
+              this.rules,
               this.PositionAndShape,
             );
             this.label.Label.font.Italic = true;

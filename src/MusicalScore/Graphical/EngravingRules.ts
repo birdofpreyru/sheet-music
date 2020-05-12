@@ -10,7 +10,6 @@ import { Dictionary } from "typescript-collections";
 import { NoteEnum } from "../..";
 
 export class EngravingRules {
-    private static rules: EngravingRules;
     /** A unit of distance. 1.0 is the distance between lines of a stave for OSMD, which is 10 pixels in Vexflow. */
     private static unit: number = 1.0;
 
@@ -35,18 +34,18 @@ export class EngravingRules {
     private pageRightMargin: number;
     private titleTopDistance: number;
     private titleBottomDistance: number;
-    private systemDistance: number;
     private systemLeftMargin: number;
     private systemRightMargin: number;
     private firstSystemMargin: number;
     private systemLabelsRightMargin: number;
     private systemComposerDistance: number;
     private instrumentLabelTextHeight: number;
-    private minimumAllowedDistanceBetweenSystems: number;
+    private minimumDistanceBetweenSystems: number;
     private lastSystemMaxScalingFactor: number;
     private staffDistance: number;
     private betweenStaffDistance: number;
     private staffHeight: number;
+    private tabStaffHeight: number;
     private betweenStaffLinesDistance: number;
     /** Whether to automatically beam notes that don't already have beams in XML. */
     private autoBeamNotes: boolean;
@@ -219,8 +218,13 @@ export class EngravingRules {
     /** Position of fingering label in relation to corresponding note (left, right supported, above, below experimental) */
     private fingeringPosition: PlacementEnum;
     private fingeringInsideStafflines: boolean;
+    private newSystemAtXMLNewSystemAttribute: boolean;
+    private newPageAtXMLNewPageAttribute: boolean;
+    private pageFormat: PageFormat;
+    private pageBackgroundColor: string; // vexflow-color-string (#FFFFFF). Default undefined/transparent.
+    private renderSingleHorizontalStaffline: boolean;
 
-    private fixStafflineBoundingBox: boolean; // TODO temporary workaround
+    private static fixStafflineBoundingBox: boolean; // TODO temporary workaround
 
     constructor() {
         // global variables
@@ -249,15 +253,15 @@ export class EngravingRules {
 
         // System Sizing and Label Variables
         this.staffHeight = 4.0;
+        this.tabStaffHeight = 6.67;
         this.betweenStaffLinesDistance = EngravingRules.unit;
-        this.systemDistance = 10.0;
         this.systemLeftMargin = 0.0;
         this.systemRightMargin = 0.0;
         this.firstSystemMargin = 15.0;
         this.systemLabelsRightMargin = 2.0;
         this.systemComposerDistance = 2.0;
         this.instrumentLabelTextHeight = 2;
-        this.minimumAllowedDistanceBetweenSystems = 3.0;
+        this.minimumDistanceBetweenSystems = 4.0;
         this.lastSystemMaxScalingFactor = 1.4;
 
         // autoBeam options
@@ -452,8 +456,14 @@ export class EngravingRules {
         this.renderLyrics = true;
         this.fingeringPosition = PlacementEnum.Left; // easier to get bounding box, and safer for vertical layout
         this.fingeringInsideStafflines = false;
+        this.newSystemAtXMLNewSystemAttribute = false;
+        this.newPageAtXMLNewPageAttribute = false;
 
-        this.fixStafflineBoundingBox = false; // TODO temporary workaround
+        EngravingRules.FixStafflineBoundingBox = false; // TODO temporary workaround
+
+        this.pageFormat = PageFormat.UndefinedPageFormat; // default: undefined / 'infinite' height page, using the canvas'/container's width and height
+        this.pageBackgroundColor = undefined; // default: transparent. half-transparent white: #FFFFFF88"
+        this.renderSingleHorizontalStaffline = false;
 
         this.populateDictionaries();
         try {
@@ -466,10 +476,14 @@ export class EngravingRules {
         } catch (ex) {
             log.info("EngravingRules()", ex);
         }
-
     }
-    public static get Rules(): EngravingRules {
-        return EngravingRules.rules !== undefined ? EngravingRules.rules : (EngravingRules.rules = new EngravingRules());
+
+    // these two need to be static so that we can avoid passing EngravingRules to BoundingBox in lots of code
+    public static get FixStafflineBoundingBox(): boolean {
+        return EngravingRules.fixStafflineBoundingBox;
+    }
+    public static set FixStafflineBoundingBox(value: boolean) {
+        EngravingRules.fixStafflineBoundingBox = value;
     }
     public static get UnitToPx(): number {
       return EngravingRules.unitToPx;
@@ -579,12 +593,6 @@ export class EngravingRules {
     public set InstrumentLabelTextHeight(value: number) {
         this.instrumentLabelTextHeight = value;
     }
-    public get SystemDistance(): number {
-        return this.systemDistance;
-    }
-    public set SystemDistance(value: number) {
-        this.systemDistance = value;
-    }
     public get SystemLeftMargin(): number {
         return this.systemLeftMargin;
     }
@@ -609,11 +617,11 @@ export class EngravingRules {
     public set SystemLabelsRightMargin(value: number) {
         this.systemLabelsRightMargin = value;
     }
-    public get MinimumAllowedDistanceBetweenSystems(): number {
-        return this.minimumAllowedDistanceBetweenSystems;
+    public get MinimumDistanceBetweenSystems(): number {
+        return this.minimumDistanceBetweenSystems;
     }
-    public set MinimumAllowedDistanceBetweenSystems(value: number) {
-        this.minimumAllowedDistanceBetweenSystems = value;
+    public set MinimumDistanceBetweenSystems(value: number) {
+        this.minimumDistanceBetweenSystems = value;
     }
     public get LastSystemMaxScalingFactor(): number {
         return this.lastSystemMaxScalingFactor;
@@ -638,6 +646,12 @@ export class EngravingRules {
     }
     public set StaffHeight(value: number) {
         this.staffHeight = value;
+    }
+    public get TabStaffHeight(): number {
+        return this.tabStaffHeight;
+    }
+    public set TabStaffHeight(value: number) {
+        this.tabStaffHeight = value;
     }
     public get BetweenStaffLinesDistance(): number {
         return this.betweenStaffLinesDistance;
@@ -1567,11 +1581,35 @@ export class EngravingRules {
     public set FingeringInsideStafflines(value: boolean) {
         this.fingeringInsideStafflines = value;
     }
-    public set FixStafflineBoundingBox(value: boolean) { // TODO temporary workaround
-        this.fixStafflineBoundingBox = value;
+    public get NewSystemAtXMLNewSystemAttribute(): boolean {
+        return this.newSystemAtXMLNewSystemAttribute;
     }
-    public get FixStafflineBoundingBox(): boolean {
-        return this.fixStafflineBoundingBox;
+    public set NewSystemAtXMLNewSystemAttribute(value: boolean) {
+        this.newSystemAtXMLNewSystemAttribute = value;
+    }
+    public get NewPageAtXMLNewPageAttribute(): boolean {
+        return this.newPageAtXMLNewPageAttribute;
+    }
+    public set NewPageAtXMLNewPageAttribute(value: boolean) {
+        this.newPageAtXMLNewPageAttribute = value;
+    }
+    public get PageFormat(): PageFormat {
+        return this.pageFormat;
+    }
+    public set PageFormat(value: PageFormat) {
+        this.pageFormat = value;
+    }
+    public get PageBackgroundColor(): string {
+        return this.pageBackgroundColor;
+    }
+    public set PageBackgroundColor(value: string) {
+        this.pageBackgroundColor = value;
+    }
+    public get RenderSingleHorizontalStaffline(): boolean {
+        return this.renderSingleHorizontalStaffline;
+    }
+    public set RenderSingleHorizontalStaffline(value: boolean) {
+        this.renderSingleHorizontalStaffline = value;
     }
 
     /**
@@ -1633,5 +1671,39 @@ export class EngravingRules {
             this.factorOne[i] = 3 * Math.pow((1 - t), 2) * t;
             this.factorTwo[i] = 3 * (1 - t) * Math.pow(t, 2);
         }
+    }
+}
+
+// TODO maybe this should be moved to OSMDOptions. Also see OpenSheetMusicDisplay.PageFormatStandards
+export class PageFormat {
+    constructor(width: number, height: number, idString: string = "noIdStringGiven") {
+        this.width = width;
+        this.height = height;
+        this.idString = idString;
+    }
+    public width: number;
+    public height: number;
+    public idString: string;
+    public get aspectRatio(): number {
+        if (!this.IsUndefined) {
+            return this.width / this.height;
+        } else {
+            return 0; // infinite page height
+        }
+    }
+    /** Undefined page format: use default page format. */
+    public get IsUndefined(): boolean {
+        return this.width === undefined || this.height === undefined || this.height === 0 || this.width === 0;
+    }
+
+    public static get UndefinedPageFormat(): PageFormat {
+        return new PageFormat(0, 0);
+    }
+
+    public Equals(otherPageFormat: PageFormat): boolean {
+        if (!otherPageFormat) {
+            return false;
+        }
+        return otherPageFormat.width === this.width && otherPageFormat.height === this.height;
     }
 }

@@ -15,6 +15,7 @@ export class VexFlowInstantaneousDynamicExpression extends GraphicalInstantaneou
           new Label(this.Expression),
           this.rules.ContinuousDynamicTextHeight,
           TextAlignmentEnum.CenterCenter,
+          this.rules,
           this.PositionAndShape,
         );
 

@@ -5,14 +5,24 @@ import {VexFlowConverter} from "./VexFlowConverter";
 import { Font } from "../../../Common/DataObjects/Font";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";
-import { EngravingRules } from "..";
+import {EngravingRules} from "..";
+import {BackendType} from "../../../OpenSheetMusicDisplay";
 
 export class SvgVexFlowBackend extends VexFlowBackend {
 
     private ctx: Vex.Flow.SVGContext;
 
-    public getBackendType(): number {
+    constructor(rules: EngravingRules) {
+        super();
+        this.rules = rules;
+    }
+
+    public getVexflowBackendType(): Vex.Flow.Renderer.Backends {
         return Vex.Flow.Renderer.Backends.SVG;
+    }
+
+    public getOSMDBackendType(): BackendType {
+        return BackendType.SVG;
     }
 
     public initialize(container: HTMLElement): void {
@@ -21,13 +31,16 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         this.inner.style.position = "relative";
         this.canvas.style.zIndex = "0";
         container.appendChild(this.inner);
-        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getBackendType());
+        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getVexflowBackendType());
         this.ctx = <Vex.Flow.SVGContext>this.renderer.getContext();
-
     }
 
     public getContext(): Vex.Flow.SVGContext {
         return this.ctx;
+    }
+
+    public getSvgElement(): SVGElement {
+        return this.ctx.svg;
     }
 
     public clear(): void {
@@ -40,6 +53,16 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         // effectively clearing the SVG viewport
         while (svg.lastChild) {
             svg.removeChild(svg.lastChild);
+        }
+
+        // set background color if not transparent
+        if (this.rules.PageBackgroundColor !== undefined) {
+            this.ctx.save();
+            // note that this will hide the cursor
+            this.ctx.setFillStyle(this.rules.PageBackgroundColor);
+
+            this.ctx.fillRect(0, 0, this.canvas.offsetWidth, this.canvas.offsetHeight);
+            this.ctx.restore();
         }
     }
 

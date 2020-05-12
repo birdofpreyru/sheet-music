@@ -1,5 +1,4 @@
 import {MusicSystem} from "../MusicSystem";
-import {GraphicalMusicPage} from "../GraphicalMusicPage";
 import {SystemLinesEnum} from "../SystemLinesEnum";
 import {SystemLinePosition} from "../SystemLinePosition";
 import {GraphicalMeasure} from "../GraphicalMeasure";
@@ -14,9 +13,9 @@ import { VexFlowInstrumentBrace } from "./VexFlowInstrumentBrace";
 import { SkyBottomLineCalculator } from "../SkyBottomLineCalculator";
 
 export class VexFlowMusicSystem extends MusicSystem {
-    constructor(parent: GraphicalMusicPage, id: number) {
-        super(parent, id);
-
+    constructor(id: number, rules: EngravingRules) {
+        super(id);
+        this.rules = rules;
     }
 
     public calculateBorders(rules: EngravingRules): void {

@@ -1,11 +1,9 @@
 import Vex = require("vexflow");
 import {IGraphicalSymbolFactory} from "../../Interfaces/IGraphicalSymbolFactory";
-import {GraphicalMusicPage} from "../GraphicalMusicPage";
 import {MusicSystem} from "../MusicSystem";
 import {VexFlowMusicSystem} from "./VexFlowMusicSystem";
 import {Staff} from "../../VoiceData/Staff";
 import {StaffLine} from "../StaffLine";
-import {VexFlowStaffLine} from "./VexFlowStaffLine";
 import {SourceMeasure} from "../../VoiceData/SourceMeasure";
 import {GraphicalMeasure} from "../GraphicalMeasure";
 import {VexFlowMeasure} from "./VexFlowMeasure";
@@ -27,6 +25,8 @@ import { GraphicalVoiceEntry } from "../GraphicalVoiceEntry";
 import { VoiceEntry } from "../../VoiceData/VoiceEntry";
 import { VexFlowVoiceEntry } from "./VexFlowVoiceEntry";
 import { VexFlowConverter } from "./VexFlowConverter";
+import { VexFlowTabMeasure } from "./VexFlowTabMeasure";
+import { VexFlowStaffLine } from "./VexFlowStaffLine";
 
 export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
     /**
@@ -36,8 +36,8 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
      * @param systemIndex
      * @returns {VexFlowMusicSystem}
      */
-    public createMusicSystem(page: GraphicalMusicPage, systemIndex: number): MusicSystem {
-        return new VexFlowMusicSystem(page, systemIndex);
+    public createMusicSystem(systemIndex: number, rules: EngravingRules): MusicSystem {
+        return new VexFlowMusicSystem(systemIndex, rules);
     }
 
     /**
@@ -56,8 +56,18 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
      * @param staff
      * @returns {VexFlowMeasure}
      */
-    public createGraphicalMeasure(sourceMeasure: SourceMeasure, staff: Staff): GraphicalMeasure {
-        return new VexFlowMeasure(staff, undefined, sourceMeasure);
+    public createGraphicalMeasure(sourceMeasure: SourceMeasure, staff: Staff, isTabMeasure: boolean = false): GraphicalMeasure {
+        return new VexFlowMeasure(staff, sourceMeasure, undefined);
+    }
+
+    /**
+     * Construct an empty Tab staffMeasure from the given source measure and staff.
+     * @param sourceMeasure
+     * @param staff
+     * @returns {VexFlowTabMeasure}
+     */
+    public createTabStaffMeasure(sourceMeasure: SourceMeasure, staff: Staff): GraphicalMeasure {
+        return new VexFlowTabMeasure(staff, sourceMeasure);
     }
 
     /**
@@ -66,7 +76,7 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
      * @returns {VexFlowMeasure}
      */
     public createExtraGraphicalMeasure(staffLine: StaffLine): GraphicalMeasure {
-        return new VexFlowMeasure(staffLine.ParentStaff, staffLine);
+        return new VexFlowMeasure(staffLine.ParentStaff, undefined, staffLine);
     }
 
     /**
@@ -156,16 +166,19 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
      * @param transposeHalftones
      */
     public createChordSymbols(sourceStaffEntry: SourceStaffEntry, graphicalStaffEntry: GraphicalStaffEntry, transposeHalftones: number): void {
+        const rules: EngravingRules = graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules;
         let xShift: number = 0;
-        const chordSymbolSpacing: number = EngravingRules.Rules.ChordSymbolXSpacing;
+        const chordSymbolSpacing: number = rules.ChordSymbolXSpacing;
         for (const chordSymbolContainer of sourceStaffEntry.ChordContainers) {
             const graphicalChordSymbolContainer: GraphicalChordSymbolContainer =
               new GraphicalChordSymbolContainer(chordSymbolContainer,
                                                 graphicalStaffEntry.PositionAndShape,
-                                                EngravingRules.Rules.ChordSymbolTextHeight,
-                                                transposeHalftones);
+                                                rules.ChordSymbolTextHeight,
+                                                transposeHalftones,
+                                                graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules
+                                                );
             const graphicalLabel: GraphicalLabel = graphicalChordSymbolContainer.GetGraphicalLabel;
-            graphicalLabel.PositionAndShape.RelativePosition.y -= EngravingRules.Rules.ChordSymbolYOffset;
+            graphicalLabel.PositionAndShape.RelativePosition.y -= rules.ChordSymbolYOffset;
             graphicalLabel.PositionAndShape.RelativePosition.x += xShift;
             // TODO check for available space until next staffEntry or chord symbol (x direction)
             graphicalLabel.setLabelPositionAndShapeBorders();
