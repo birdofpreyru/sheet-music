@@ -11,7 +11,6 @@ import { CanvasVexFlowBackend } from "./../MusicalScore/Graphical/VexFlow/Canvas
 import { MusicSheet } from "./../MusicalScore/MusicSheet";
 import { Cursor } from "./Cursor";
 import { MXLHelper } from "../Common/FileIO/Mxl";
-import { Promise } from "es6-promise";
 import { AJAX } from "./AJAX";
 import * as log from "loglevel";
 import { DrawingParametersEnum, DrawingParameters, ColoringModes } from "../MusicalScore/Graphical/DrawingParameters";

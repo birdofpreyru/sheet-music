@@ -58,9 +58,8 @@
   "homepage": "https://dr.pogodin.studio",
   "dependencies": {
     "@types/vexflow": "^1.2.34",
-    "es6-promise": "^4.2.5",
     "jspdf-yworks": "^2.1.1",
-    "jszip": "^3.0.0",
+    "jszip": "^3.4.0",
     "loglevel": "^1.6.8",
     "shortid": "^2.2.15",
     "svg2pdf.js": "^1.5.0",
