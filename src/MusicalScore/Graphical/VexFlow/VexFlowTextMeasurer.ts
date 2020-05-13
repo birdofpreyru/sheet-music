@@ -34,11 +34,8 @@ export class VexFlowTextMeasurer implements ITextMeasurer {
         f.Size = this.defaultFontSize;
       }
       this.context.font = VexFlowConverter.font(font, this.rules);
-
-      /* TODO: In my previous code, the width was divided by
-       * EngravingRules.UnitToPix, it should be verified it is correct
-       * to remove it (the upstream code does not have it). */
-      return this.context.measureText(text).width / f.Size;
+      return this.context.measureText(text).width / EngravingRules.UnitToPx
+        / f.Size;
     }
 
     public setDefaultFontSize(value: number = 20): number {
