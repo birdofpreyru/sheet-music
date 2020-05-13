@@ -1,4 +1,6 @@
-import Vex = require("vexflow");
+import * as VexModule from "vexflow";
+const Vex: any = (VexModule as any).default;
+
 import {ClefEnum} from "../../VoiceData/Instructions/ClefInstruction";
 import {ClefInstruction} from "../../VoiceData/Instructions/ClefInstruction";
 import {Pitch} from "../../../Common/DataObjects/Pitch";
@@ -22,7 +24,7 @@ import { OrnamentEnum, OrnamentContainer } from "../../VoiceData/OrnamentContain
 import { Notehead, NoteHeadShape } from "../../VoiceData/Notehead";
 import { EngravingRules } from "../EngravingRules";
 import { Note } from "../..";
-import StaveNote = Vex.Flow.StaveNote;
+type StaveNote = Vex.Flow.StaveNote;
 import { ArpeggioType } from "../../VoiceData";
 import { TabNote } from "../../VoiceData/TabNote";
 

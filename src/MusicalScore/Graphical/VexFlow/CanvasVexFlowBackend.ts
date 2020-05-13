@@ -1,4 +1,5 @@
-import Vex = require("vexflow");
+import * as VexModule from "vexflow";
+const Vex: any = (VexModule as any).default;
 
 import { Font } from "../../../Common/DataObjects/Font";
 import {VexFlowBackend} from "./VexFlowBackend";

@@ -1,4 +1,6 @@
-import Vex = require("vexflow");
+import * as VexModule from "vexflow";
+const Vex: any = (VexModule as any).default;
+
 import {GraphicalMeasure} from "../GraphicalMeasure";
 import {SourceMeasure} from "../../VoiceData/SourceMeasure";
 import {Staff} from "../../VoiceData/Staff";
@@ -12,10 +14,9 @@ import {VexFlowStaffEntry} from "./VexFlowStaffEntry";
 import {Beam} from "../../VoiceData/Beam";
 import {GraphicalNote} from "../GraphicalNote";
 import {GraphicalStaffEntry} from "../GraphicalStaffEntry";
-import StaveConnector = Vex.Flow.StaveConnector;
-import StaveNote = Vex.Flow.StaveNote;
-import StemmableNote = Vex.Flow.StemmableNote;
-import NoteSubGroup = Vex.Flow.NoteSubGroup;
+type StaveConnector = Vex.Flow.StaveConnector;
+type StaveNote = Vex.Flow.StaveNote;
+type StemmableNote = Vex.Flow.StemmableNote;
 import * as log from "loglevel";
 import {Tuplet} from "../../VoiceData/Tuplet";
 import {RepetitionInstructionEnum, RepetitionInstruction, AlignmentType} from "../../VoiceData/Instructions/RepetitionInstruction";
@@ -947,7 +948,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
                     const vfse: VexFlowStaffEntry = vexFlowVoiceEntry.parentStaffEntry as VexFlowStaffEntry;
                     if (vfse && vfse.vfClefBefore !== undefined) {
                         // add clef as NoteSubGroup so that we get modifier layouting
-                        const clefModifier: NoteSubGroup = new NoteSubGroup( [vfse.vfClefBefore] );
+                        const clefModifier: Vex.Flow.NoteSubGroup = new Vex.Flow.NoteSubGroup( [vfse.vfClefBefore] );
                         // The cast is necesary because...vexflow -> see types
                         if (vexFlowVoiceEntry.vfStaveNote.getCategory && vexFlowVoiceEntry.vfStaveNote.getCategory() === "stavenotes") {
                             // GhostNotes and other StemmableNotes don't have this function
