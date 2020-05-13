@@ -334,7 +334,9 @@ export class VexFlowConverter {
         /* This hack gives rendered note elements same IDs as the source notes
          * have (with extra `vf-` prefix). It allows to update rendered note
          * attributes directly. */
-        vfnote['attrs'].id = baseNote.sourceNote.Uuid;
+        /* tslint:disable no-string-literal */
+        vfnote["attrs"].id = baseNote.sourceNote.Uuid;
+        /* tslint:enable no-string-literal */
 
         return vfnote;
     }
