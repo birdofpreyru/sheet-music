@@ -203,7 +203,15 @@ export class BoundingBox {
     }
 
     public set Parent(value: BoundingBox) {
+        if (this.parent !== undefined) {
+            // remove from old parent
+            const index: number = this.parent.ChildElements.indexOf(this, 0);
+            if (index > -1) {
+                this.parent.ChildElements.splice(index, 1);
+            }
+        }
         this.parent = value;
+        // add to new parent
         if (this.parent.ChildElements.indexOf(this) > -1) {
             log.error("BoundingBox of " + (this.dataObject.constructor as any).name +
             " already in children list of " + (this.parent.dataObject.constructor as any).name + "'s BoundingBox");
@@ -369,7 +377,7 @@ export class BoundingBox {
         for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             minTop = Math.min(minTop, childElement.relativePosition.y + childElement.borderTop);
-            if (!EngravingRules.Rules.FixStafflineBoundingBox || !(childElement.dataObject instanceof StaffLineActivitySymbol)) {
+            if (!EngravingRules.FixStafflineBoundingBox || !(childElement.dataObject instanceof StaffLineActivitySymbol)) {
                 maxBottom = Math.max(maxBottom, childElement.relativePosition.y + childElement.borderBottom);
                 // TODO there's a problem with the bottom bounding box of many stafflines, often caused by StaffLineActivitySymbol,
                 // often leading to the page SVG canvas being unnecessarily long in y-direction. This seems to be remedied by this workaround.

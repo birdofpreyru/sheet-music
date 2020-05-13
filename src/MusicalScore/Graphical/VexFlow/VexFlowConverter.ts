@@ -1,4 +1,6 @@
-import Vex = require("vexflow");
+import * as VexModule from "vexflow";
+const Vex: any = (VexModule as any).default;
+
 import {ClefEnum} from "../../VoiceData/Instructions/ClefInstruction";
 import {ClefInstruction} from "../../VoiceData/Instructions/ClefInstruction";
 import {Pitch} from "../../../Common/DataObjects/Pitch";
@@ -22,8 +24,9 @@ import { OrnamentEnum, OrnamentContainer } from "../../VoiceData/OrnamentContain
 import { Notehead, NoteHeadShape } from "../../VoiceData/Notehead";
 import { EngravingRules } from "../EngravingRules";
 import { Note } from "../..";
-import StaveNote = Vex.Flow.StaveNote;
+type StaveNote = Vex.Flow.StaveNote;
 import { ArpeggioType } from "../../VoiceData";
+import { TabNote } from "../../VoiceData/TabNote";
 
 /**
  * Helper class, which contains static methods which actually convert
@@ -59,7 +62,7 @@ export class VexFlowConverter {
           return "w";
       } else if (dur < 1 && dur >= 0.5) {
         // change to the next higher straight note to get the correct note display type
-        if (isTuplet) {
+        if (isTuplet && dur > 0.5) {
           return "w";
         }
         return "h";
@@ -165,6 +168,7 @@ export class VexFlowConverter {
         } */
         // VexFlow needs the notes ordered vertically in the other direction:
         const notes: GraphicalNote[] = gve.notes.reverse();
+        const rules: EngravingRules = gve.parentStaffEntry.parentMeasure.parentSourceMeasure.Rules;
 
         const baseNote: GraphicalNote = notes[0];
         let keys: string[] = [];
@@ -200,7 +204,7 @@ export class VexFlowConverter {
                     // https://github.com/0xfe/vexflow/issues/579 The author reports that he needs to add some negative x shift
                     // if the measure has no modifiers.
                     alignCenter = true;
-                    xShift = EngravingRules.Rules.WholeRestXShiftVexflow * EngravingRules.UnitToPx; // TODO find way to make dependent on the modifiers
+                    xShift = rules.WholeRestXShiftVexflow * EngravingRules.UnitToPx; // TODO find way to make dependent on the modifiers
                     // affects VexFlowStaffEntry.calculateXPosition()
                 }
                 break;
@@ -257,8 +261,8 @@ export class VexFlowConverter {
             vfnote = new Vex.Flow.StaveNote(vfnoteStruct);
         }
 
-        if (EngravingRules.Rules.ColoringEnabled) {
-            const defaultColorStem: string = EngravingRules.Rules.DefaultColorStem;
+        if (rules.ColoringEnabled) {
+            const defaultColorStem: string = rules.DefaultColorStem;
             let stemColor: string = gve.parentVoiceEntry.StemColor;
             if (!stemColor && defaultColorStem) {
                 stemColor = defaultColorStem;
@@ -268,7 +272,7 @@ export class VexFlowConverter {
             if (stemColor) {
                 gve.parentVoiceEntry.StemColor = stemColor;
                 vfnote.setStemStyle(stemStyle);
-                if (vfnote.flag && EngravingRules.Rules.ColorFlags) {
+                if (vfnote.flag && rules.ColorFlags) {
                     vfnote.setFlagStyle(stemStyle);
                 }
             }
@@ -332,7 +336,9 @@ export class VexFlowConverter {
         /* This hack gives rendered note elements same IDs as the source notes
          * have (with extra `vf-` prefix). It allows to update rendered note
          * attributes directly. */
-        vfnote['attrs'].id = baseNote.sourceNote.Uuid;
+        /* tslint:disable no-string-literal */
+        vfnote["attrs"].id = baseNote.sourceNote.Uuid;
+        /* tslint:enable no-string-literal */
 
         return vfnote;
     }
@@ -491,6 +497,37 @@ export class VexFlowConverter {
     }
 
     /**
+     * Convert a set of GraphicalNotes to a VexFlow StaveNote
+     * @param notes form a chord on the staff
+     * @returns {Vex.Flow.StaveNote}
+     */
+    public static CreateTabNote(gve: GraphicalVoiceEntry): Vex.Flow.TabNote {
+        const tabPositions: {str: number, fret: number}[] = [];
+        const frac: Fraction = gve.notes[0].graphicalNoteLength;
+        const isTuplet: boolean = gve.notes[0].sourceNote.NoteTuplet !== undefined;
+        let duration: string = VexFlowConverter.duration(frac, isTuplet);
+        let numDots: number = 0;
+        for (const note of gve.notes) {
+            const tabNote: TabNote = note.sourceNote as TabNote;
+            const tabPosition: {str: number, fret: number} = {str: tabNote.StringNumber, fret: tabNote.FretNumber};
+            tabPositions.push(tabPosition);
+
+            if (numDots < note.numberOfDots) {
+                numDots = note.numberOfDots;
+            }
+        }
+        for (let i: number = 0, len: number = numDots; i < len; ++i) {
+            duration += "d";
+        }
+        const vfnote: Vex.Flow.TabNote = new Vex.Flow.TabNote({
+            duration: duration,
+            positions: tabPositions,
+        });
+
+        return vfnote;
+    }
+
+    /**
      * Convert a ClefInstruction to a string represention of a clef type in VexFlow.
      *
      * @param clef The OSMD object to be converted representing the clef
@@ -577,7 +614,8 @@ export class VexFlowConverter {
 
             // TAB Clef
             case ClefEnum.TAB:
-                type = "tab";
+                // only used currently for creating the notes in the normal stave: There we need a normal treble clef
+                type = "treble";
                 break;
             default:
         }
@@ -674,10 +712,8 @@ export class VexFlowConverter {
      * @param font
      * @returns {string}
      */
-    public static font(font: Font): string {
-      const f: Font = font.clone().mergeDefaults(
-        EngravingRules.Rules.DefaultFont,
-      );
+    public static font(font: Font, rules: EngravingRules): string {
+      const f: Font = font.clone().mergeDefaults(rules.DefaultFont);
       const style: string = f.Italic ? "italic" : "normal";
       /* TODO: Implement underlined. */
       return `${style} ${f.Weight} ${Math.floor(f.Size * EngravingRules.UnitToPx)}px '${f.Family}'`;

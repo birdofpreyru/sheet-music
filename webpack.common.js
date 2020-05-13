@@ -8,7 +8,6 @@ module.exports = {
         demo: './demo/index.js' // Demo index
     },
     externals: [
-        'es6-promise',
         'jszip',
         'loglevel',
         'typescript-collections',

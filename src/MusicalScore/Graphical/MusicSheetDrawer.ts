@@ -297,7 +297,7 @@ export abstract class MusicSheetDrawer {
         for (const staffLine of musicSystem.StaffLines) {
             this.drawStaffLine(staffLine);
 
-            if (EngravingRules.Rules.RenderLyrics) {
+            if (this.rules.RenderLyrics) {
                 // draw lyric dashes
                 if (staffLine.LyricsDashes.length > 0) {
                     this.drawDashes(staffLine.LyricsDashes);
@@ -353,7 +353,7 @@ export abstract class MusicSheetDrawer {
             this.drawMeasure(measure);
         }
 
-        if (EngravingRules.Rules.RenderLyrics) {
+        if (this.rules.RenderLyrics) {
             if (staffLine.LyricsDashes.length > 0) {
                 this.drawDashes(staffLine.LyricsDashes);
             }
@@ -381,7 +381,7 @@ export abstract class MusicSheetDrawer {
             lyricLine.End.y += staffLine.PositionAndShape.AbsolutePosition.y;
             lyricLine.Start.x += staffLine.PositionAndShape.AbsolutePosition.x;
             lyricLine.End.x += staffLine.PositionAndShape.AbsolutePosition.x;
-            this.drawGraphicalLine(lyricLine, EngravingRules.Rules.LyricUnderscoreLineWidth);
+            this.drawGraphicalLine(lyricLine, this.rules.LyricUnderscoreLineWidth);
         });
     }
 
@@ -398,7 +398,7 @@ export abstract class MusicSheetDrawer {
         this.drawLine(graphicalLine.Start, graphicalLine.End, colorOrStyle, lineWidth);
     }
 
-    public drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number): void {
+    protected drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number): void {
         // implemented by subclass (VexFlowMusicSheetDrawer)
     }
 
@@ -466,7 +466,7 @@ export abstract class MusicSheetDrawer {
         this.graphicalMusicSheet.LeadSheet = value;
     }
 
-    private drawPage(page: GraphicalMusicPage): void {
+    protected drawPage(page: GraphicalMusicPage): void {
         if (!this.isVisible(page.PositionAndShape)) {
             return;
         }
@@ -486,7 +486,6 @@ export abstract class MusicSheetDrawer {
         if (this.drawableBoundingBoxElement) {
             this.drawBoundingBoxes(page.PositionAndShape, 0, this.drawableBoundingBoxElement);
         }
-
     }
 
     /**
@@ -518,7 +517,7 @@ export abstract class MusicSheetDrawer {
 
             tmpRect = this.applyScreenTransformationForRect(tmpRect);
             this.renderRectangle(tmpRect, <number>GraphicalLayers.Background, layer, 0.5);
-            this.renderLabel(new GraphicalLabel(new Label(dataObjectString), 0.8, TextAlignmentEnum.CenterCenter),
+            this.renderLabel(new GraphicalLabel(new Label(dataObjectString), 0.8, TextAlignmentEnum.CenterCenter, this.rules),
                              layer, tmpRect.width, tmpRect.height, tmpRect.height, new PointF2D(tmpRect.x, tmpRect.y + 12));
         }
         layer++;

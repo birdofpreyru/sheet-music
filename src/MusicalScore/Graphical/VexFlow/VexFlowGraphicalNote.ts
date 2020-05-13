@@ -1,4 +1,5 @@
-import Vex = require("vexflow");
+import * as VexModule from "vexflow";
+const Vex: any = (VexModule as any).default;
 import {GraphicalNote} from "../GraphicalNote";
 import {Note} from "../../VoiceData/Note";
 import {ClefInstruction} from "../../VoiceData/Instructions/ClefInstruction";

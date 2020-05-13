@@ -8,7 +8,7 @@ import {GraphicalMusicSheet} from "../MusicalScore/Graphical/GraphicalMusicSheet
 import {Instrument} from "../MusicalScore/Instrument";
 import {Note} from "../MusicalScore/VoiceData/Note";
 import {EngravingRules, Fraction} from "..";
-import {SourceMeasure, BoundingBox} from "../MusicalScore";
+import {BoundingBox, SourceMeasure, StaffLine} from "../MusicalScore";
 
 /**
  * A cursor which can iterate through the music sheet.
@@ -17,6 +17,7 @@ export class Cursor {
   constructor(container: HTMLElement, openSheetMusicDisplay: OpenSheetMusicDisplay) {
     this.container = container;
     this.openSheetMusicDisplay = openSheetMusicDisplay;
+    this.rules = this.openSheetMusicDisplay.EngravingRules;
     const curs: HTMLElement = document.createElement("img");
     curs.setAttribute("data-cursor", "");
     curs.style.position = "absolute";
@@ -27,6 +28,7 @@ export class Cursor {
 
   private container: HTMLElement;
   private openSheetMusicDisplay: OpenSheetMusicDisplay;
+  private rules: EngravingRules;
   private manager: MusicPartManager;
   protected iterator: MusicPartManagerIterator;
   private graphic: GraphicalMusicSheet;
@@ -59,9 +61,9 @@ export class Cursor {
 
     // set selection start, so that when there's MinMeasureToDraw set, the cursor starts there right away instead of at measure 1
     const lastSheetMeasureIndex: number = this.openSheetMusicDisplay.Sheet.SourceMeasures.length - 1; // last measure in data model
-    let startMeasureIndex: number = EngravingRules.Rules.MinMeasureToDrawIndex;
+    let startMeasureIndex: number = this.rules.MinMeasureToDrawIndex;
     startMeasureIndex = Math.min(startMeasureIndex, lastSheetMeasureIndex);
-    let endMeasureIndex: number = EngravingRules.Rules.MaxMeasureToDrawIndex;
+    let endMeasureIndex: number = this.rules.MaxMeasureToDrawIndex;
     endMeasureIndex = Math.min(endMeasureIndex, lastSheetMeasureIndex);
 
     if (this.openSheetMusicDisplay.Sheet && this.openSheetMusicDisplay.Sheet.SourceMeasures.length > startMeasureIndex) {
@@ -75,7 +77,7 @@ export class Cursor {
     this.iterator = this.manager.getIterator();
   }
 
-  private getStaffEntriesFromVoiceEntry(voiceEntry: VoiceEntry): VexFlowStaffEntry {
+  private getStaffEntryFromVoiceEntry(voiceEntry: VoiceEntry): VexFlowStaffEntry {
     const measureIndex: number = voiceEntry.ParentSourceStaffEntry.VerticalContainerParent.ParentMeasure.measureListIndex;
     const staffIndex: number = voiceEntry.ParentSourceStaffEntry.ParentStaff.idInMusicSheet;
     return <VexFlowStaffEntry>this.graphic.findGraphicalStaffEntryFromMeasureList(staffIndex, measureIndex, voiceEntry.ParentSourceStaffEntry);
@@ -97,20 +99,22 @@ export class Cursor {
     let x: number = 0, y: number = 0, height: number = 0;
 
     // get all staff entries inside the current voice entry
-    const gseArr: VexFlowStaffEntry[] = voiceEntries.map(ve => this.getStaffEntriesFromVoiceEntry(ve));
+    const gseArr: VexFlowStaffEntry[] = voiceEntries.map(ve => this.getStaffEntryFromVoiceEntry(ve));
     // sort them by x position and take the leftmost entry
     const gse: VexFlowStaffEntry =
           gseArr.sort((a, b) => a.PositionAndShape.AbsolutePosition.x <= b.PositionAndShape.AbsolutePosition.x ? -1 : 1 )[0];
     x = gse.PositionAndShape.AbsolutePosition.x;
-    const musicSystem: MusicSystem = gse.parentMeasure.parentMusicSystem;
+    const musicSystem: MusicSystem = gse.parentMeasure.ParentMusicSystem;
     /* TODO: The cursor height and pos (i.e. what exactly it highlights)
      * should be modifiable through options. */
     // console.log(musicSystem);
     y = musicSystem.PositionAndShape.AbsolutePosition.y
       + musicSystem.StaffLines[0].PositionAndShape.RelativePosition.y
       + musicSystem.PositionAndShape.BorderTop;
+    const bottomStaffline: StaffLine = musicSystem.StaffLines[musicSystem.StaffLines.length - 1];
+
     const endY: number = musicSystem.PositionAndShape.AbsolutePosition.y +
-      musicSystem.StaffLines[musicSystem.StaffLines.length - 1].PositionAndShape.RelativePosition.y + 4.0;
+    bottomStaffline.PositionAndShape.RelativePosition.y + bottomStaffline.StaffHeight;
     height = endY - y;
     height = musicSystem.PositionAndShape.BoundingMarginRectangle.height;
 

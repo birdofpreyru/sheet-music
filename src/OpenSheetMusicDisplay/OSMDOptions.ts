@@ -18,7 +18,7 @@ export interface IOSMDOptions {
     autoBeamOptions?: AutoBeamOptions;
     /** Automatically resize score with canvas size. Default is true. */
     autoResize?: boolean;
-    /** Render Backend, will be SVG if given undefined, SVG or svg, otherwise Canvas. */
+    /** Render Backend, will be SVG if given undefined, "SVG" or "svg", otherwise Canvas. */
     backend?: string;
     /** Defines the mode that is used for coloring: XML (0), Boomwhacker(1), CustomColorSet (2). Default XML.
      *  If coloringMode.CustomColorSet (2) is chosen, a coloringSetCustom parameter must be added.
@@ -28,13 +28,13 @@ export interface IOSMDOptions {
     coloringSetCustom?: string[];
     /** Whether to enable coloring noteheads and stems, depending on coloringMode. */
     coloringEnabled?: boolean;
-    /** Whether to color the stems of notes the same as their noteheads */
+    /** Whether to color the stems of notes the same as their noteheads. Default false. */
     colorStemsLikeNoteheads?: boolean;
     /** Default color for a note head (without stem). Default black (undefined).
      * Only considered before loading a sample, not before render.
      * To change the color after loading a sample and before render, use note(.sourceNote).NoteheadColor.
      * The format is Vexflow format, either "#rrggbb" or "#rrggbbtt" where <tt> is transparency. All hex values.
-     * E.g., a half-transparent red would be "#FF000080", invisible would be "#00000000" or "#12345600".
+     * E.g., a half-transparent red would be "#FF000080", invisible/transparent would be "#00000000" or "#12345600".
      */
     defaultColorNotehead?: string;
     /** Default color for a note stem. Default black (undefined). */
@@ -85,6 +85,8 @@ export interface IOSMDOptions {
     fingeringPosition?: string;
     /** For above/below fingerings, whether to draw them directly above/below notes (default), or above/below staffline. */
     fingeringInsideStafflines?: boolean;
+    /** Whether to draw hidden/invisible notes (print-object="no" in XML). Default false. Not yet supported. */ // TODO
+    drawHiddenNotes?: boolean;
     /** Whether to draw lyrics (and their extensions and dashes). */
     drawLyrics?: boolean;
     /** Whether to calculate extra slurs with bezier curves not covered by Vexflow slurs. Default true. */
@@ -108,8 +110,29 @@ export interface IOSMDOptions {
      * (Bracketing all triplets can be cluttering)
      */
     tripletsBracketed?: boolean;
-    /** Whether to draw hidden/invisible notes (print-object="no" in XML). Default false. Not yet supported. */ // TODO
-    drawHiddenNotes?: boolean;
+    /**  See OpenSheetMusicDisplay.PageFormatStandards for standard options like "A4 P" or "Endless". Default Endless.
+     *   Uses OpenSheetMusicDisplay.StringToPageFormat(). Unfortunately it would be error-prone to set a PageFormat type directly.
+     */
+    pageFormat?: string;
+    /** A custom page/canvas background color. Default undefined/transparent.
+     *  Example: "#FFFFFF" = white. "#12345600" = transparent.
+     *  This can be useful when you want to export an image with e.g. white background color instead of transparent,
+     *  from a CanvasBackend.
+     *  Note: Using a background color will prevent the cursor from being visible for now (will be fixed at some point).
+     */
+    pageBackgroundColor?: string;
+    /** This makes OSMD render on one single horizontal (staff-)line. */
+    renderSingleHorizontalStaffline?: boolean;
+    /** Whether to begin a new system ("line break") when given in XML ('new-system="yes"').
+     *  Default false, because OSMD does its own layout that will do line breaks interactively
+     *  at different measures. So this option may result in a system break after a single measure in a system.
+     */
+    newSystemFromXML?: boolean;
+    /** Whether to begin a new page ("page break") when given in XML ('new-page="yes"').
+     *  Default false, because OSMD does its own layout that will do page breaks interactively (when given a PageFormat)
+     *  at different measures. So this option may result in a page break after a single measure on a page.
+     */
+    newPageFromXML?: boolean;
 }
 
 export enum AlignRestOption {
@@ -124,6 +147,11 @@ export enum FillEmptyMeasuresWithWholeRests {
     YesInvisible = 2
 }
 
+export enum BackendType {
+    SVG = 0,
+    Canvas = 1
+}
+
 /** Handles [[IOSMDOptions]], e.g. returning default options with OSMDOptionsStandard() */
 export class OSMDOptions {
     /** Returns the default options for OSMD.
@@ -135,6 +163,14 @@ export class OSMDOptions {
             backend: "svg",
             drawingParameters: DrawingParametersEnum.default,
         };
+    }
+
+    public static BackendTypeFromString(value: string): BackendType {
+        if (value && value.toLowerCase() === "canvas") {
+            return BackendType.Canvas;
+        } else {
+            return BackendType.SVG;
+        }
     }
 }
 
