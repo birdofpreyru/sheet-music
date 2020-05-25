@@ -701,7 +701,7 @@ export class OpenSheetMusicDisplay {
      */
     private handleResize(startCallback: () => void, endCallback: () => void): void {
         let rtime: number;
-        let timeout: number = undefined;
+        let timeout: ReturnType<typeof setTimeout> = undefined;
         const delta: number = 200;
         const self: OpenSheetMusicDisplay = this;
 
@@ -713,30 +713,32 @@ export class OpenSheetMusicDisplay {
             if (!timeout) {
                 startCallback();
                 rtime = (new Date()).getTime();
-                timeout = window.setTimeout(resizeEnd, delta);
+                timeout = setTimeout(resizeEnd, delta);
             }
         }
 
         function resizeEnd(): void {
             timeout = undefined;
-            window.clearTimeout(timeout);
+            clearTimeout(timeout);
             if ((new Date()).getTime() - rtime < delta) {
-                timeout = window.setTimeout(resizeEnd, delta);
+                timeout = setTimeout(resizeEnd, delta);
             } else {
                 endCallback();
             }
         }
 
-        if ((<any>window).attachEvent) {
-            // Support IE<9
-            (<any>window).attachEvent("onresize", resizeStart);
-        } else {
-            window.addEventListener("resize", resizeStart);
+        if (typeof window) {
+          if ((<any>window).attachEvent) {
+              // Support IE<9
+              (<any>window).attachEvent("onresize", resizeStart);
+          } else {
+              window.addEventListener("resize", resizeStart);
+          }
+          this.resizeHandlerAttached = true;
         }
-        this.resizeHandlerAttached = true;
 
-        window.setTimeout(startCallback, 0);
-        window.setTimeout(endCallback, 1);
+        setTimeout(startCallback, 0);
+        setTimeout(endCallback, 1);
     }
 
     /** Enable or disable (hide) the cursor.
