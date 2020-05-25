@@ -727,7 +727,9 @@ export class OpenSheetMusicDisplay {
             }
         }
 
-        if (typeof window) {
+        /* tslint:disable no-string-literal */
+        if (global["IS_CLIENT_SIDE"]) {
+        /* tslint:enable no-string-literal */
           if ((<any>window).attachEvent) {
               // Support IE<9
               (<any>window).attachEvent("onresize", resizeStart);
