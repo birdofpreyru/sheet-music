@@ -33,5 +33,4 @@ export class Label {
     public ToString(): string {
         return this.text;
     }
-
 }

@@ -18,8 +18,20 @@ export class Cursor {
     this.container = container;
     this.openSheetMusicDisplay = openSheetMusicDisplay;
     this.rules = this.openSheetMusicDisplay.EngravingRules;
+
+    // set cursor id
+    // TODO add this for the OSMD object as well and refactor this into a util method?
+    let id: number = 0;
+    this.cursorElementId = "cursorImg-0";
+    // find unique cursor id in document
+    while (document.getElementById(this.cursorElementId)) {
+      id++;
+      this.cursorElementId = `cursorImg-${id}`;
+    }
+
     const curs: HTMLElement = document.createElement("img");
     curs.setAttribute("data-cursor", "");
+    curs.id = this.cursorElementId;
     curs.style.position = "absolute";
     curs.style.zIndex = "-1";
     this.cursorElement = <HTMLImageElement>curs;
@@ -27,19 +39,24 @@ export class Cursor {
   }
 
   private container: HTMLElement;
+  public cursorElement: HTMLImageElement;
+  /** a unique id of the cursor's HTMLElement in the document.
+   * Should be constant between re-renders and backend changes,
+   * but different between different OSMD objects on the same page.
+   */
+  public cursorElementId: string;
   private openSheetMusicDisplay: OpenSheetMusicDisplay;
   private rules: EngravingRules;
   private manager: MusicPartManager;
-  protected iterator: MusicPartManagerIterator;
+  public iterator: MusicPartManagerIterator;
   private graphic: GraphicalMusicSheet;
-  private hidden: boolean = true;
-  private cursorElement: HTMLImageElement;
+  public hidden: boolean = true;
 
   /** Initialize the cursor. Necessary before using functions like show() and next(). */
   public init(manager: MusicPartManager, graphic: GraphicalMusicSheet): void {
     this.manager = manager;
-    this.reset();
     this.graphic = graphic;
+    this.reset();
     this.hidden = true;
     this.hide();
   }
@@ -85,15 +102,15 @@ export class Cursor {
 
   public update(): void {
     // Warning! This should NEVER call this.openSheetMusicDisplay.render()
-    if (this.hidden) {
+    if (this.hidden || this.hidden === undefined || this.hidden === null) {
       return;
     }
-    this.graphic.Cursors.length = 0;
+    // this.graphic?.Cursors?.length = 0;
     const iterator: MusicPartManagerIterator = this.iterator;
     // TODO when measure draw range (drawUpToMeasureNumber) was changed, next/update can fail to move cursor. but of course it can be reset before.
 
     const voiceEntries: VoiceEntry[] = iterator.CurrentVisibleVoiceEntries();
-    if (iterator.EndReached || iterator.CurrentVoiceEntries === undefined || voiceEntries.length === 0) {
+    if (iterator.EndReached || !iterator.CurrentVoiceEntries || voiceEntries.length === 0) {
       return;
     }
     let x: number = 0, y: number = 0, height: number = 0;
@@ -102,9 +119,12 @@ export class Cursor {
     const gseArr: VexFlowStaffEntry[] = voiceEntries.map(ve => this.getStaffEntryFromVoiceEntry(ve));
     // sort them by x position and take the leftmost entry
     const gse: VexFlowStaffEntry =
-          gseArr.sort((a, b) => a.PositionAndShape.AbsolutePosition.x <= b.PositionAndShape.AbsolutePosition.x ? -1 : 1 )[0];
+          gseArr.sort((a, b) => a?.PositionAndShape?.AbsolutePosition?.x <= b?.PositionAndShape?.AbsolutePosition?.x ? -1 : 1 )[0];
     x = gse.PositionAndShape.AbsolutePosition.x;
     const musicSystem: MusicSystem = gse.parentMeasure.ParentMusicSystem;
+    if (!musicSystem) {
+      return;
+    }
     /* TODO: The cursor height and pos (i.e. what exactly it highlights)
      * should be modifiable through options. */
     // console.log(musicSystem);

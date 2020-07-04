@@ -28,6 +28,7 @@ import { VexFlowVoiceEntry } from "./VexFlowVoiceEntry";
 import { VexFlowConverter } from "./VexFlowConverter";
 import { VexFlowTabMeasure } from "./VexFlowTabMeasure";
 import { VexFlowStaffLine } from "./VexFlowStaffLine";
+import { KeyInstruction } from "../../VoiceData/Instructions/KeyInstruction";
 
 export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
     /**
@@ -132,7 +133,7 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
     public addGraphicalAccidental(graphicalNote: GraphicalNote, pitch: Pitch): void {
         const note: VexFlowGraphicalNote = (graphicalNote as VexFlowGraphicalNote);
         // accidental is added in setPitch
-        note.setPitch(pitch);
+        note.setAccidental(pitch);
     }
 
     /**
@@ -166,7 +167,10 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
      * @param graphicalStaffEntry
      * @param transposeHalftones
      */
-    public createChordSymbols(sourceStaffEntry: SourceStaffEntry, graphicalStaffEntry: GraphicalStaffEntry, transposeHalftones: number): void {
+    public createChordSymbols(  sourceStaffEntry: SourceStaffEntry,
+                                graphicalStaffEntry: GraphicalStaffEntry,
+                                keyInstruction: KeyInstruction,
+                                transposeHalftones: number): void {
         const rules: EngravingRules = graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules;
         let xShift: number = 0;
         const chordSymbolSpacing: number = rules.ChordSymbolXSpacing;
@@ -175,8 +179,9 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
               new GraphicalChordSymbolContainer(chordSymbolContainer,
                                                 graphicalStaffEntry.PositionAndShape,
                                                 rules.ChordSymbolTextHeight,
+                                                keyInstruction,
                                                 transposeHalftones,
-                                                graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules
+                                                graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules // TODO undefined sometimes
                                                 );
             const graphicalLabel: GraphicalLabel = graphicalChordSymbolContainer.GetGraphicalLabel;
             graphicalLabel.PositionAndShape.RelativePosition.y -= rules.ChordSymbolYOffset;

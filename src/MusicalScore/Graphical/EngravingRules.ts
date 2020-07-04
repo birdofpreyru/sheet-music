@@ -7,7 +7,8 @@ import { PlacementEnum } from "../VoiceData/Expressions/AbstractExpression";
 import { AutoBeamOptions, AlignRestOption, FillEmptyMeasuresWithWholeRests } from "../../OpenSheetMusicDisplay/OSMDOptions";
 import { ColoringModes as ColoringMode } from "./DrawingParameters";
 import { Dictionary } from "typescript-collections";
-import { NoteEnum } from "../..";
+import { NoteEnum } from "../../Common/DataObjects/Pitch";
+import { ChordSymbolEnum } from "../../MusicalScore/VoiceData/ChordSymbolContainer";
 
 export class EngravingRules {
     /** A unit of distance. 1.0 is the distance between lines of a stave for OSMD, which is 10 pixels in Vexflow. */
@@ -41,11 +42,12 @@ export class EngravingRules {
     private systemComposerDistance: number;
     private instrumentLabelTextHeight: number;
     private minimumDistanceBetweenSystems: number;
+    private minSkyBottomDistBetweenSystems: number;
     private lastSystemMaxScalingFactor: number;
     private staffDistance: number;
     private betweenStaffDistance: number;
     private staffHeight: number;
-    private tabStaffHeight: number;
+    private tabStaffInterlineHeight: number;
     private betweenStaffLinesDistance: number;
     /** Whether to automatically beam notes that don't already have beams in XML. */
     private autoBeamNotes: boolean;
@@ -56,9 +58,12 @@ export class EngravingRules {
     private beamForwardLength: number;
     private clefLeftMargin: number;
     private clefRightMargin: number;
+    private percussionOneLineCutoff: number;
+    private percussionForceVoicesOneLineCutoff: number;
     private betweenKeySymbolsDistance: number;
     private keyRightMargin: number;
     private rhythmRightMargin: number;
+    private showRhythmAgainAfterPartEndOrFinalBarline: boolean;
     private inStaffClefScalingFactor: number;
     private distanceBetweenNaturalAndSymbolWhenCancelling: number;
     private noteHelperLinesOffset: number;
@@ -95,9 +100,10 @@ export class EngravingRules {
     private chordSymbolTextHeight: number;
     private chordSymbolXSpacing: number;
     private chordSymbolYOffset: number;
-    private fingeringLabelFontHeight: number;
+    private chordSymbolLabelTexts: Dictionary<ChordSymbolEnum, string>;
     private measureNumberLabelHeight: number;
     private measureNumberLabelOffset: number;
+    private measureNumberLabelXOffset: number;
     /** Whether tuplets should display ratio (3:2 instead of 3 for triplet). Default false. */
     private tupletsRatioed: boolean;
     /** Whether all tuplets should be bracketed (e.g. |--5--| instead of 5). Default false.
@@ -119,6 +125,7 @@ export class EngravingRules {
     private repetitionEndingLabelYOffset: number;
     private repetitionEndingLineYLowerOffset: number;
     private repetitionEndingLineYUpperOffset: number;
+    private voltaOffset: number;
     /** Default alignment of lyrics.
      * Left alignments will extend text to the right of the bounding box,
      * which facilitates spacing by extending measure width.
@@ -157,6 +164,7 @@ export class EngravingRules {
     private continuousTempoTextHeight: number;
     private staffLineWidth: number;
     private ledgerLineWidth: number;
+    private ledgerLineStrokeStyle: string;
     private wedgeLineWidth: number;
     private tupletLineWidth: number;
     private lyricUnderscoreLineWidth: number;
@@ -170,12 +178,14 @@ export class EngravingRules {
     private octaveShiftVerticalLineLength: number;
     private graceLineWidth: number;
     private minimumStaffLineDistance: number;
+    private minSkyBottomDistBetweenStaves: number;
     private minimumCrossedBeamDifferenceMargin: number;
     private displacedNoteMargin: number;
     private minNoteDistance: number;
     private subMeasureXSpacingThreshold: number;
     private measureDynamicsMaxScalingFactor: number;
     private wholeRestXShiftVexflow: number;
+    private metronomeMarksDrawn: boolean;
     private metronomeMarkXShift: number;
     private metronomeMarkYShift: number;
     private maxInstructionsConstValue: number;
@@ -218,11 +228,14 @@ export class EngravingRules {
     /** Position of fingering label in relation to corresponding note (left, right supported, above, below experimental) */
     private fingeringPosition: PlacementEnum;
     private fingeringInsideStafflines: boolean;
+    private fingeringLabelFontHeight: number;
+    private fingeringOffsetX: number;
     private newSystemAtXMLNewSystemAttribute: boolean;
     private newPageAtXMLNewPageAttribute: boolean;
     private pageFormat: PageFormat;
     private pageBackgroundColor: string; // vexflow-color-string (#FFFFFF). Default undefined/transparent.
     private renderSingleHorizontalStaffline: boolean;
+    private restoreCursorAfterRerender: boolean;
 
     private static fixStafflineBoundingBox: boolean; // TODO temporary workaround
 
@@ -250,10 +263,12 @@ export class EngravingRules {
         this.titleBottomDistance = 1.0;
         this.staffDistance = 7.0;
         this.betweenStaffDistance = 5.0;
+        this.minimumStaffLineDistance = 4.0;
+        this.minSkyBottomDistBetweenStaves = 1.0; // default. compacttight mode sets it to 1.0 (as well).
 
         // System Sizing and Label Variables
         this.staffHeight = 4.0;
-        this.tabStaffHeight = 6.67;
+        this.tabStaffInterlineHeight = 1.1111;
         this.betweenStaffLinesDistance = EngravingRules.unit;
         this.systemLeftMargin = 0.0;
         this.systemRightMargin = 0.0;
@@ -261,7 +276,8 @@ export class EngravingRules {
         this.systemLabelsRightMargin = 2.0;
         this.systemComposerDistance = 2.0;
         this.instrumentLabelTextHeight = 2;
-        this.minimumDistanceBetweenSystems = 4.0;
+        this.minimumDistanceBetweenSystems = 7.0;
+        this.minSkyBottomDistBetweenSystems = 5.0;
         this.lastSystemMaxScalingFactor = 1.4;
 
         // autoBeam options
@@ -280,9 +296,12 @@ export class EngravingRules {
         // Beam Sizing Variables
         this.clefLeftMargin = 0.5;
         this.clefRightMargin = 0.75;
+        this.percussionOneLineCutoff = 4;
+        this.percussionForceVoicesOneLineCutoff = 3;
         this.betweenKeySymbolsDistance = 0.2;
         this.keyRightMargin = 0.75;
         this.rhythmRightMargin = 1.25;
+        this.showRhythmAgainAfterPartEndOrFinalBarline = true;
         this.inStaffClefScalingFactor = 0.8;
         this.distanceBetweenNaturalAndSymbolWhenCancelling = 0.4;
 
@@ -332,11 +351,14 @@ export class EngravingRules {
         this.chordSymbolTextHeight = 2.0;
         this.chordSymbolXSpacing = 1.0;
         this.chordSymbolYOffset = 2.0;
-        this.fingeringLabelFontHeight = 1.7;
+        this.chordSymbolLabelTexts = new Dictionary<ChordSymbolEnum, string>();
+        this.resetChordSymbolLabelTexts(this.chordSymbolLabelTexts);
+
 
         // Tuplets, MeasureNumber and TupletNumber Labels
         this.measureNumberLabelHeight = 1.5 * EngravingRules.unit;
         this.measureNumberLabelOffset = 2;
+        this.measureNumberLabelXOffset = -0.5;
         this.tupletsRatioed = false;
         this.tupletsBracketed = false;
         this.tripletsBracketed = false; // special setting for triplets, overrides tuplet setting (for triplets only)
@@ -368,6 +390,7 @@ export class EngravingRules {
         this.repetitionEndingLabelYOffset = 0.3;
         this.repetitionEndingLineYLowerOffset = 0.5;
         this.repetitionEndingLineYUpperOffset = 0.3;
+        this.voltaOffset = 2.5;
 
         // Lyrics
         this.lyricsAlignmentStandard = TextAlignmentEnum.CenterBottom; // CenterBottom and LeftBottom tested, spacing-optimized
@@ -391,7 +414,8 @@ export class EngravingRules {
 
         // Line Widths
         this.staffLineWidth = 0.12;
-        this.ledgerLineWidth = 0.12;
+        this.ledgerLineWidth = undefined; // if not undefined, the vexflow default will be overwritten
+        this.ledgerLineStrokeStyle = undefined; // if not undefined, the vexflow default will be overwritten
         this.wedgeLineWidth = 0.12;
         this.tupletLineWidth = 0.12;
         this.lyricUnderscoreLineWidth = 0.12;
@@ -406,7 +430,6 @@ export class EngravingRules {
         this.graceLineWidth = this.staffLineWidth * this.GraceNoteScalingFactor;
 
         // Line Widths
-        this.minimumStaffLineDistance = 1.0;
         this.minimumCrossedBeamDifferenceMargin = 0.0001;
 
         // xSpacing Variables
@@ -415,6 +438,7 @@ export class EngravingRules {
         this.subMeasureXSpacingThreshold = 35;
         this.measureDynamicsMaxScalingFactor = 2.5;
         this.wholeRestXShiftVexflow = -2.5; // VexFlow draws rest notes too far to the right
+        this.metronomeMarksDrawn = true;
         this.metronomeMarkXShift = -6; // our unit, is taken * unitInPixels
         this.metronomeMarkYShift = -0.5;
 
@@ -456,8 +480,11 @@ export class EngravingRules {
         this.renderLyrics = true;
         this.fingeringPosition = PlacementEnum.Left; // easier to get bounding box, and safer for vertical layout
         this.fingeringInsideStafflines = false;
+        this.fingeringLabelFontHeight = 1.7;
+        this.fingeringOffsetX = 0.0;
         this.newSystemAtXMLNewSystemAttribute = false;
         this.newPageAtXMLNewPageAttribute = false;
+        this.restoreCursorAfterRerender = true;
 
         EngravingRules.FixStafflineBoundingBox = false; // TODO temporary workaround
 
@@ -468,7 +495,7 @@ export class EngravingRules {
         this.populateDictionaries();
         try {
             this.maxInstructionsConstValue = this.ClefLeftMargin + this.ClefRightMargin + this.KeyRightMargin + this.RhythmRightMargin + 11;
-            //if (FontInfo.Info !== undefined) {
+            //if (FontInfo.Info) {
             //    this.maxInstructionsConstValue += FontInfo.Info.getBoundingBox(MusicSymbol.G_CLEF).width
             //        + FontInfo.Info.getBoundingBox(MusicSymbol.FOUR).width
             //        + 7 * FontInfo.Info.getBoundingBox(MusicSymbol.SHARP).width;
@@ -623,6 +650,12 @@ export class EngravingRules {
     public set MinimumDistanceBetweenSystems(value: number) {
         this.minimumDistanceBetweenSystems = value;
     }
+    public get MinSkyBottomDistBetweenSystems(): number {
+        return this.minSkyBottomDistBetweenSystems;
+    }
+    public set MinSkyBottomDistBetweenSystems(value: number) {
+        this.minSkyBottomDistBetweenSystems = value;
+    }
     public get LastSystemMaxScalingFactor(): number {
         return this.lastSystemMaxScalingFactor;
     }
@@ -647,11 +680,11 @@ export class EngravingRules {
     public set StaffHeight(value: number) {
         this.staffHeight = value;
     }
-    public get TabStaffHeight(): number {
-        return this.tabStaffHeight;
+    public get TabStaffInterlineHeight(): number {
+        return this.tabStaffInterlineHeight;
     }
-    public set TabStaffHeight(value: number) {
-        this.tabStaffHeight = value;
+    public set TabStaffInterlineHeight(value: number) {
+        this.tabStaffInterlineHeight = value;
     }
     public get BetweenStaffLinesDistance(): number {
         return this.betweenStaffLinesDistance;
@@ -707,6 +740,18 @@ export class EngravingRules {
     public set ClefRightMargin(value: number) {
         this.clefRightMargin = value;
     }
+    public get PercussionOneLineCutoff(): number {
+        return this.percussionOneLineCutoff;
+    }
+    public set PercussionOneLineCutoff(value: number) {
+        this.percussionOneLineCutoff = value;
+    }
+    public get PercussionForceVoicesOneLineCutoff(): number {
+        return this.percussionForceVoicesOneLineCutoff;
+    }
+    public set PercussionForceVoicesOneLineCutoff(value: number) {
+        this.percussionForceVoicesOneLineCutoff = value;
+    }
     public get KeyRightMargin(): number {
         return this.keyRightMargin;
     }
@@ -718,6 +763,12 @@ export class EngravingRules {
     }
     public set RhythmRightMargin(value: number) {
         this.rhythmRightMargin = value;
+    }
+    public get ShowRhythmAgainAfterPartEndOrFinalBarline(): boolean {
+        return this.showRhythmAgainAfterPartEndOrFinalBarline;
+    }
+    public set ShowRhythmAgainAfterPartEndOrFinalBarline(value: boolean) {
+        this.showRhythmAgainAfterPartEndOrFinalBarline = value;
     }
     public get InStaffClefScalingFactor(): number {
         return this.inStaffClefScalingFactor;
@@ -941,11 +992,14 @@ export class EngravingRules {
     public set ChordSymbolYOffset(value: number) {
         this.chordSymbolYOffset = value;
     }
-    public get FingeringLabelFontHeight(): number {
-        return this.fingeringLabelFontHeight;
+    public setChordSymbolLabelText(key: ChordSymbolEnum, value: string): void {
+        this.chordSymbolLabelTexts.setValue(key, value);
     }
-    public set FingeringLabelFontHeight(value: number) {
-        this.fingeringLabelFontHeight = value;
+    public get ChordSymbolLabelTexts(): Dictionary<ChordSymbolEnum, string> {
+        return this.chordSymbolLabelTexts;
+    }
+    public set ChordSymbolLabelTexts(value: Dictionary<ChordSymbolEnum, string>) {
+        this.chordSymbolLabelTexts = value;
     }
     public get MeasureNumberLabelHeight(): number {
         return this.measureNumberLabelHeight;
@@ -958,6 +1012,12 @@ export class EngravingRules {
     }
     public set MeasureNumberLabelOffset(value: number) {
         this.measureNumberLabelOffset = value;
+    }
+    public get MeasureNumberLabelXOffset(): number {
+        return this.measureNumberLabelXOffset;
+    }
+    public set MeasureNumberLabelXOffset(value: number) {
+        this.measureNumberLabelXOffset = value;
     }
     public get TupletsRatioed(): boolean {
         return this.tupletsRatioed;
@@ -1030,6 +1090,12 @@ export class EngravingRules {
     }
     public set RepetitionEndingLineYUpperOffset(value: number) {
         this.repetitionEndingLineYUpperOffset = value;
+    }
+    public get VoltaOffset(): number {
+        return this.voltaOffset;
+    }
+    public set VoltaOffset(value: number) {
+        this.voltaOffset = value;
     }
     public get LyricsAlignmentStandard(): TextAlignmentEnum {
         return this.lyricsAlignmentStandard;
@@ -1250,6 +1316,12 @@ export class EngravingRules {
     public set LedgerLineWidth(value: number) {
         this.ledgerLineWidth = value;
     }
+    public get LedgerLineStrokeStyle(): string {
+        return this.ledgerLineStrokeStyle;
+    }
+    public set LedgerLineStrokeStyle(value: string) {
+        this.ledgerLineStrokeStyle = value;
+    }
     public get WedgeLineWidth(): number {
         return this.wedgeLineWidth;
     }
@@ -1328,6 +1400,12 @@ export class EngravingRules {
     public set MinimumStaffLineDistance(value: number) {
         this.minimumStaffLineDistance = value;
     }
+    public get MinSkyBottomDistBetweenStaves(): number {
+        return this.minSkyBottomDistBetweenStaves;
+    }
+    public set MinSkyBottomDistBetweenStaves(value: number) {
+        this.minSkyBottomDistBetweenStaves = value;
+    }
     public get MinimumCrossedBeamDifferenceMargin(): number {
         return this.minimumCrossedBeamDifferenceMargin;
     }
@@ -1363,6 +1441,12 @@ export class EngravingRules {
     }
     public set WholeRestXShiftVexflow(value: number) {
         this.wholeRestXShiftVexflow = value;
+    }
+    public get MetronomeMarksDrawn(): boolean {
+        return this.metronomeMarksDrawn;
+    }
+    public set MetronomeMarksDrawn(value: boolean) {
+        this.metronomeMarksDrawn = value;
     }
     public get MetronomeMarkXShift(): number {
         return this.metronomeMarkXShift;
@@ -1544,6 +1628,9 @@ export class EngravingRules {
     }
     public set RenderPartNames(value: boolean) {
         this.renderPartNames = value;
+        if (!this.renderPartNames) {
+            this.renderPartAbbreviations = false;
+        }
     }
     public get RenderPartAbbreviations(): boolean {
         return this.renderPartAbbreviations;
@@ -1581,6 +1668,18 @@ export class EngravingRules {
     public set FingeringInsideStafflines(value: boolean) {
         this.fingeringInsideStafflines = value;
     }
+    public get FingeringLabelFontHeight(): number {
+        return this.fingeringLabelFontHeight;
+    }
+    public set FingeringLabelFontHeight(value: number) {
+        this.fingeringLabelFontHeight = value;
+    }
+    public get FingeringOffsetX(): number {
+        return this.fingeringOffsetX;
+    }
+    public set FingeringOffsetX(value: number) {
+        this.fingeringOffsetX = value;
+    }
     public get NewSystemAtXMLNewSystemAttribute(): boolean {
         return this.newSystemAtXMLNewSystemAttribute;
     }
@@ -1610,6 +1709,41 @@ export class EngravingRules {
     }
     public set RenderSingleHorizontalStaffline(value: boolean) {
         this.renderSingleHorizontalStaffline = value;
+    }
+    public get RestoreCursorAfterRerender(): boolean {
+        return this.restoreCursorAfterRerender;
+    }
+    public set RestoreCursorAfterRerender(value: boolean) {
+        this.restoreCursorAfterRerender = value;
+    }
+
+    public resetChordSymbolLabelTexts(chordtexts: Dictionary<ChordSymbolEnum, string>): Dictionary<ChordSymbolEnum, string> {
+        chordtexts.setValue(ChordSymbolEnum.minor, "m");
+        chordtexts.setValue(ChordSymbolEnum.augmented, "aug");
+        chordtexts.setValue(ChordSymbolEnum.diminished, "dim");
+        chordtexts.setValue(ChordSymbolEnum.dominant, "7");
+        chordtexts.setValue(ChordSymbolEnum.majorseventh, "maj7");
+        chordtexts.setValue(ChordSymbolEnum.minorseventh, "m7");
+        chordtexts.setValue(ChordSymbolEnum.diminishedseventh, "dim7");
+        chordtexts.setValue(ChordSymbolEnum.augmentedseventh, "aug7");
+        chordtexts.setValue(ChordSymbolEnum.halfdiminished, "m7b5");
+        chordtexts.setValue(ChordSymbolEnum.majorminor, "m(maj7)");
+        chordtexts.setValue(ChordSymbolEnum.majorsixth, "maj6");
+        chordtexts.setValue(ChordSymbolEnum.minorsixth, "m6");
+        chordtexts.setValue(ChordSymbolEnum.dominantninth, "9");
+        chordtexts.setValue(ChordSymbolEnum.majorninth, "maj9");
+        chordtexts.setValue(ChordSymbolEnum.minorninth, "m9");
+        chordtexts.setValue(ChordSymbolEnum.dominant11th, "11");
+        chordtexts.setValue(ChordSymbolEnum.major11th, "maj11");
+        chordtexts.setValue(ChordSymbolEnum.minor11th, "m11");
+        chordtexts.setValue(ChordSymbolEnum.dominant13th, "13");
+        chordtexts.setValue(ChordSymbolEnum.major13th, "maj13");
+        chordtexts.setValue(ChordSymbolEnum.minor13th, "m13");
+        chordtexts.setValue(ChordSymbolEnum.suspendedsecond, "sus2");
+        chordtexts.setValue(ChordSymbolEnum.suspendedfourth, "sus4");
+        chordtexts.setValue(ChordSymbolEnum.power, "5");
+
+        return chordtexts;
     }
 
     /**

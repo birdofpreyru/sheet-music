@@ -66,7 +66,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         (<any>this.ctx).clearRect(0, 0, (<any>this.canvas).width, (<any>this.canvas).height);
 
         // set background color if not transparent
-        if (this.rules.PageBackgroundColor !== undefined) {
+        if (this.rules.PageBackgroundColor) {
             this.ctx.save();
             // note that this will hide the cursor
             this.ctx.setFillStyle(this.rules.PageBackgroundColor);
@@ -82,6 +82,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
     public translate(x: number, y: number): void {
         this.CanvasRenderingCtx.translate(x, y);
     }
+
     public renderText(
       font: Font,
       text: string,
