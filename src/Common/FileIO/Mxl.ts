@@ -14,14 +14,16 @@ export class MXLHelper {
     public static MXLtoIXmlElement(data: string): Promise<IXmlElement> {
         const zip: JSZip = new JSZip();
         // asynchronously load zip file and process it - with Promises
-        return zip.loadAsync(data).then(
-            (_: any) => {
+        const zipLoadedAsync: Promise<JSZip> = zip.loadAsync(data);
+        const text: Promise<string> = zipLoadedAsync.then(
+            (_: JSZip) => {
                 return zip.file("META-INF/container.xml").async("text");
             },
             (err: any) => {
                 throw err;
             }
-        ).then(
+        );
+        return text.then(
             (content: string) => {
                 const parser: DOMParser = new DOMParser();
                 const doc: Document = parser.parseFromString(content, "text/xml");

@@ -50,11 +50,18 @@ export interface IOSMDOptions {
      * Valid options are CSS font families available in the browser used for rendering, e.g. Times New Roman, Helvetica.
      */
     defaultFontFamily?: string;
+    /** Default font style, e.g. FontStyles.Bold (1). Default Regular (0). */
+    defaultFontWeight?: string;
+    defaultFontItalic?: boolean;
     /** Don't show/load cursor. Will override disableCursor in drawingParameters. */
     disableCursor?: boolean;
     /** Follow Cursor: Scroll the page when cursor.next() is called and the cursor moves into a new system outside of the current view frame. */
     followCursor?: boolean;
-    /** Broad Parameters like compact or preview mode. */
+    /** Broad Parameters like compact or preview mode.
+     * Also try "compacttight", which is like compact but also reduces margins.
+     * To see what this mode does and maybe adjust the spacing parameters yourself instead of using the mode,
+     * see DrawingParameters.ts:setForCompactTightMode().
+     */
     drawingParameters?: string | DrawingParametersEnum;
     /** Whether to draw credits (title, subtitle, composer, lyricist) (in future: copyright etc., see <credit>). */
     drawCredits?: boolean;
@@ -66,7 +73,11 @@ export interface IOSMDOptions {
     drawComposer?: boolean;
     /** Whether to draw the lyricist's name, if given (top left of the score). */
     drawLyricist?: boolean;
-    /** Whether to draw part (instrument) names. */
+    /** Whether to draw metronome marks. Default true. (currently OSMD can only draw one at the beginning) */
+    drawMetronomeMarks?: boolean;
+    /** Whether to draw part (instrument) names. Setting this to false also disables drawPartAbbreviations,
+     *  unless explicitly enabled (drawPartNames: false, drawPartAbbreviations: true).
+     */
     drawPartNames?: boolean;
     /** Whether to draw part (instrument) name abbreviations each system after the first. Only draws if drawPartNames. Default true. */
     drawPartAbbreviations?: boolean;
@@ -121,7 +132,10 @@ export interface IOSMDOptions {
      *  Note: Using a background color will prevent the cursor from being visible for now (will be fixed at some point).
      */
     pageBackgroundColor?: string;
-    /** This makes OSMD render on one single horizontal (staff-)line. */
+    /** This makes OSMD render on one single horizontal (staff-)line.
+     * This option should be set before loading a score. It only starts working after load(),
+     * calling setOptions() after load and then render() doesn't work in this case.
+     */
     renderSingleHorizontalStaffline?: boolean;
     /** Whether to begin a new system ("line break") when given in XML ('new-system="yes"').
      *  Default false, because OSMD does its own layout that will do line breaks interactively
@@ -133,6 +147,51 @@ export interface IOSMDOptions {
      *  at different measures. So this option may result in a page break after a single measure on a page.
      */
     newPageFromXML?: boolean;
+    /** The cutoff number for rendering percussion clef stafflines as a single line. Default is 4.
+     *  This is number of instruments specified, e.g. a drumset:
+     *     <score-part id="P1">
+     *       <part-name>Drumset</part-name>
+     *       <part-abbreviation>D. Set</part-abbreviation>
+     *       <score-instrument id="P1-I36">
+     *           <instrument-name>Acoustic Bass Drum</instrument-name>
+     *           </score-instrument>
+     *       <score-instrument id="P1-I37">
+     *           <instrument-name>Bass Drum 1</instrument-name>
+     *           </score-instrument>
+     *       <score-instrument id="P1-I38">
+     *           <instrument-name>Side Stick</instrument-name>
+     *           </score-instrument>
+     *       <score-instrument id="P1-I39">
+     *           <instrument-name>Acoustic Snare</instrument-name>
+     *           </score-instrument>
+     *           ...
+     *   Would still render as 5 stafflines by default, since we have 4 (or greater) instruments in this part.
+     *   While a snare:
+     *   <score-part id="P2">
+     *   <part-name>Concert Snare Drum</part-name>
+     *   <part-abbreviation>Con. Sn.</part-abbreviation>
+     *   <score-instrument id="P2-I38">
+     *       <instrument-name>Side Stick</instrument-name>
+     *       </score-instrument>
+     *   <score-instrument id="P2-I39">
+     *       <instrument-name>Acoustic Snare</instrument-name>
+     *       </score-instrument>
+     *       ...
+     *   Would render with 1 line on the staff, since we only have 2 voices.
+     *   If this value is 0, the feature is turned off.
+     *   If this value is -1, it will render all percussion clefs as a single line.
+     */
+    percussionOneLineCutoff?: number;
+    /** This property is only active if the above property is active (percussionOneLineCutoff)
+     *  This is the cutoff for forcing all voices to the single line, instead of rendering them at different
+     *  positions above/below the line.
+     *  The default is 3, so if a part has less than voices, all of them will be rendered on the line.
+     *  This is for cases like a Concert snare, which has multiple 'instruments' available (snare, side stick)
+     *  should still render only on the line since there is no ambiguity.
+     *  If this value is 0, the feature is turned off.
+     *  IF this value is -1, it will render all percussion clef voices on the single line.
+     */
+    percussionForceVoicesOneLineCutoff?: number;
 }
 
 export enum AlignRestOption {

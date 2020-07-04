@@ -4,7 +4,7 @@ import {GraphicalLabel} from "./GraphicalLabel";
 import {GraphicalStaffEntry} from "./GraphicalStaffEntry";
 import {Label} from "../Label";
 import {PointF2D} from "../../Common/DataObjects/PointF2D";
-import { TextAlignmentEnum } from "../../Common/Enums/TextAlignment";
+import {TextAlignmentEnum} from "../../Common/Enums/TextAlignment";
 
 /**
  * The graphical counterpart of a [[LyricsEntry]]
