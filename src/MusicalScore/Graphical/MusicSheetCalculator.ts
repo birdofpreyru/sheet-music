@@ -625,15 +625,20 @@ export abstract class MusicSheetCalculator {
             relative.x = measures[staffIndex].beginInstructionsWidth + this.rules.RhythmRightMargin;
         }
 
-        const fontHeight: number = this.rules.UnknownTextHeight;
         const placement: PlacementEnum = multiExpression.getPlacementOfFirstEntry();
+
+        let font: Font = multiExpression.getFontOfFirstEntry();
+        if (font.Size === undefined) {
+          font = font.clone();
+          font.Size = this.rules.UnknownTextHeight;
+        }
+
         const graphLabel: GraphicalLabel  = this.calculateLabel(
           staffLine,
           relative,
           combinedExprString,
-          multiExpression.getFontOfFirstEntry(),
+          font,
           placement,
-          fontHeight,
         );
 
         const gue: GraphicalUnknownExpression = new GraphicalUnknownExpression(
