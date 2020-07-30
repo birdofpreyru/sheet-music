@@ -15,6 +15,7 @@ import * as log from "loglevel";
 export class VexFlowTabMeasure extends VexFlowMeasure {
     constructor(staff: Staff, sourceMeasure: SourceMeasure = undefined, staffLine: StaffLine = undefined) {
         super(staff, sourceMeasure, staffLine);
+        this.isTabMeasure = true;
     }
 
     /**
@@ -30,6 +31,7 @@ export class VexFlowTabMeasure extends VexFlowMeasure {
             space_above_staff_ln: 0,
             space_below_staff_ln: 0,
         });
+        // also see VexFlowMusicSheetDrawer.drawSheet() for some other vexflow default value settings (like default font scale)
         this.updateInstructionWidth();
     }
 
@@ -47,7 +49,9 @@ export class VexFlowTabMeasure extends VexFlowMeasure {
             }
         }
 
-        this.finalizeTuplets();
+        if (this.rules.TupletNumbersInTabs) { // default false, don't show tuplets in tab measures
+            this.finalizeTuplets();
+        }
 
         const voices: Voice[] = this.getVoicesWithinMeasure();
 

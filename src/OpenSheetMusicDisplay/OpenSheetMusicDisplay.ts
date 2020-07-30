@@ -28,7 +28,7 @@ import { ITransposeCalculator } from "../MusicalScore/Interfaces";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.8.2-release"; // getter: this.Version
+    private version: string = "0.8.3-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -500,8 +500,14 @@ export class OpenSheetMusicDisplay {
         if (options.drawMeasureNumbers !== undefined) {
             this.rules.RenderMeasureNumbers = options.drawMeasureNumbers;
         }
+        if (options.drawMeasureNumbersOnlyAtSystemStart) {
+            this.rules.RenderMeasureNumbersOnlyAtSystemStart = options.drawMeasureNumbersOnlyAtSystemStart;
+        }
         if (options.drawLyrics !== undefined) {
             this.rules.RenderLyrics = options.drawLyrics;
+        }
+        if (options.drawTimeSignatures !== undefined) {
+            this.rules.RenderTimeSignatures = options.drawTimeSignatures;
         }
         if (options.drawSlurs !== undefined) {
             this.rules.RenderSlurs = options.drawSlurs;
@@ -586,6 +592,9 @@ export class OpenSheetMusicDisplay {
         }
         if (options.renderSingleHorizontalStaffline !== undefined) {
             this.rules.RenderSingleHorizontalStaffline = options.renderSingleHorizontalStaffline;
+        }
+        if (options.spacingFactorSoftmax !== undefined) {
+            this.rules.SoftmaxFactorVexFlow = options.spacingFactorSoftmax;
         }
     }
 

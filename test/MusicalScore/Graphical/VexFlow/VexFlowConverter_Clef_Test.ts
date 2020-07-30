@@ -1,3 +1,4 @@
+import {Done} from "mocha";
 import {IXmlElement} from "../../../../src/Common/FileIO/Xml";
 import {MusicSheet} from "../../../../src/MusicalScore/MusicSheet";
 import {MusicSheetReader} from "../../../../src/MusicalScore/ScoreIO/MusicSheetReader";
@@ -13,7 +14,7 @@ describe("Clef Converter MusicXML to VexFlow", () => {
       parser = new DOMParser();
     });
 
-    it("reads treble key", (done: MochaDone) => {
+    it("reads treble key", (done: Done) => {
       getMusicSheetWithClef("G").getStaffFromIndex(0);
       done();
     });

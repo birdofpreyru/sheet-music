@@ -568,10 +568,11 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                     if (!creditChild.attribute("justify")) {
                         break;
                     }
-                    const creditJustify: string = creditChild.attribute("justify").value;
-                    const creditY: string = creditChild.attribute("default-y").value;
-                    const creditYInfo: number = parseFloat(creditY);
-                    if (creditYInfo > systemYCoordinates) {
+                    const creditJustify: string = creditChild.attribute("justify")?.value;
+                    const creditY: string = creditChild.attribute("default-y")?.value;
+                    const creditYGiven: boolean = creditY !== undefined && creditY !== null;
+                    const creditYInfo: number = creditYGiven ? parseFloat(creditY) : Number.MIN_VALUE;
+                    if (creditYGiven && creditYInfo > systemYCoordinates) {
                         if (!this.musicSheet.Title) {
                             const creditSize: string = creditChild.attribute("font-size").value;
                             const titleCreditSizeInt: number = parseFloat(creditSize);
@@ -727,6 +728,10 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                         try {
                             if (partElement.name === "part-name") {
                                 instrument.Name = partElement.value;
+                                if (partElement.attribute("print-object") &&
+                                   partElement.attribute("print-object").value === "no") {
+                                    instrument.NameLabel.print = false;
+                                }
                             } else if (partElement.name === "part-abbreviation") {
                                 instrument.PartAbbreviation = partElement.value;
                             } else if (partElement.name === "score-instrument") {
