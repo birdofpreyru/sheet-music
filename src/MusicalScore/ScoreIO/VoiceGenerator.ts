@@ -8,6 +8,7 @@ import { SourceMeasure } from "../VoiceData/SourceMeasure";
 import { SourceStaffEntry } from "../VoiceData/SourceStaffEntry";
 import { Beam } from "../VoiceData/Beam";
 import { Tie } from "../VoiceData/Tie";
+import { TieTypes } from "../../Common/Enums/";
 import { Tuplet } from "../VoiceData/Tuplet";
 import { Fraction } from "../../Common/DataObjects/Fraction";
 import { IXmlElement } from "../../Common/FileIO/Xml";
@@ -27,7 +28,7 @@ import { ArticulationReader } from "./MusicSymbolModules/ArticulationReader";
 import { SlurReader } from "./MusicSymbolModules/SlurReader";
 import { Notehead } from "../VoiceData/Notehead";
 import { Arpeggio, ArpeggioType } from "../VoiceData/Arpeggio";
-import { NoteType } from "../VoiceData/NoteType";
+import { NoteType, NoteTypeHandler } from "../VoiceData/NoteType";
 import { TabNote } from "../VoiceData/TabNote";
 
 export class VoiceGenerator {
@@ -109,7 +110,7 @@ export class VoiceGenerator {
               parentStaffEntry: SourceStaffEntry, parentMeasure: SourceMeasure,
               measureStartAbsoluteTimestamp: Fraction, maxTieNoteFraction: Fraction, chord: boolean, guitarPro: boolean,
               printObject: boolean, isCueNote: boolean, stemDirectionXml: StemDirectionType, tremoloStrokes: number,
-              stemColorXml: string, noteheadColorXml: string): Note {
+              stemColorXml: string, noteheadColorXml: string, vibratoStrokes: boolean): Note {
     this.currentStaffEntry = parentStaffEntry;
     this.currentMeasure = parentMeasure;
     //log.debug("read called:", restNote);
@@ -117,7 +118,7 @@ export class VoiceGenerator {
       this.currentNote = restNote
         ? this.addRestNote(noteDuration, noteTypeXml, printObject, isCueNote, noteheadColorXml)
         : this.addSingleNote(noteNode, noteDuration, noteTypeXml, typeDuration, normalNotes, chord, guitarPro,
-                             printObject, isCueNote, stemDirectionXml, tremoloStrokes, stemColorXml, noteheadColorXml);
+                             printObject, isCueNote, stemDirectionXml, tremoloStrokes, stemColorXml, noteheadColorXml, vibratoStrokes);
       // read lyrics
       const lyricElements: IXmlElement[] = noteNode.elements("lyric");
       if (this.lyricsReader !== undefined && lyricElements) {
@@ -190,9 +191,23 @@ export class VoiceGenerator {
         // check for Ties - must be the last check
         const tiedNodeList: IXmlElement[] = notationNode.elements("tied");
         if (tiedNodeList.length > 0) {
-          this.addTie(tiedNodeList, measureStartAbsoluteTimestamp, maxTieNoteFraction);
+          this.addTie(tiedNodeList, measureStartAbsoluteTimestamp, maxTieNoteFraction, TieTypes.SIMPLE);
         }
-
+        //check for slides, they are the same as Ties but with a different connection
+        const slideNodeList: IXmlElement[] = notationNode.elements("slide");
+        if (slideNodeList.length > 0) {
+          this.addTie(slideNodeList, measureStartAbsoluteTimestamp, maxTieNoteFraction, TieTypes.SLIDE);
+        }
+        //check for slides, they are the same as Ties but with a different connection
+        const technicalNode: IXmlElement = notationNode.element("technical");
+        const hammerNodeList: IXmlElement[] = technicalNode.elements("hammer-on");
+        if (hammerNodeList.length > 0) {
+          this.addTie(hammerNodeList, measureStartAbsoluteTimestamp, maxTieNoteFraction, TieTypes.HAMMERON);
+        }
+        const pulloffNodeList: IXmlElement[] = technicalNode.elements("pull-off");
+        if (pulloffNodeList.length > 0) {
+          this.addTie(pulloffNodeList, measureStartAbsoluteTimestamp, maxTieNoteFraction, TieTypes.PULLOFF);
+        }
         // remove open ties, if there is already a gap between the last tie note and now.
         const openTieDict: { [_: number]: Tie; } = this.openTieDict;
         for (const key in openTieDict) {
@@ -267,51 +282,6 @@ export class VoiceGenerator {
     return this.currentVoiceEntry !== undefined;
   }
 
-  /**
-   *
-   * @param type
-   * @returns {Fraction} - a Note's Duration from a given type (type must be valid).
-   */
-  public getNoteDurationFromType(type: string): Fraction {
-    switch (type) {
-      case "1024th":
-        return new Fraction(1, 1024);
-      case "512th":
-        return new Fraction(1, 512);
-      case "256th":
-        return new Fraction(1, 256);
-      case "128th":
-        return new Fraction(1, 128);
-      case "64th":
-        return new Fraction(1, 64);
-      case "32th":
-      case "32nd":
-        return new Fraction(1, 32);
-      case "16th":
-        return new Fraction(1, 16);
-      case "eighth":
-        return new Fraction(1, 8);
-      case "quarter":
-        return new Fraction(1, 4);
-      case "half":
-        return new Fraction(1, 2);
-      case "whole":
-        return new Fraction(1, 1);
-      case "breve":
-        return new Fraction(2, 1);
-      case "long":
-        return new Fraction(4, 1);
-      case "maxima":
-        return new Fraction(8, 1);
-      default: {
-        const errorMsg: string = ITextTranslation.translateText(
-          "ReaderErrorMessages/NoteDurationError", "Invalid note duration."
-        );
-        throw new MusicSheetReadingException(errorMsg);
-      }
-    }
-  }
-
   private readArticulations(notationNode: IXmlElement, currentVoiceEntry: VoiceEntry): void {
     const articNode: IXmlElement = notationNode.element("articulations");
     if (articNode) {
@@ -346,7 +316,7 @@ export class VoiceGenerator {
   private addSingleNote(node: IXmlElement, noteDuration: Fraction, noteTypeXml: NoteType, typeDuration: Fraction,
                         normalNotes: number, chord: boolean, guitarPro: boolean,
                         printObject: boolean, isCueNote: boolean, stemDirectionXml: StemDirectionType, tremoloStrokes: number,
-                        stemColorXml: string, noteheadColorXml: string): Note {
+                        stemColorXml: string, noteheadColorXml: string, vibratoStrokes: boolean): Note {
     //log.debug("addSingleNote called");
     let noteAlter: number = 0;
     let noteAccidental: AccidentalEnum = AccidentalEnum.NONE;
@@ -440,6 +410,7 @@ export class VoiceGenerator {
     let note: Note = undefined;
     let stringNumber: number = -1;
     let fretNumber: number = -1;
+    const bends: {bendalter: number, direction: string}[] = [];
     // check for guitar tabs:
     const notationNode: IXmlElement = node.element("notations");
     if (notationNode) {
@@ -453,6 +424,16 @@ export class VoiceGenerator {
         if (fretNode) {
           fretNumber = parseInt(fretNode.value, 10);
         }
+        const bendElementsArr: IXmlElement[] = technicalNode.elements("bend");
+        bendElementsArr.forEach(function (bend: IXmlElement): void {
+            const bendalterNote: IXmlElement = bend.element("bend-alter");
+            const releaseNode: IXmlElement = bend.element("release");
+            if (releaseNode !== undefined) {
+              bends.push({bendalter: parseInt (bendalterNote.value, 10), direction: "down"});
+            } else {
+              bends.push({bendalter: parseInt (bendalterNote.value, 10), direction: "up"});
+            }
+          });
       }
     }
 
@@ -461,7 +442,7 @@ export class VoiceGenerator {
       note = new Note(this.currentVoiceEntry, this.currentStaffEntry, noteLength, pitch);
     } else {
       // create TabNote
-      note = new TabNote(this.currentVoiceEntry, this.currentStaffEntry, noteLength, pitch, stringNumber, fretNumber);
+      note = new TabNote(this.currentVoiceEntry, this.currentStaffEntry, noteLength, pitch, stringNumber, fretNumber, bends, vibratoStrokes);
     }
 
     note.TypeLength = typeDuration;
@@ -791,7 +772,7 @@ export class VoiceGenerator {
     }
   }
 
-  private addTie(tieNodeList: IXmlElement[], measureStartAbsoluteTimestamp: Fraction, maxTieNoteFraction: Fraction): void {
+  private addTie(tieNodeList: IXmlElement[], measureStartAbsoluteTimestamp: Fraction, maxTieNoteFraction: Fraction, tieType: TieTypes): void {
     if (tieNodeList) {
       if (tieNodeList.length === 1) {
         const tieNode: IXmlElement = tieNodeList[0];
@@ -804,7 +785,7 @@ export class VoiceGenerator {
                 delete this.openTieDict[num];
               }
               const newTieNumber: number = this.getNextAvailableNumberForTie();
-              const tie: Tie = new Tie(this.currentNote);
+              const tie: Tie = new Tie(this.currentNote, tieType);
               this.openTieDict[newTieNumber] = tie;
             } else if (type === "stop") {
               const tieNumber: number = this.findCurrentNoteInTieDict(this.currentNote);
@@ -864,8 +845,14 @@ export class VoiceGenerator {
     for (const key in openTieDict) {
       if (openTieDict.hasOwnProperty(key)) {
         const tie: Tie = openTieDict[key];
+        const tieTabNote: TabNote = tie.Notes[0] as TabNote;
+        const tieCandidateNote: TabNote = candidateNote as TabNote;
         if (tie.Pitch.FundamentalNote === candidateNote.Pitch.FundamentalNote && tie.Pitch.Octave === candidateNote.Pitch.Octave) {
           return +key;
+        } else {
+          if (tieTabNote.StringNumber === tieCandidateNote.StringNumber) {
+            return +key;
+          }
         }
       }
     }
@@ -883,7 +870,7 @@ export class VoiceGenerator {
       if (typeNode) {
         const type: string = typeNode.value;
         try {
-          return this.getNoteDurationFromType(type);
+          return NoteTypeHandler.getNoteDurationFromType(type);
         } catch (e) {
           const errorMsg: string = ITextTranslation.translateText("ReaderErrorMessages/NoteDurationError", "Invalid note duration.");
           this.musicSheet.SheetErrors.pushMeasureError(errorMsg);

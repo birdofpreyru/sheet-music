@@ -57,4 +57,12 @@ typings
 .idea/encodings.xml
 *.md
 node_modules/
+
+# Private key for GH pages deploy
+bin/gh_pages_deploy_key
+bin/gh_pages_deploy_key.pub
+
+#local env files
+webpack.local.js
+
 /dr.pogodin-sheet-music-*.tgz

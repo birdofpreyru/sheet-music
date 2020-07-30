@@ -1,3 +1,4 @@
+import { Font } from "../../../Common/DataObjects/Font";
 import { MusicSheetDrawer } from "../MusicSheetDrawer";
 import { RectangleF2D } from "../../../Common/DataObjects/RectangleF2D";
 import { VexFlowMeasure } from "./VexFlowMeasure";
@@ -44,6 +45,20 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     }
 
     public drawSheet(graphicalMusicSheet: GraphicalMusicSheet): void {
+        // vexflow 3.x: change default font
+        if (this.rules.DefaultVexFlowNoteFont.Family === "gonville") {
+            (Vex.Flow as any).DEFAULT_FONT_STACK = [(Vex.Flow as any).Fonts?.Gonville, (Vex.Flow as any).Fonts?.Bravura, (Vex.Flow as any).Fonts?.Custom];
+        } // else keep new vexflow default Bravura (more cursive, bold).
+
+        // sizing defaults in Vexflow
+        (Vex.Flow as any).STAVE_LINE_THICKNESS
+          = this.rules.StaffLineWidth * EngravingRules.UnitToPx;
+        (Vex.Flow as any).STEM_WIDTH
+          = this.rules.StemWidth * EngravingRules.UnitToPx;
+        // sets scale/size of notes/rest notes:
+        (Vex.Flow as any).DEFAULT_NOTATION_FONT_SCALE = this.rules.VexFlowDefaultNotationFontScale; // default 39
+        (Vex.Flow as any).DEFAULT_TAB_FONT_SCALE = this.rules.VexFlowDefaultTabFontScale; // default 39 // TODO doesn't seem to do anything
+
         this.pageIdx = 0;
         for (const graphicalMusicPage of graphicalMusicSheet.MusicPages) {
             const backend: VexFlowBackend = this.backends[this.pageIdx];
@@ -385,9 +400,17 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      * @param heightInPixel the height of the text in screen coordinates
      * @param screenPosition the position of the lower left corner of the text in screen coordinates
      */
-    protected renderLabel(graphicalLabel: GraphicalLabel, layer: number, bitmapWidth: number,
-                          bitmapHeight: number, heightInPixel: number, screenPosition: PointF2D): void {
-        const { font, text } = graphicalLabel.Label;
+    protected renderLabel(
+      graphicalLabel: GraphicalLabel,
+      layer: number,
+      bitmapWidth: number,
+      bitmapHeight: number,
+      fontHeightInPixel: number,
+      screenPosition: PointF2D,
+    ): void {
+        if (!graphicalLabel.Label.print) {
+            return;
+        }
         let color: string;
         if (this.rules.ColoringEnabled) {
             color = graphicalLabel.Label.colorDefault;
@@ -395,13 +418,22 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
                 color = this.rules.DefaultColorLabel;
             }
         }
-        this.backend.renderText(
-          font,
-          text,
-          screenPosition,
-          color,
-          graphicalLabel.Label.uuid,
-        );
+        const font: Font = graphicalLabel.Label.font.clone();
+        font.mergeDefaults(this.rules.DefaultFont);
+        for (let i: number = 0; i < graphicalLabel.TextLines?.length; i++) {
+            const currLine: {text: string, xOffset: number, width: number} = graphicalLabel.TextLines[i];
+            const xOffsetInPixel: number = this.calculatePixelDistance(currLine.xOffset);
+            const linePosition: PointF2D = new PointF2D(screenPosition.x + xOffsetInPixel, screenPosition.y);
+            this.backend.renderText(
+              font,
+              currLine.text,
+              linePosition,
+              color,
+              graphicalLabel.Label.uuid,
+            );
+            screenPosition.y = screenPosition.y + fontHeightInPixel;
+        }
+        // font currently unused, replaced by fontFamily
     }
 
     /**

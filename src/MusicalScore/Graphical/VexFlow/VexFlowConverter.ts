@@ -58,6 +58,10 @@ export class VexFlowConverter {
     public static duration(fraction: Fraction, isTuplet: boolean): string {
       const dur: number = fraction.RealValue;
 
+      if (dur === 2) { // Breve
+        return "1/2";
+      }
+      // TODO consider long (dur=4) and maxima (dur=8), though Vexflow doesn't seem to support them
       if (dur >= 1) {
           return "w";
       } else if (dur < 1 && dur >= 0.5) {
@@ -283,6 +287,8 @@ export class VexFlowConverter {
             vfnote = new Vex.Flow.StaveNote(vfnoteStruct);
         }
         if (rules.LedgerLineWidth || rules.LedgerLineStrokeStyle) {
+            // FIXME should probably use vfnote.setLedgerLineStyle. this doesn't seem to do anything.
+            // however, this is also set in VexFlowVoiceEntry.color() anyways.
             if (!((vfnote as any).ledgerLineStyle)) {
                 (vfnote as any).ledgerLineStyle = {};
             }
@@ -401,6 +407,16 @@ export class VexFlowConverter {
                 }
                 case ArticulationEnum.fermata: {
                     vfArt = new Vex.Flow.Articulation("a@a");
+                    vfArtPosition = Vex.Flow.Modifier.Position.ABOVE;
+                    break;
+                }
+                case ArticulationEnum.marcatodown: {
+                    vfArt = new Vex.Flow.Articulation("a|"); // Vexflow only knows marcato up, so we use a down stroke here.
+                    vfArtPosition = Vex.Flow.Modifier.Position.ABOVE; // TODO take position from xml? can be below
+                    break;
+                }
+                case ArticulationEnum.marcatoup: {
+                    vfArt = new Vex.Flow.Articulation("a^");
                     vfArtPosition = Vex.Flow.Modifier.Position.ABOVE;
                     break;
                 }
@@ -536,14 +552,39 @@ export class VexFlowConverter {
      */
     public static CreateTabNote(gve: GraphicalVoiceEntry): Vex.Flow.TabNote {
         const tabPositions: {str: number, fret: number}[] = [];
+        const notes: GraphicalNote[] = gve.notes.reverse();
+        const tabPhrases: { type: number, text: string, width: number }[] = [];
         const frac: Fraction = gve.notes[0].graphicalNoteLength;
         const isTuplet: boolean = gve.notes[0].sourceNote.NoteTuplet !== undefined;
         let duration: string = VexFlowConverter.duration(frac, isTuplet);
         let numDots: number = 0;
+        let tabVibrato: boolean = false;
         for (const note of gve.notes) {
             const tabNote: TabNote = note.sourceNote as TabNote;
             const tabPosition: {str: number, fret: number} = {str: tabNote.StringNumber, fret: tabNote.FretNumber};
             tabPositions.push(tabPosition);
+            if (tabNote.BendArray) {
+                tabNote.BendArray.forEach( function( bend: {bendalter: number, direction: string} ): void {
+                    let phraseText: string;
+                    const phraseStep: number = bend.bendalter - tabPosition.fret;
+                    if (phraseStep > 1) {
+                        phraseText = "Full";
+                    } else if (phraseStep === 1) {
+                        phraseText = "1/2";
+                    } else {
+                        phraseText = "1/4";
+                    }
+                    if (bend.direction === "up") {
+                        tabPhrases.push({type: Vex.Flow.Bend.UP, text: phraseText, width: 10});
+                    } else {
+                        tabPhrases.push({type: Vex.Flow.Bend.DOWN, text: phraseText, width: 10});
+                    }
+                });
+            }
+
+            if (tabNote.VibratoStroke) {
+                tabVibrato = true;
+            }
 
             if (numDots < note.numberOfDots) {
                 numDots = note.numberOfDots;
@@ -552,10 +593,26 @@ export class VexFlowConverter {
         for (let i: number = 0, len: number = numDots; i < len; ++i) {
             duration += "d";
         }
+
         const vfnote: Vex.Flow.TabNote = new Vex.Flow.TabNote({
             duration: duration,
             positions: tabPositions,
         });
+
+        for (let i: number = 0, len: number = notes.length; i < len; i += 1) {
+            (notes[i] as VexFlowGraphicalNote).setIndex(vfnote, i);
+        }
+
+        tabPhrases.forEach(function(phrase: { type: number, text: string, width: number }): void {
+            if (phrase.type === Vex.Flow.Bend.UP) {
+                vfnote.addModifier (new Vex.Flow.Bend(phrase.text, false));
+            } else {
+                vfnote.addModifier (new Vex.Flow.Bend(phrase.text, true));
+            }
+        });
+        if (tabVibrato) {
+            vfnote.addModifier(new Vex.Flow.Vibrato());
+        }
 
         return vfnote;
     }

@@ -29,7 +29,7 @@ export class VexFlowGraphicalNote extends GraphicalNote {
     // The pitch of this note as given by VexFlowConverter.pitch
     public vfpitch: [string, string, ClefInstruction];
     // The corresponding VexFlow StaveNote (plus its index in the chord)
-    public vfnote: [Vex.Flow.StaveNote, number];
+    public vfnote: [Vex.Flow.StemmableNote, number];
     // The current clef
     private clef: ClefInstruction;
 
@@ -66,7 +66,7 @@ export class VexFlowGraphicalNote extends GraphicalNote {
      * @param note
      * @param index
      */
-    public setIndex(note: Vex.Flow.StaveNote, index: number): void {
+    public setIndex(note: Vex.Flow.StemmableNote, index: number): void {
         this.vfnote = [note, index];
     }
 

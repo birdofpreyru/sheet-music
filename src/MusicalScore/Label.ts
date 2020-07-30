@@ -14,9 +14,11 @@ export class Label {
       font: Font = new Font(),
       color: string = undefined,
       uuid: string = undefined,
+      print: boolean = true,
     ) {
         this.uuid = uuid;
         this.text = text;
+        this.print = print;
         this.textAlignment = alignment;
         this.font = font;
         this.colorDefault = color;
@@ -25,6 +27,7 @@ export class Label {
     public uuid: string;
 
     public text: string;
+    public print: boolean;
     public color: OSMDColor;
     public colorDefault: string; // TODO this is Vexflow format, convert to OSMDColor. for now convenient for default colors.
     public font: Font;
