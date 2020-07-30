@@ -1,4 +1,6 @@
-import Vex from "vexflow";
+import * as VexModule from "vexflow";
+const Vex: any = (VexModule as any).default;
+
 import {SourceMeasure} from "../../VoiceData/SourceMeasure";
 import {Staff} from "../../VoiceData/Staff";
 import {StaffLine} from "../StaffLine";

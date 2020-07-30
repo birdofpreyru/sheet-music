@@ -1,3 +1,5 @@
+import { Done } from "mocha";
+
 import { OpenSheetMusicDisplay, CanvasVexFlowBackend } from "../../src";
 import { TestUtils } from "./TestUtils";
 //import fs from "fs";
@@ -33,7 +35,7 @@ describe("GeneratePNGImages", () => {
     // TODO This is just example code for now.
     // generate PNG. TODO fs doesn't work with Karma. This is the big problem that needs to be worked around with ts/Karma.
     function generatePNG(sampleFilename: string): void {
-        it(sampleFilename, (done: MochaDone) => {
+        it(sampleFilename, (done: Done) => {
             // Load the xml file content
             const score: Document = TestUtils.getScore(sampleFilename);
             const div: HTMLElement = document.createElement("div");

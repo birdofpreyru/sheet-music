@@ -1,3 +1,5 @@
+import { Done } from "mocha";
+
 import { IXmlElement } from "../../../src/Common/FileIO/Xml";
 import { TestUtils } from "../../Util/TestUtils";
 import { MXLHelper } from "../../../src/Common/FileIO/Mxl";
@@ -6,7 +8,7 @@ import { MXLHelper } from "../../../src/Common/FileIO/Mxl";
 describe("MXL Tests", () => {
   // Generates a test for a mxl file name
   function testFile(scoreName: string): void {
-    it(`reads ${scoreName}`, (done: MochaDone) => {
+    it(`reads ${scoreName}`, (done: Done) => {
       // Load the xml file content
       const mxl: string = TestUtils.getMXL(scoreName);
       chai.expect(mxl).to.not.be.undefined;
@@ -35,7 +37,7 @@ describe("MXL Tests", () => {
   }
 
   // Test failure
-  it("Corrupted file", (done: MochaDone) => {
+  it("Corrupted file", (done: Done) => {
     MXLHelper.MXLtoIXmlElement("").then(
       (score: IXmlElement) => {
         chai.expect(score).to.not.be.undefined;
