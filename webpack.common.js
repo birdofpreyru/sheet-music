@@ -13,6 +13,7 @@ module.exports = {
     externals: [
         'jszip',
         'loglevel',
+        'shortid',
         'typescript-collections'
 
         /* VexFlow should be bundled-in to not have to separately handle it
