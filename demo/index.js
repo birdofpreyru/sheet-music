@@ -1,6 +1,7 @@
 import { OpenSheetMusicDisplay, BackendType } from '../src/OpenSheetMusicDisplay';
-import * as jsPDF  from '../node_modules/jspdf-yworks/dist/jspdf.min'
-import * as svg2pdf from '../node_modules/svg2pdf.js/dist/svg2pdf.min';
+
+import { jsPDF } from 'jspdf';
+import 'svg2pdf.js';
 
 /*jslint browser:true */
 (function () {
@@ -814,7 +815,7 @@ import * as svg2pdf from '../node_modules/svg2pdf.js/dist/svg2pdf.min';
             svgElement = backends[idx].getSvgElement();
 
             // render the svg element
-            svg2pdf(svgElement, pdf, {
+            pdf.svg(svgElement, {
                 scale: scale,
                 xOffset: 0,
                 yOffset: 0
