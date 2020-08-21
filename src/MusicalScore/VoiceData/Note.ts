@@ -21,6 +21,7 @@ import * as shortid from "shortid";
 export class Note {
 
     constructor(voiceEntry: VoiceEntry, parentStaffEntry: SourceStaffEntry, length: Fraction, pitch: Pitch, sourceMeasure: SourceMeasure, isRest?: boolean) {
+        this.uuid = shortid();
         this.voiceEntry = voiceEntry;
         this.parentStaffEntry = parentStaffEntry;
         this.length = length;
