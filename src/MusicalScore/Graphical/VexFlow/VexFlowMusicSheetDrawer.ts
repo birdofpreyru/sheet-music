@@ -25,7 +25,7 @@ import { GraphicalSlur } from "../GraphicalSlur";
 import { PlacementEnum } from "../../VoiceData/Expressions/AbstractExpression";
 import { GraphicalInstantaneousTempoExpression } from "../GraphicalInstantaneousTempoExpression";
 import { GraphicalInstantaneousDynamicExpression } from "../GraphicalInstantaneousDynamicExpression";
-import log = require("loglevel");
+import log from "loglevel";
 import { GraphicalContinuousDynamicExpression } from "../GraphicalContinuousDynamicExpression";
 import { VexFlowContinuousDynamicExpression } from "./VexFlowContinuousDynamicExpression";
 import { DrawingParameters } from "../DrawingParameters";
@@ -435,6 +435,9 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
               graphicalLabel.Label.uuid,
             );
             screenPosition.y = screenPosition.y + fontHeightInPixel;
+            if (graphicalLabel.TextLines.length > 1) {
+             screenPosition.y += this.rules.SpacingBetweenTextLines;
+            }
         }
         // font currently unused, replaced by fontFamily
     }
