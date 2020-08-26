@@ -94,7 +94,7 @@ export interface IOSMDOptions {
     measureNumberInterval?: number;
     /** Whether to draw fingerings (only left to the note for now). Default true (unless solo part). */
     drawFingerings?: boolean;
-    /** Where to draw fingerings (left, right, above, below, auto).
+    /** Where to draw fingerings (left, right, above, below, or auto).
      * Default left. Auto, above, below experimental (potential collisions because bounding box not correct)
      */
     fingeringPosition?: string;
@@ -112,6 +112,12 @@ export interface IOSMDOptions {
     drawFromMeasureNumber?: number;
     /** Whether to fill measures that don't have notes given in the XML with whole rests (visible = 1, invisible = 2, for layouting). Default No (0). */
     fillEmptyMeasuresWithWholeRest?: FillEmptyMeasuresWithWholeRests | number;
+    /**
+     * Sets the maximum extention of music measure caused by lyrics. Defaults
+     * to 2.5. If lyrics of neihbour notes overlap, this parameter should be
+     * incremented.
+     */
+    maximumLyricsElongationFactor?: number;
     /** Whether to set the wanted stem direction by xml (default) or automatically. */
     setWantedStemDirectionByXml?: boolean;
     /** Whether tuplets are labeled with ratio (e.g. 5:2 instead of 5 for quintuplets). Default false. */
@@ -203,6 +209,19 @@ export interface IOSMDOptions {
      *  Setting this is the same as setting osmd.EngravingRules.SoftmaxFactorVexFlow.
      */
     spacingFactorSoftmax?: number;
+    /**
+     * Number in pixels, of spacing between multi-line labels
+     */
+    spacingBetweenTextLines?: number;
+    /**
+     * Set to true if the last system line should be streched across the whole page just as the other systems. Default is false
+     */
+    stretchLastSystemLine?: boolean;
+    /**
+     * Set to true if subsequent measures full of rests should be auto-converted to multi-rest measure. Default is true
+     * This works across instruments- If all instruments have subsequent measures with nothing but rests, multirest measures are generated
+     */
+    autoGenerateMutipleRestMeasuresFromRestMeasures?: boolean;
 }
 
 export enum AlignRestOption {
@@ -214,7 +233,7 @@ export enum AlignRestOption {
 export enum FillEmptyMeasuresWithWholeRests {
     No = 0,
     YesVisible = 1,
-    YesInvisible = 2
+    YesInvisible = 2 // fill with invisible whole rests
 }
 
 export enum BackendType {

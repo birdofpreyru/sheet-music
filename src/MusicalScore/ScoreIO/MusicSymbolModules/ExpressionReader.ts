@@ -16,6 +16,7 @@ import {PlacementEnum} from "../../VoiceData/Expressions/AbstractExpression";
 import {TextAlignmentEnum} from "../../../Common/Enums/TextAlignment";
 import {ITextTranslation} from "../../Interfaces/ITextTranslation";
 import * as log from "loglevel";
+import { Font } from "../../../Common/DataObjects";
 
 export class ExpressionReader {
     private musicSheet: MusicSheet;
@@ -350,6 +351,14 @@ export class ExpressionReader {
     }
     private interpretWords(wordsNode: IXmlElement, currentMeasure: SourceMeasure, inSourceMeasureCurrentFraction: Fraction): void {
         const text: string = wordsNode.value;
+        const font: Font = new Font();
+        const fontStyleAttr: Attr = wordsNode.attribute("font-style");
+        if (fontStyleAttr) {
+            const fontStyleText: string = fontStyleAttr.value;
+            if (fontStyleText === "italic") {
+              font.Italic = true;
+            }
+        }
         if (text.length > 0) {
             if (wordsNode.hasAttributes && wordsNode.attribute("default-x")) {
                 this.directionTimestamp = Fraction.createFromFraction(inSourceMeasureCurrentFraction);
@@ -357,7 +366,7 @@ export class ExpressionReader {
             if (this.checkIfWordsNodeIsRepetitionInstruction(text)) {
                 return;
             }
-            this.fillMultiOrTempoExpression(text, currentMeasure);
+            this.fillMultiOrTempoExpression(text, currentMeasure, font);
             this.initialize();
         }
     }
@@ -423,7 +432,7 @@ export class ExpressionReader {
             }
         }
     }
-    private fillMultiOrTempoExpression(inputString: string, currentMeasure: SourceMeasure): void {
+    private fillMultiOrTempoExpression(inputString: string, currentMeasure: SourceMeasure, font: Font): void {
         if (!inputString) {
             return;
         }
@@ -432,7 +441,7 @@ export class ExpressionReader {
         //const splitStrings: string[] = tmpInputString.split(/([\s,\r\n]and[\s,\r\n]|[\s,\r\n]und[\s,\r\n]|[\s,\r\n]e[\s,\r\n]|[\s,\r\n])+/g);
 
         //for (const splitStr of splitStrings) {
-        this.createExpressionFromString("", tmpInputString, currentMeasure, inputString);
+        this.createExpressionFromString("", tmpInputString, currentMeasure, inputString, font);
         //}
     }
     /*
@@ -464,7 +473,8 @@ export class ExpressionReader {
     }
     */
     private createExpressionFromString(prefix: string, stringTrimmed: string,
-                                       currentMeasure: SourceMeasure, inputString: string): boolean {
+                                       currentMeasure: SourceMeasure, inputString: string,
+                                       font: Font): boolean {
         if (InstantaneousTempoExpression.isInputStringInstantaneousTempo(stringTrimmed) ||
             ContinuousTempoExpression.isInputStringContinuousTempo(stringTrimmed)) {
             // first check if there is already a tempo expression with the same function
@@ -478,7 +488,7 @@ export class ExpressionReader {
                     }
                 }
             }
-            this.createNewTempoExpressionIfNeeded(currentMeasure);
+            this.createNewTempoExpressionIfNeeded(currentMeasure); // TODO process fontStyle? (also for other expressions)
             this.currentMultiTempoExpression.CombinedExpressionsText = inputString;
             if (InstantaneousTempoExpression.isInputStringInstantaneousTempo(stringTrimmed)) {
                 const instantaneousTempoExpression: InstantaneousTempoExpression = new InstantaneousTempoExpression(  stringTrimmed,
@@ -537,7 +547,9 @@ export class ExpressionReader {
         }
         if (MoodExpression.isInputStringMood(stringTrimmed)) {
             this.createNewMultiExpressionIfNeeded(currentMeasure);
+            currentMeasure.hasMoodExpressions = true;
             const moodExpression: MoodExpression = new MoodExpression(stringTrimmed, this.placement, this.staffNumber);
+            moodExpression.font = font;
             this.getMultiExpression.addExpression(moodExpression, prefix);
             return true;
         }
@@ -570,6 +582,7 @@ export class ExpressionReader {
         }
         const unknownExpression: UnknownExpression = new UnknownExpression(
             stringTrimmed, this.placement, textAlignment, this.staffNumber);
+        unknownExpression.font = font;
         this.getMultiExpression.addExpression(unknownExpression, prefix);
 
         return false;

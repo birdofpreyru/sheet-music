@@ -112,14 +112,17 @@ export class MultiExpression {
     }
 
     public getFontOfFirstEntry(): Font {
-      const font: Font = new Font();
+      let font: Font = new Font();
       if (this.expressions.length > 0) {
         if (this.expressions[0].expression instanceof ContinuousDynamicExpression) {
           font.Italic = true;
         } else if (this.expressions[0].expression instanceof MoodExpression) {
           font.Italic = true;
         } else if (this.expressions[0].expression instanceof UnknownExpression) {
-          font.Italic = false;
+          const unknownExpression: UnknownExpression = (this.expressions[0].expression as UnknownExpression);
+          if (unknownExpression.font) {
+            font = unknownExpression.font;
+          }
         }
       }
       return font;

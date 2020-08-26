@@ -18,7 +18,6 @@ describe("Music Sheet Calculator", () => {
     let sheet: MusicSheet;
 
     it("calculates music sheet", (done: Done) => {
-        this.timeout = 10000;
         MusicSheetCalculator.TextMeasurer = new VexFlowTextMeasurer(new EngravingRules());
         // Load the XML file
         const xml: Document = TestUtils.getScore(filename);

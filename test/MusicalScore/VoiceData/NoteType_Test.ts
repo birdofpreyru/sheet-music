@@ -1,5 +1,5 @@
 import {Done} from "mocha";
-import { NoteType, NoteTypeHandler } from "../../../src/MusicalScore/VoiceData";
+import { NoteType, NoteTypeHandler } from "../../../src/MusicalScore/VoiceData/NoteType";
 
 /* tslint:disable:no-unused-expression */
 describe("NoteType", () => {

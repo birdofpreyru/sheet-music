@@ -81,21 +81,21 @@ export class Font {
    * @param src
    * @returns This font for chaining.
    */
-  public mergeDefaults(src: Font): Font {
+  public mergeDefaults(src: Readonly<Font>): Font {
     if (this.family === undefined) {
-      this.family = src.family;
+      this.family = src.Family;
     }
     if (this.size === undefined) {
-      this.size = src.size;
+      this.size = src.Size;
     }
     if (this.weight === undefined) {
-      this.weight = src.weight;
+      this.weight = src.Weight;
     }
     if (this.italic === undefined) {
-      this.italic = src.italic;
+      this.italic = src.Italic;
     }
     if (this.underlined === undefined) {
-      this.underlined = src.underlined;
+      this.underlined = src.Underlined;
     }
     return this;
   }

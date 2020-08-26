@@ -84,7 +84,10 @@ export class GraphicalLabel extends Clickable {
           line.xOffset = xOffset;
         }
 
-        const height: number = this.Label.font.Size * numOfLines;
+        let height: number = this.Label.font.Size * numOfLines;
+        if (this.rules.SpacingBetweenTextLines > 0 && this.TextLines.length > 1) {
+            height += (this.rules.SpacingBetweenTextLines * numOfLines) / 10;
+        }
         const bbox: BoundingBox = this.PositionAndShape;
 
         switch (this.Label.textAlignment) {

@@ -1,4 +1,5 @@
 import {PlacementEnum, AbstractExpression} from "./AbstractExpression";
+import {Font} from "../../../Common/DataObjects/Font";
 
 export class MoodExpression extends AbstractExpression {
     constructor(label: string, placement: PlacementEnum, staffNumber: number) {
@@ -46,6 +47,7 @@ export class MoodExpression extends AbstractExpression {
     private moodType: MoodEnum;
     private label: string;
     private staffNumber: number;
+    public font: Font;
 
     public static isInputStringMood(inputString: string): boolean {
         if (!inputString) {
