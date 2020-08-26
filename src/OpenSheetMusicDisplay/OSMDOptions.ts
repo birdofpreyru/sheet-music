@@ -112,6 +112,12 @@ export interface IOSMDOptions {
     drawFromMeasureNumber?: number;
     /** Whether to fill measures that don't have notes given in the XML with whole rests (visible = 1, invisible = 2, for layouting). Default No (0). */
     fillEmptyMeasuresWithWholeRest?: FillEmptyMeasuresWithWholeRests | number;
+    /**
+     * Sets the maximum extention of music measure caused by lyrics. Defaults
+     * to 2.5. If lyrics of neihbour notes overlap, this parameter should be
+     * incremented.
+     */
+    maximumLyricsElongationFactor?: number;
     /** Whether to set the wanted stem direction by xml (default) or automatically. */
     setWantedStemDirectionByXml?: boolean;
     /** Whether tuplets are labeled with ratio (e.g. 5:2 instead of 5 for quintuplets). Default false. */

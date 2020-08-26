@@ -5,6 +5,13 @@
 
 # Sheet Music
 
-A customized fork of
+_A customized fork of
 [OpenSheetMusicDisplay](https://www.npmjs.com/package/opensheetmusicdisplay)
-library.
+library._
+
+### Changes vs. Upstream
+- Adds the following parameters to OSMD constructor:
+  - `maximumLyricsElongationFactor = 2.5` &ndash; The limit of measure extension
+    that can be caused by lyrics width. If lyrics of neighbour notes overlap,
+    this parameter should be increased.
+- A sane fonts management.

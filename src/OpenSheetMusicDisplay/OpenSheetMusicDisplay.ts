@@ -513,6 +513,9 @@ export class OpenSheetMusicDisplay {
         if (options.drawSlurs !== undefined) {
             this.rules.RenderSlurs = options.drawSlurs;
         }
+        if (options.maximumLyricsElongationFactor !== undefined) {
+          this.rules.MaximumLyricsElongationFactor = options.maximumLyricsElongationFactor;
+        }
         if (options.measureNumberInterval !== undefined) {
             this.rules.MeasureNumberLabelOffset = options.measureNumberInterval;
         }
