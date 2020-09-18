@@ -32,6 +32,7 @@ import 'svg2pdf.js';
             "OSMD Function Test - Bar lines": "OSMD_function_test_bar_lines.musicxml",
             "OSMD Function Test - Chord Symbols": "OSMD_function_test_chord_symbols.musicxml",
             "OSMD Function Test - Color (from XML)": "OSMD_function_test_color.musicxml",
+            "OSMD Function Test - Container height (compacttight mode)": "OSMD_Function_Test_Container_height.musicxml",
             "OSMD Function Test - Drumset": "OSMD_function_test_drumset.musicxml",
             "OSMD Function Test - Drums on one Line": "OSMD_Function_Test_Drums_one_line_snare_plus_piano.musicxml", 
             "OSMD Function Test - Expressions": "OSMD_function_test_expressions.musicxml",
@@ -96,6 +97,8 @@ import 'svg2pdf.js';
     var minMeasureToDrawStashed = 1;
     var maxMeasureToDrawStashed = Number.MAX_SAFE_INTEGER;
     var measureToDrawRangeNeedsReset = false;
+    var drawingParametersStashed = "default";
+    var drawingParametersNeedsReset = false;
     var autobeamOptionNeedsReset = false;
     var autobeamOptionStashedValue = false;
     var autoCustomColoringOptionNeedsReset = false;
@@ -439,6 +442,7 @@ import 'svg2pdf.js';
 
             //drawMeasureNumbers: false, // disable drawing measure numbers
             //measureNumberInterval: 4, // draw measure numbers only every 4 bars (and at the beginning of a new system)
+            useXMLMeasureNumbers: true, // read measure numbers from xml
 
             // coloring options
             coloringEnabled: true,
@@ -512,6 +516,9 @@ import 'svg2pdf.js';
             // selectSampleOnChange();
         });
 
+        // TODO after selectSampleOnChange, the resize handler triggers immediately,
+        //   so we render twice at the start of the demo.
+        //   maybe delay the first osmd render, e.g. when window ready?
         if (paramOpenUrl) {
             if (openSheetMusicDisplay.getLogLevel() < 2) { // debug or trace
                 console.log("[OSMD] selectSampleOnChange with " + paramOpenUrl);
@@ -643,6 +650,19 @@ import 'svg2pdf.js';
                 drawUpToMeasureNumber: maxMeasureToDrawStashed
             });
             measureToDrawRangeNeedsReset = false;
+        }
+
+        if (!isCustom && str.includes("Test_Container_height")) {
+            drawingParametersStashed = openSheetMusicDisplay.drawingParameters.drawingParametersEnum;
+            openSheetMusicDisplay.setOptions({
+                drawingParameters: "compacttight"
+            });
+            drawingParametersNeedsReset = true;
+        } else if (drawingParametersNeedsReset) {
+            openSheetMusicDisplay.setOptions({
+                drawingParameters: drawingParametersStashed
+            });
+            drawingParametersNeedsReset = false;
         }
 
         // Enable Boomwhacker-like coloring for OSMD Function Test - Auto-Coloring (Boomwhacker-like, custom color set)
