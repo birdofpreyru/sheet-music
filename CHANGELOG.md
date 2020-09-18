@@ -6,6 +6,31 @@ https://github.com/birdofpreyru/sheet-music/releases
 
 
 
+## [0.8.6](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/0.8.5...0.8.6)  (2020-09-15)
+
+### Bug Fixes
+* **Voltas, Tabs**: Fix regression in 0.8.5 where repetition volta shift and tabnote svg id were fixes were not applied (will soon be fixed by vexflow patch script)
+
+### Miscellaneous
+* **Build**: Build size down to 1.1MB again from mysterious 1.3MB increase in 0.8.5
+
+## [0.8.5](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/0.8.4...0.8.5) (2020-09-08)
+
+
+### Bug Fixes
+
+* **Container height:** small scores don't significantly exceed bounding box anymore (SVG height). fix PageBottomMargin ([#875](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/875)) etc ([c43565c](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/c43565c970e2344f7867d463e6885b8eaa63f204)), closes [#788](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/788)
+* **Rests:** Fix rests in pickup measures (e.g. 8th pickup in 4/4 time) turned into whole measure rests or multiple measure rests. ([f1478a6](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/f1478a6e52c34b4ea3710be1cec197c3e445981f))
+* **Tabs:** fix multi-rest for tabs. never create fingerings for now ([ed8d174](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/ed8d174ee2137f8bdbc665ed9c70ef0d050c631a))
+
+
+### Features
+
+* **Measure Numbers:** Display measure numbers (labels) as given in XML ([#541](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/541)) ([6f5d77a](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/6f5d77a9efbe29d8e210c8715c01548f1bc067f3)), closes [#879](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/879)
+* **Options:** Add drawUpToPageNumber and drawUpToSystemNumber options ([#835](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/832))
+
+
+
 ## [0.8.4](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/0.8.3...0.8.4) (2020-08-14)
 
 
@@ -36,11 +61,11 @@ https://github.com/birdofpreyru/sheet-music/releases
 ### Features
 
 * **Fonts:** Read and apply fontStyle for UnknownExpressions like dolce ([#348](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/348)) ([28b313d](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/28b313d73a2ea53869982d1b83bd8eb6d567ab75))
+* **Labels:** Add option for additional spacing between multiline text labels (EngravingRules.SpacingBetweenTextLines) ([b530316](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/b5303169be0fea7f160cec62ae12abbe413a62c3))
 * **Multirest:** Auto-generate multirest measure from subsequent rest-only measures ([#861](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/861)) ([f7d6424](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/f7d642489bfe365d59ef27057f44aa31867db84b))
 * **Options:** Add option StretchLastSystemLine to stretch last system to full width ([#842](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/842)) ([88d1a5a](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/88d1a5a225765ea2447494775355043221c623cc)), closes [#847](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/847)
 * **Options:** Add osmd.EngravingRules.LyricsYOffsetToStaffHeight ([#865](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/865)) ([3ca5dd0](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/3ca5dd08a257e2aba70222c72cb6c2ca84da313b))
 * **Rests:** For rests encircled by beamed notes, if no display-step given, put the rest on the same y-height as previous note to avoid collisions. ([a74d77b](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/a74d77b964c862dd92e28f0870018c1d675d6c1a)), closes [#66](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/66)
-* **Labels:** Add option for additional spacing between multiline text labels (EngravingRules.SpacingBetweenTextLines) ([b530316](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/b5303169be0fea7f160cec62ae12abbe413a62c3))
 
 
 

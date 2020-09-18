@@ -29,7 +29,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.8.4-release"; // getter: this.Version
+    private version: string = "0.8.6-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -303,6 +303,9 @@ export class OpenSheetMusicDisplay {
 
         // TODO check if resize is necessary. set needResize or something when size was changed
         for (const page of this.graphic.MusicPages) {
+            if (page.PageNumber > this.rules.MaxPageToDrawNumber) {
+                break; // don't add the bounding boxes of pages that aren't drawn to the container height etc
+            }
             const backend: VexFlowBackend = this.createBackend(this.backendType, page);
             const sizeWarningPartTwo: string = " exceeds CanvasBackend limit of 32767. Cutting off score.";
             if (backend.getOSMDBackendType() === BackendType.Canvas && width > canvasDimensionsLimit) {
@@ -313,7 +316,13 @@ export class OpenSheetMusicDisplay {
                 height = width / this.rules.PageFormat.aspectRatio;
                 // console.log("pageformat given. height: " + page.PositionAndShape.Size.height);
             } else {
-                height = (page.PositionAndShape.Size.height + 15) * this.zoom * 10.0;
+                height = page.PositionAndShape.Size.height;
+                height += this.rules.PageBottomMargin;
+                height += this.rules.CompactMode ? this.rules.PageTopMarginNarrow : this.rules.PageTopMargin;
+                if (this.rules.RenderTitle) {
+                    height += this.rules.TitleTopDistance;
+                }
+                height *= this.zoom * 10.0;
                 // console.log("pageformat not given. height: " + page.PositionAndShape.Size.height);
             }
             if (backend.getOSMDBackendType() === BackendType.Canvas && height > canvasDimensionsLimit) {
@@ -519,6 +528,9 @@ export class OpenSheetMusicDisplay {
         if (options.measureNumberInterval !== undefined) {
             this.rules.MeasureNumberLabelOffset = options.measureNumberInterval;
         }
+        if (options.useXMLMeasureNumbers !== undefined) {
+            this.rules.UseXMLMeasureNumbers = options.useXMLMeasureNumbers;
+        }
         if (options.fingeringPosition !== undefined) {
             this.rules.FingeringPosition = AbstractExpression.PlacementEnumFromString(options.fingeringPosition);
         }
@@ -569,6 +581,12 @@ export class OpenSheetMusicDisplay {
         }
         if (options.drawFromMeasureNumber) {
             this.rules.MinMeasureToDrawIndex = options.drawFromMeasureNumber - 1;
+        }
+        if (options.drawUpToPageNumber) {
+            this.rules.MaxPageToDrawNumber = options.drawUpToPageNumber;
+        }
+        if (options.drawUpToSystemNumber) {
+            this.rules.MaxSystemToDrawNumber = options.drawUpToSystemNumber;
         }
         if (options.tupletsRatioed) {
             this.rules.TupletsRatioed = true;
