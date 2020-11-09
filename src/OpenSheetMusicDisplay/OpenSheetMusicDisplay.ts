@@ -29,7 +29,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.8.6-release"; // getter: this.Version
+    private version: string = "0.8.7-dev"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -61,6 +61,8 @@ export class OpenSheetMusicDisplay {
     public cursor: Cursor;
     public zoom: number = 1.0;
     private zoomUpdated: boolean = false;
+    /** Timeout in milliseconds used in osmd.load(string) when string is a URL. */
+    public loadUrlTimeout: number = 5000;
 
     private container: HTMLElement;
     private backendType: BackendType;
@@ -131,7 +133,7 @@ export class OpenSheetMusicDisplay {
                 log.debug("[OSMD] Retrieve the file at the given URL: " + trimmedStr);
                 // Assume now "str" is a URL
                 // Retrieve the file at the given URL
-                return AJAX.ajax(trimmedStr).then(
+                return AJAX.ajax(trimmedStr, this.loadUrlTimeout).then(
                     (s: string) => { return self.load(s, options); },
                     (exc: Error) => { throw exc; }
                 );
@@ -206,11 +208,9 @@ export class OpenSheetMusicDisplay {
         if (!this.graphic) {
             throw new Error("OpenSheetMusicDisplay: Before rendering a music sheet, please load a MusicXML file");
         }
-        if (this.drawer) {
-            this.drawer.clear(); // clear canvas before setting width
-        }
-        // musicSheetCalculator.clearSystemsAndMeasures() // maybe? don't have reference though
-        // musicSheetCalculator.clearRecreatedObjects();
+        this.drawer?.clear(); // clear canvas before setting width
+        // this.graphic.GetCalculator.clearSystemsAndMeasures(); // maybe?
+        // this.graphic.GetCalculator.clearRecreatedObjects();
 
         // Set page width
         let width: number = this.container.offsetWidth;
@@ -689,6 +689,9 @@ export class OpenSheetMusicDisplay {
             case "error":
                 log.setLevel(log.levels.ERROR);
                 break;
+            case "silent":
+                log.setLevel(log.levels.SILENT);
+                break;
             default:
                 log.warn(`Could not set log level to ${level}. Using warn instead.`);
                 log.setLevel(log.levels.WARN);
@@ -847,7 +850,7 @@ export class OpenSheetMusicDisplay {
             backend = new CanvasVexFlowBackend(this.rules);
         }
         backend.graphicalMusicPage = page; // the page the backend renders on. needed to identify DOM element to extract image/SVG
-        backend.initialize(this.container);
+        backend.initialize(this.container, this.zoom);
         return backend;
     }
 
@@ -946,6 +949,9 @@ export class OpenSheetMusicDisplay {
         this.autoResizeEnabled = value;
     }
 
+    public get Zoom(): number {
+        return this.zoom;
+    }
     public set Zoom(value: number) {
         this.zoom = value;
         this.zoomUpdated = true;

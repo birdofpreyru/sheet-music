@@ -54,6 +54,9 @@ export class EngravingRules {
     public BeamWidth: number;
     public BeamSpaceWidth: number;
     public BeamForwardLength: number;
+    public FlatBeams: boolean;
+    public FlatBeamOffset: number;
+    public FlatBeamOffsetPerBeam: number;
     public ClefLeftMargin: number;
     public ClefRightMargin: number;
     public PercussionOneLineCutoff: number;
@@ -142,6 +145,7 @@ export class EngravingRules {
     public MinimumDistanceBetweenDashes: number;
     public MaximumLyricsElongationFactor: number;
 
+    public SlurPlacementFromXML: boolean;
     public BezierCurveStepSize: number;
     public TPower3: number[];
     public OneMinusTPower3: number[];
@@ -167,6 +171,8 @@ export class EngravingRules {
     public ContinuousTempoTextHeight: number;
     public VexFlowDefaultNotationFontScale: number;
     public VexFlowDefaultTabFontScale: number;
+    public TremoloStrokeScale: number;
+    public TremoloYSpacingScale: number;
     public StaffLineWidth: number;
     public StaffLineColor: string;
     public LedgerLineWidth: number;
@@ -246,6 +252,7 @@ export class EngravingRules {
     public RenderTimeSignatures: boolean;
     public DynamicExpressionMaxDistance: number;
     public DynamicExpressionSpacer: number;
+    public ArticulationPlacementFromXML: boolean;
     /** Position of fingering label in relation to corresponding note (left, right supported, above, below experimental) */
     public FingeringPosition: PlacementEnum;
     public FingeringInsideStafflines: boolean;
@@ -318,6 +325,10 @@ export class EngravingRules {
         this.BeamWidth = EngravingRules.unit / 2.0;
         this.BeamSpaceWidth = EngravingRules.unit / 3.0;
         this.BeamForwardLength = 1.25 * EngravingRules.unit;
+
+        this.FlatBeams = false;
+        this.FlatBeamOffset = 20;
+        this.FlatBeamOffsetPerBeam = 10;
 
         // Beam Sizing Variables
         this.ClefLeftMargin = 0.5;
@@ -396,6 +407,7 @@ export class EngravingRules {
         this.TupletNumbersInTabs = false; // disabled by default, nonstandard in tabs, at least how we show them in non-tabs.
 
         // Slur and Tie variables
+        this.SlurPlacementFromXML = true;
         this.BezierCurveStepSize = 1000;
         this.calculateCurveParametersArrays();
         this.TieGhostObjectWidth = 0.75;
@@ -444,6 +456,8 @@ export class EngravingRules {
         // Line Widths
         this.VexFlowDefaultNotationFontScale = 39; // scales notes, including rests. default value 39 in Vexflow.
         this.VexFlowDefaultTabFontScale = 39;
+        this.TremoloStrokeScale = 1;
+        this.TremoloYSpacingScale = 1;
         this.StemWidth = 0.15; // originally 0.13. vexflow default 0.15. should probably be adjusted when increasing vexFlowDefaultNotationFontScale,
         this.StaffLineWidth = 0.10; // originally 0.12, but this will be pixels in Vexflow (*10).
         this.StaffLineColor = undefined; // if undefined, vexflow default (grey). not a width, but affects visual line clarity.
@@ -535,6 +549,7 @@ export class EngravingRules {
         this.RenderMultipleRestMeasures = true;
         this.AutoGenerateMutipleRestMeasuresFromRestMeasures = true;
         this.RenderTimeSignatures = true;
+        this.ArticulationPlacementFromXML = true;
         this.FingeringPosition = PlacementEnum.Left; // easier to get bounding box, and safer for vertical layout
         this.FingeringInsideStafflines = false;
         this.FingeringLabelFontHeight = 1.7;
