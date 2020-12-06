@@ -1,6 +1,6 @@
 {
   "name": "@dr.pogodin/sheet-music",
-  "version": "0.11.6",
+  "version": "0.11.7",
   "description": "A customized fork of the OpenSheetMusicDisplay library.",
   "main": "build/opensheetmusicdisplay.min.js",
   "typings": "build/dist/src/",
