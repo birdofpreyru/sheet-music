@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
 import {Done} from "mocha";
 import {IXmlElement} from "../../../../src/Common/FileIO/Xml";
 import {MusicSheet} from "../../../../src/MusicalScore/MusicSheet";
 import {MusicSheetReader} from "../../../../src/MusicalScore/ScoreIO/MusicSheetReader";
 
-/* tslint:disable:no-unused-expression */
 describe("Clef Converter MusicXML to VexFlow", () => {
 
     let reader: MusicSheetReader;

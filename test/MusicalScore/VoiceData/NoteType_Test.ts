@@ -1,7 +1,6 @@
 import {Done} from "mocha";
 import { NoteType, NoteTypeHandler } from "../../../src/MusicalScore/VoiceData/NoteType";
 
-/* tslint:disable:no-unused-expression */
 describe("NoteType", () => {
     it("parses 32nd note correctly (sample value)", (done: Done) => {
         chai.expect(NoteTypeHandler.StringToNoteType("32nd")).to.equal(NoteType._32nd);

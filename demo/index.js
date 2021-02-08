@@ -31,6 +31,9 @@ import 'svg2pdf.js';
             "OSMD Function Test - Auto-/Custom-Coloring": "OSMD_function_test_auto-custom-coloring-entchen.musicxml",
             "OSMD Function Test - Bar lines": "OSMD_function_test_bar_lines.musicxml",
             "OSMD Function Test - Chord Symbols": "OSMD_function_test_chord_symbols.musicxml",
+            "OSMD Function Test - Chord Spacing": "OSMD_function_test_chord_spacing.mxl",
+            "OSMD Function Test - Chord Symbols - Various Chords": "OSMD_function_test_chord_tests_various.musicxml",
+            "OSMD Function Test - Chord Symbols - BrookeWestSample": "BrookeWestSample.mxl",
             "OSMD Function Test - Color (from XML)": "OSMD_function_test_color.musicxml",
             "OSMD Function Test - Container height (compacttight mode)": "OSMD_Function_Test_Container_height.musicxml",
             "OSMD Function Test - Drumset": "OSMD_function_test_drumset.musicxml",
@@ -50,7 +53,7 @@ import 'svg2pdf.js';
             "OSMD Function Test - Tabulature All Effects": "OSMD_Function_Test_Tablature_Alleffects.musicxml",
             "OSMD Function Test - Tremolo": "OSMD_Function_Test_Tremolo_2bars.musicxml",
             "OSMD Function Test - Labels": "OSMD_Function_Test_Labels.musicxml",
-            "OSMD Function Test - High Slur Test": "Slurtest_highNotes.musicxml",
+            "OSMD Function Test - High Slur Test": "test_slurs_highNotes.musicxml",
             "OSMD Function Test - Auto Multirest Measures Single Staff": "Test_Auto_Multirest_1.musicxml",
             "OSMD Function Test - Auto Multirest Measures Multiple Staves": "Test_Auto_Multirest_2.musicxml",
             "Schubert, F. - An Die Musik": "Schubert_An_die_Musik.xml",
@@ -602,7 +605,7 @@ import 'svg2pdf.js';
 
         openSheetMusicDisplay.load(str).then(
             function () {
-                // This gives you access to the osmd object in the console. Do not use in productive code
+                // This gives you access to the osmd object in the console. Do not use in production code
                 window.osmd = openSheetMusicDisplay;
                 openSheetMusicDisplay.zoom = zoom;
                 return openSheetMusicDisplay.render();
@@ -754,7 +757,7 @@ import 'svg2pdf.js';
             if (openSheetMusicDisplay.IsReadyToRender()) {
                 openSheetMusicDisplay.render();
             } else {
-                console.log("[OSMD demo] Looses context!"); // TODO not sure that this message is reasonable, renders fine anyways. maybe vexflow context lost?
+                console.log("[OSMD demo] Loses context!"); // TODO not sure that this message is reasonable, renders fine anyways. maybe vexflow context lost?
                 selectSampleOnChange(); // reload sample e.g. after osmd.clear()
             }
             enable();

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
 import {Done} from "mocha";
 import {MusicSheetReader} from "../../../src/MusicalScore/ScoreIO/MusicSheetReader";
 import {MusicSheet} from "../../../src/MusicalScore/MusicSheet";
@@ -9,7 +11,6 @@ import {VexFlowTextMeasurer} from "../../../src/MusicalScore/Graphical/VexFlow/V
 import {TestUtils} from "../../Util/TestUtils";
 import {EngravingRules} from "../../../src";
 
-/* tslint:disable:no-unused-expression */
 describe("Music Sheet Calculator", () => {
     const filename: string = "MuzioClementi_SonatinaOpus36No1_Part1.xml";
     const reader: MusicSheetReader = new MusicSheetReader();

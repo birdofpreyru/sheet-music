@@ -32,6 +32,7 @@ export class Label {
     public colorDefault: string; // TODO this is Vexflow format, convert to OSMDColor. for now convenient for default colors.
     public font: Font;
     public textAlignment: TextAlignmentEnum;
+    public IsCreditLabel: boolean = false;
 
     public ToString(): string {
         return this.text;

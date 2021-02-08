@@ -17,6 +17,7 @@ import {TextAlignmentEnum} from "../../../Common/Enums/TextAlignment";
 import {ITextTranslation} from "../../Interfaces/ITextTranslation";
 import * as log from "loglevel";
 import { Font } from "../../../Common/DataObjects";
+import { RehearsalExpression } from "../../VoiceData/Expressions/RehearsalExpression";
 
 export class ExpressionReader {
     private musicSheet: MusicSheet;
@@ -72,7 +73,7 @@ export class ExpressionReader {
         }
 
         const placeAttr: IXmlAttribute = xmlNode.attribute("placement");
-        if (placeAttr !== undefined && placeAttr !== null) {
+        if (placeAttr) {
             try {
                 const placementString: string = placeAttr.value;
                 if (placementString === "below") {
@@ -96,22 +97,29 @@ export class ExpressionReader {
                     const dynamicsNode: IXmlElement = directionTypeNode.element("dynamics");
                     if (dynamicsNode) {
                         const defAttr: IXmlAttribute = dynamicsNode.attribute("default-y");
-                        if (defAttr !== undefined && defAttr !== null) {
+                        if (defAttr) {
                             this.readExpressionPlacement(defAttr, "read dynamics y pos");
                         }
                     }
                     const wedgeNode: IXmlElement = directionTypeNode.element("wedge");
                     if (wedgeNode) {
                         const defAttr: IXmlAttribute = wedgeNode.attribute("default-y");
-                        if (defAttr !== undefined && defAttr !== null) {
+                        if (defAttr) {
                             this.readExpressionPlacement(defAttr, "read wedge y pos");
                         }
                     }
                     const wordsNode: IXmlElement = directionTypeNode.element("words");
                     if (wordsNode) {
                         const defAttr: IXmlAttribute = wordsNode.attribute("default-y");
-                        if (defAttr !== undefined && defAttr !== null) {
+                        if (defAttr) {
                             this.readExpressionPlacement(defAttr, "read words y pos");
+                        }
+                    }
+                    const rehearsalNode: IXmlElement = directionTypeNode.element("rehearsal");
+                    if (rehearsalNode) {
+                        const defAttr: IXmlAttribute = rehearsalNode.attribute("default-y");
+                        if (defAttr) {
+                            this.readExpressionPlacement(defAttr, "read rehearsal pos");
                         }
                     }
                 }
@@ -143,6 +151,9 @@ export class ExpressionReader {
                 const match: string[] = tempoAttr.value.match(/\d+/);
                 this.soundTempo = match !== undefined ? parseInt(match[0], 10) : 100;
                 currentMeasure.TempoInBPM = this.soundTempo;
+                if (this.musicSheet.DefaultStartTempoInBpm === 0) {
+                    this.musicSheet.DefaultStartTempoInBpm = this.soundTempo;
+                }
                 this.musicSheet.HasBPMInfo = true;
                 isTempoInstruction = true;
             }
@@ -177,8 +188,12 @@ export class ExpressionReader {
                                                      bpmNumber,
                                                      this.currentMultiTempoExpression,
                                                      true);
+                instantaneousTempoExpression.parentMeasure = currentMeasure;
                 this.soundTempo = bpmNumber;
                 currentMeasure.TempoInBPM = this.soundTempo;
+                if (this.musicSheet.DefaultStartTempoInBpm === 0) {
+                    this.musicSheet.DefaultStartTempoInBpm = this.soundTempo;
+                }
                 this.musicSheet.HasBPMInfo = true;
                 instantaneousTempoExpression.dotted = dotted;
                 instantaneousTempoExpression.beatUnit = beatUnit.value;
@@ -212,6 +227,12 @@ export class ExpressionReader {
         dirContentNode = dirNode.element("wedge");
         if (dirContentNode) {
             this.interpretWedge(dirContentNode, currentMeasure, inSourceMeasureCurrentFraction, currentMeasure.MeasureNumber);
+            return;
+        }
+
+        dirContentNode = dirNode.element("rehearsal");
+        if (dirContentNode) {
+            this.interpretRehearsalMark(dirContentNode, currentMeasure, inSourceMeasureCurrentFraction, currentMeasure.MeasureNumber);
             return;
         }
     }
@@ -377,6 +398,12 @@ export class ExpressionReader {
         this.createNewMultiExpressionIfNeeded(currentMeasure);
         this.addWedge(wedgeNode, currentMeasure);
         this.initialize();
+    }
+    private interpretRehearsalMark(
+        rehearsalNode: IXmlElement, currentMeasure: SourceMeasure,
+        inSourceMeasureCurrentFraction: Fraction, currentMeasureIndex: number): void {
+        // TODO create multi expression? for now we just need to have a static rehearsal mark though.
+        currentMeasure.rehearsalExpression = new RehearsalExpression(rehearsalNode.value, this.placement);
     }
     private createNewMultiExpressionIfNeeded(currentMeasure: SourceMeasure, timestamp: Fraction = undefined): void {
         if (!timestamp) {

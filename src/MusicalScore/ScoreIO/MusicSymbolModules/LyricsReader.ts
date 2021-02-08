@@ -7,7 +7,7 @@ import {ITextTranslation} from "../../Interfaces/ITextTranslation";
 import {MusicSheet} from "../../MusicSheet";
 
 export class LyricsReader {
-    private openLyricWords: { [_: number]: LyricWord; } = {};
+    private openLyricWords: { [_: number]: LyricWord } = {};
     private currentLyricWord: LyricWord;
     private musicSheet: MusicSheet;
 
@@ -33,7 +33,14 @@ export class LyricsReader {
                         }
                         if (textNode) {
                             const font: Font = Font.Read(textNode);
-                            const text: string = textNode.value;
+                            let text: string = "";
+                            const textAndElisionNodes: IXmlElement[] = lyricNode.elements();
+                            for (const node of textAndElisionNodes) {
+                                if (node.name === "text" || node.name === "elision") {
+                                    text += node.value;
+                                }
+                            }
+                            text = text.replace("  ", " "); // filter multiple spaces from concatenating e.g. text "a " with elision " "
                             // <elision> separates Multiple syllabels on a single LyricNote
                             // "-" text indicating separated syllabel should be ignored
                             // we calculate the Dash element much later

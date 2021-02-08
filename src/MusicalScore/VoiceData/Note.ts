@@ -1,7 +1,7 @@
 import {VoiceEntry, StemDirectionType} from "./VoiceEntry";
 import {SourceStaffEntry} from "./SourceStaffEntry";
 import {Fraction} from "../../Common/DataObjects/Fraction";
-import {Pitch} from "../../Common/DataObjects/Pitch";
+import {NoteEnum, Pitch} from "../../Common/DataObjects/Pitch";
 import {Beam} from "./Beam";
 import {Tuplet} from "./Tuplet";
 import {Tie} from "./Tie";
@@ -56,6 +56,8 @@ export class Note {
      * The untransposed (!!!) source data.
      */
     private pitch: Pitch;
+    public displayStepUnpitched: NoteEnum;
+    public displayOctaveUnpitched: number;
     public get NoteAsString(): string {
         return this.pitch.toString();
     }
@@ -102,6 +104,10 @@ export class Note {
     }
     private noteheadColorCurrentlyRendered: string;
     public Fingering: TechnicalInstruction; // this is also stored in VoiceEntry.TechnicalInstructions
+    public StringInstruction: TechnicalInstruction; // this is also stored in VoiceEntry.TechnicalInstructions
+    // note that there is also TabNote.StringNumber, so we can't use that identifier here
+    /** Used by GraphicalNote.FromNote(note) and osmd.rules.GNote(note) to get a GraphicalNote from a Note. */
+    public NoteToGraphicalNoteObjectId: number; // used with EngravingRules.NoteToGraphicalNoteMap
 
     public get ParentVoiceEntry(): VoiceEntry {
         return this.voiceEntry;

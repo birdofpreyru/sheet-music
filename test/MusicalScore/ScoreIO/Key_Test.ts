@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
 import {Done} from "mocha";
 import { MusicSheetReader }       from "../../../src/MusicalScore/ScoreIO/MusicSheetReader";
 import { MusicSheet }             from "../../../src/MusicalScore/MusicSheet";
@@ -12,7 +14,6 @@ import { RhythmInstruction, RhythmSymbolEnum } from "../../../src/MusicalScore/V
 let reader: MusicSheetReader;
 let parser: DOMParser;
 
-/* tslint:disable:no-unused-expression */
 describe("MusicXML parser for element 'key'", () => {
 
   before((): void => {

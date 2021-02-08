@@ -23,13 +23,14 @@ import { GraphicalMusicPage } from "../MusicalScore/Graphical/GraphicalMusicPage
 import { MusicPartManagerIterator } from "../MusicalScore/MusicParts/MusicPartManagerIterator";
 import { ITransposeCalculator } from "../MusicalScore/Interfaces/ITransposeCalculator";
 import { NoteEnum } from "../Common/DataObjects/Pitch";
+
 /**
  * The main class and control point of OpenSheetMusicDisplay.<br>
  * It can display MusicXML sheet music files in an HTML element container.<br>
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.8.7-dev"; // getter: this.Version
+    private version: string = "0.9.2-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -91,7 +92,7 @@ export class OpenSheetMusicDisplay {
     public load(
       content: string | Document,
       options: {
-        preProcessHook?: Function,
+        preProcessHook?: Function;
       } = {},
     ): Promise<{}> {
         // Warning! This function is asynchronous! No error handling is done here.
@@ -334,6 +335,16 @@ export class OpenSheetMusicDisplay {
             backend.resize(width, height);
             backend.clear(); // set bgcolor if defined (this.rules.PageBackgroundColor, see OSMDOptions)
             this.drawer.Backends.push(backend);
+        }
+    }
+
+    // for now SVG only, see generateImages_browserless (PNG/SVG)
+    public exportSVG(): void {
+        for (const backend of this.drawer?.Backends) {
+            if (backend instanceof SvgVexFlowBackend) {
+                (backend as SvgVexFlowBackend).export();
+            }
+            // if we add CanvasVexFlowBackend exporting, rename function to export() or exportImages() again
         }
     }
 
@@ -782,9 +793,9 @@ export class OpenSheetMusicDisplay {
             }
         }
 
-        /* tslint:disable no-string-literal */
+        /* eslint-disable @typescript-eslint/dot-notation */
         if (global["IS_CLIENT_SIDE"]) {
-        /* tslint:enable no-string-literal */
+        /* eslint-enable @typescript-eslint/dot-notation */
           if ((<any>window).attachEvent) {
               // Support IE<9
               (<any>window).attachEvent("onresize", resizeStart);
@@ -932,14 +943,20 @@ export class OpenSheetMusicDisplay {
     public get DrawBottomLine(): boolean {
         return this.drawer.bottomLineVisible;
     }
-
     public set DrawBoundingBox(value: string) {
-        this.drawBoundingBox = value;
-        this.drawer.drawableBoundingBoxElement = value; // drawer is sometimes created anew, losing this value, so it's saved in OSMD now.
-        this.render(); // may create new Drawer.
+        this.setDrawBoundingBox(value, true);
     }
     public get DrawBoundingBox(): string {
         return this.drawBoundingBox;
+    }
+    public setDrawBoundingBox(value: string, render: boolean = false): void {
+        this.drawBoundingBox = value;
+        if (this.drawer) {
+            this.drawer.drawableBoundingBoxElement = value; // drawer is sometimes created anew, losing this value, so it's saved in OSMD now.
+        }
+        if (render) {
+            this.render(); // may create new Drawer.
+        }
     }
 
     public get AutoResizeEnabled(): boolean {
