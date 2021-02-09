@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 var common = require('./webpack.common.js')
 
 module.exports = function (config) {
@@ -55,6 +56,11 @@ module.exports = function (config) {
             module: {
                 rules: common.module.rules
             },
+            plugins: [
+              new webpack.EnvironmentPlugin({
+                DRAW_BOUNDING_BOX_ELEMENT: false,
+              }),
+            ],
             resolve: common.resolve
         },
 
