@@ -87,7 +87,6 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
         this.backend = this.backends[page.PageNumber - 1]; // TODO we may need to set this in a couple of other places. this.pageIdx is a bad solution
         super.drawPage(page);
         this.pageIdx += 1;
-        this.backend = this.backends[this.pageIdx];
     }
 
     public clear(): void {
@@ -192,11 +191,11 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     /** Draws a line in the current backend. Only usable while pages are drawn sequentially, because backend reference is updated in that process.
      *  To add your own lines after rendering, use DrawOverlayLine.
      */
-    protected drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number = 0.2): void {
+    protected drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number = 0.2): Node {
         // TODO maybe the backend should be given as an argument here as well, otherwise this can't be used after rendering of multiple pages is done.
         start = this.applyScreenTransformation(start);
         stop = this.applyScreenTransformation(stop);
-        this.backend.renderLine(
+        return this.backend.renderLine(
           start,
           stop,
           color,
@@ -210,7 +209,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      *  To get a MusicPage, use GraphicalNote.ParentMusicPage.
      */
     public DrawOverlayLine(start: PointF2D, stop: PointF2D, musicPage: GraphicalMusicPage,
-                           color: string = "#FF0000FF", lineWidth: number = 0.2): void {
+                           color: string = "#FF0000FF", lineWidth: number = 0.2): Node {
         if (!musicPage.PageNumber || musicPage.PageNumber > this.backends.length || musicPage.PageNumber < 1) {
             console.log("VexFlowMusicSheetDrawer.drawOverlayLine: invalid page number / music page number doesn't correspond to an existing backend.");
             return;
@@ -220,7 +219,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
 
         start = this.applyScreenTransformation(start);
         stop = this.applyScreenTransformation(stop);
-        backendToUse.renderLine(
+        return backendToUse.renderLine(
           start,
           stop,
           color,
@@ -416,10 +415,11 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
       bitmapHeight: number,
       fontHeightInPixel: number,
       screenPosition: PointF2D,
-    ): void {
+    ): Node[] {
         if (!graphicalLabel.Label.print) {
-            return;
+            return [];
         }
+        const nodes: Node[] = [];
         let color: string;
         if (this.rules.ColoringEnabled) {
             color = graphicalLabel.Label.colorDefault;
@@ -433,12 +433,14 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
             const currLine: {text: string, xOffset: number, width: number} = graphicalLabel.TextLines[i];
             const xOffsetInPixel: number = this.calculatePixelDistance(currLine.xOffset);
             const linePosition: PointF2D = new PointF2D(screenPosition.x + xOffsetInPixel, screenPosition.y);
-            this.backend.renderText(
-              font,
-              currLine.text,
-              linePosition,
-              color,
-              graphicalLabel.Label.uuid,
+            nodes.push(
+              this.backend.renderText(
+                font,
+                currLine.text,
+                linePosition,
+                color,
+                graphicalLabel.Label.uuid,
+              ),
             );
             screenPosition.y = screenPosition.y + fontHeightInPixel;
             if (graphicalLabel.TextLines.length > 1) {
@@ -446,6 +448,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
             }
         }
         // font currently unused, replaced by fontFamily
+        return nodes;
     }
 
     /**
@@ -456,8 +459,8 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      * @param styleId the style id
      * @param alpha alpha value between 0 and 1
      */
-    protected renderRectangle(rectangle: RectangleF2D, layer: number, styleId: number, alpha: number): void {
-        this.backend.renderRectangle(rectangle, styleId, alpha);
+    protected renderRectangle(rectangle: RectangleF2D, layer: number, styleId: number, colorHex: string, alpha: number): Node {
+        return this.backend.renderRectangle(rectangle, styleId, colorHex, alpha);
     }
 
     /**

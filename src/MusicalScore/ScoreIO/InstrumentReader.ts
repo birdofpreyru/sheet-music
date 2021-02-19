@@ -26,6 +26,7 @@ import {SlurReader} from "./MusicSymbolModules/SlurReader";
 import {StemDirectionType} from "../VoiceData/VoiceEntry";
 import {NoteType, NoteTypeHandler} from "../VoiceData/NoteType";
 import { SystemLinesEnumHelper } from "../Graphical/SystemLinesEnum";
+import { ReaderPluginManager } from "./ReaderPluginManager";
 // import {Dictionary} from "typescript-collections";
 
 // FIXME: The following classes are missing
@@ -54,7 +55,8 @@ import { SystemLinesEnumHelper } from "../Graphical/SystemLinesEnum";
  */
 export class InstrumentReader {
 
-  constructor(repetitionInstructionReader: RepetitionInstructionReader, xmlMeasureList: IXmlElement[], instrument: Instrument) {
+  constructor(pluginManager: ReaderPluginManager, repetitionInstructionReader: RepetitionInstructionReader,
+    xmlMeasureList: IXmlElement[], instrument: Instrument) {
       this.repetitionInstructionReader = repetitionInstructionReader;
       this.xmlMeasureList = xmlMeasureList;
       this.musicSheet = instrument.GetMusicSheet;
@@ -66,12 +68,14 @@ export class InstrumentReader {
       }
       this.createExpressionGenerators(instrument.Staves.length);
       this.slurReader = new SlurReader(this.musicSheet);
+      this.pluginManager = pluginManager;
   }
 
   private repetitionInstructionReader: RepetitionInstructionReader;
   private xmlMeasureList: IXmlElement[];
   private musicSheet: MusicSheet;
   private slurReader: SlurReader;
+  public pluginManager: ReaderPluginManager;
   private instrument: Instrument;
   private voiceGeneratorsDict: { [n: number]: VoiceGenerator } = {};
   private staffMainVoiceGeneratorDict: { [staffId: number]: VoiceGenerator } = {};
@@ -141,8 +145,12 @@ export class InstrumentReader {
             currentMeasure.MeasureNumberXML = measureNumberXml;
         }
       }
+      let previousNode: IXmlElement; // needs a null check when accessed because of node index 0!
       for (let xmlNodeIndex: number = 0; xmlNodeIndex < xmlMeasureListArr.length; xmlNodeIndex++) {
         const xmlNode: IXmlElement = xmlMeasureListArr[xmlNodeIndex];
+        if (xmlNodeIndex > 0) {
+          previousNode = xmlMeasureListArr[xmlNodeIndex - 1];
+        }
         if (xmlNode.name === "print") {
           const newSystemAttr: IXmlAttribute = xmlNode.attribute("new-system");
           if (newSystemAttr?.value === "yes") {
@@ -438,7 +446,7 @@ export class InstrumentReader {
               throw new MusicSheetReadingException(errorMsg + this.instrument.Name);
             }
           }
-          this.addAbstractInstruction(xmlNode, octavePlusOne);
+          this.addAbstractInstruction(xmlNode, octavePlusOne, previousNode);
           if (currentFraction.Equals(new Fraction(0, 1)) &&
             this.isAttributesNodeAtBeginOfMeasure(this.xmlMeasureList[this.currentXmlMeasureIndex], xmlNode)) {
             this.saveAbstractInstructionList(this.instrument.Staves.length, true);
@@ -655,11 +663,11 @@ export class InstrumentReader {
     } else {
       const mainVoiceGenerator: VoiceGenerator = this.staffMainVoiceGeneratorDict[staffId];
       if (mainVoiceGenerator) {
-        voiceGenerator = new VoiceGenerator(this.instrument, voiceId, this.slurReader, mainVoiceGenerator.GetVoice);
+        voiceGenerator = new VoiceGenerator(this.pluginManager, staff, voiceId, this.slurReader, mainVoiceGenerator.GetVoice);
         staff.Voices.push(voiceGenerator.GetVoice);
         this.voiceGeneratorsDict[voiceId] = voiceGenerator;
       } else {
-        voiceGenerator = new VoiceGenerator(this.instrument, voiceId, this.slurReader);
+        voiceGenerator = new VoiceGenerator(this.pluginManager, staff, voiceId, this.slurReader);
         staff.Voices.push(voiceGenerator.GetVoice);
         this.voiceGeneratorsDict[voiceId] = voiceGenerator;
         this.staffMainVoiceGeneratorDict[staffId] = voiceGenerator;
@@ -793,23 +801,23 @@ export class InstrumentReader {
 
   /**
    * Add (the three basic) Notation Instructions to a list
-   * @param node
+   * @param attrNode
    * @param guitarPro
    */
-  private addAbstractInstruction(node: IXmlElement, guitarPro: boolean): void {
-    if (node.element("divisions")) {
-      if (node.elements().length === 1) {
+  private addAbstractInstruction(attrNode: IXmlElement, guitarPro: boolean, previousNode: IXmlElement): void {
+    if (attrNode.element("divisions")) {
+      if (attrNode.elements().length === 1) {
         return;
       }
     }
-    const transposeNode: IXmlElement = node.element("transpose");
+    const transposeNode: IXmlElement = attrNode.element("transpose");
     if (transposeNode) {
       const chromaticNode: IXmlElement = transposeNode.element("chromatic");
       if (chromaticNode) {
         this.instrument.PlaybackTranspose = parseInt(chromaticNode.value, 10);
       }
     }
-    const clefList: IXmlElement[] = node.elements("clef");
+    const clefList: IXmlElement[] = attrNode.elements("clef");
     let errorMsg: string;
     if (clefList.length > 0) {
       for (let idx: number = 0, len: number = clefList.length; idx < len; ++idx) {
@@ -893,13 +901,21 @@ export class InstrumentReader {
           }
         }
 
-        const clefInstruction: ClefInstruction = new ClefInstruction(clefEnum, clefOctaveOffset, line);
-        this.abstractInstructions.push([staffNumber, clefInstruction]);
+        // TODO problem: in saveAbstractInstructionList, this is always saved in this.currentStaffEntry.
+        //   so when there's a <forward> or <backup> instruction in <attributes> (which is unfortunate encoding), this gets misplaced.
+        //   so for now we skip it.
+        const skipClefInstruction: boolean = previousNode?.name === "forward";
+          // || previousNode?.name === "backup") && // necessary for clef at beginning of measure/system,
+          //   see sample test_staverepetitions_coda_etc.musicxml, where the bass clef was placed over a previous treble clef
+        if (!skipClefInstruction) {
+          const clefInstruction: ClefInstruction = new ClefInstruction(clefEnum, clefOctaveOffset, line);
+          this.abstractInstructions.push([staffNumber, clefInstruction]);
+        }
       }
     }
-    if (node.element("key") !== undefined && this.instrument.MidiInstrumentId !== MidiInstrument.Percussion) {
+    if (attrNode.element("key") !== undefined && this.instrument.MidiInstrumentId !== MidiInstrument.Percussion) {
       let key: number = 0;
-      const keyNode: IXmlElement = node.element("key").element("fifths");
+      const keyNode: IXmlElement = attrNode.element("key").element("fifths");
       if (keyNode) {
         try {
           key = parseInt(keyNode.value, 10);
@@ -915,7 +931,7 @@ export class InstrumentReader {
 
       }
       let keyEnum: KeyEnum = KeyEnum.none;
-      let modeNode: IXmlElement = node.element("key");
+      let modeNode: IXmlElement = attrNode.element("key");
       if (modeNode) {
         modeNode = modeNode.element("mode");
       }
@@ -935,8 +951,8 @@ export class InstrumentReader {
       const keyInstruction: KeyInstruction = new KeyInstruction(undefined, key, keyEnum);
       this.abstractInstructions.push([1, keyInstruction]);
     }
-    if (node.element("time")) {
-      const timeNode: IXmlElement = node.element("time");
+    if (attrNode.element("time")) {
+      const timeNode: IXmlElement = attrNode.element("time");
       let symbolEnum: RhythmSymbolEnum = RhythmSymbolEnum.NONE;
       let timePrintObject: boolean = true;
       if (timeNode !== undefined && timeNode.hasAttributes) {
@@ -960,7 +976,7 @@ export class InstrumentReader {
       let num: number = 0;
       let denom: number = 0;
       const senzaMisura: boolean = (timeNode && timeNode.element("senza-misura") !== undefined);
-      const timeList: IXmlElement[] = node.elements("time");
+      const timeList: IXmlElement[] = attrNode.elements("time");
       const beatsList: IXmlElement[] = [];
       const typeList: IXmlElement[] = [];
       for (let idx: number = 0, len: number = timeList.length; idx < len; ++idx) {
@@ -999,8 +1015,8 @@ export class InstrumentReader {
             }
             denom = maxDenom;
           } else {
-            num = parseInt(node.element("time").element("beats").value, 10);
-            denom = parseInt(node.element("time").element("beat-type").value, 10);
+            num = parseInt(attrNode.element("time").element("beats").value, 10);
+            denom = parseInt(attrNode.element("time").element("beat-type").value, 10);
           }
         } catch (ex) {
           errorMsg = ITextTranslation.translateText("ReaderErrorMessages/RhythmError", "Invalid rhythm found -> set to default.");

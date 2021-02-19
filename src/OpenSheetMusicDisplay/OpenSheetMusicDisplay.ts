@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    private version: string = "0.9.2-release"; // getter: this.Version
+    private version: string = "0.9.3-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -310,7 +310,7 @@ export class OpenSheetMusicDisplay {
             const backend: VexFlowBackend = this.createBackend(this.backendType, page);
             const sizeWarningPartTwo: string = " exceeds CanvasBackend limit of 32767. Cutting off score.";
             if (backend.getOSMDBackendType() === BackendType.Canvas && width > canvasDimensionsLimit) {
-                console.log("[OSMD] Warning: width of " + width + sizeWarningPartTwo);
+                log.warn("[OSMD] Warning: width of " + width + sizeWarningPartTwo);
                 width = canvasDimensionsLimit;
             }
             if (this.rules.PageFormat && !this.rules.PageFormat.IsUndefined) {
@@ -327,7 +327,7 @@ export class OpenSheetMusicDisplay {
                 // console.log("pageformat not given. height: " + page.PositionAndShape.Size.height);
             }
             if (backend.getOSMDBackendType() === BackendType.Canvas && height > canvasDimensionsLimit) {
-                console.log("[OSMD] Warning: height of " + height + sizeWarningPartTwo);
+                log.warn("[OSMD] Warning: height of " + height + sizeWarningPartTwo);
                 height = Math.min(height, canvasDimensionsLimit); // this cuts off the the score, but doesn't break rendering.
                 // TODO optional: reduce zoom to fit the score within the limit.
             }
@@ -335,6 +335,7 @@ export class OpenSheetMusicDisplay {
             backend.resize(width, height);
             backend.clear(); // set bgcolor if defined (this.rules.PageBackgroundColor, see OSMDOptions)
             this.drawer.Backends.push(backend);
+            this.graphic.drawer = this.drawer;
         }
     }
 
