@@ -533,7 +533,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
                             vexFlowVoltaHeight += skylineDifference;
                             newSkylineValueForMeasure = prevMeasureSkyline;
                         } else { //otherwise, we are higher. Need to adjust prev
-                            (nextStaveModifier as any).y_shift = vexFlowVoltaHeight * unitInPixels;
+                            (nextStaveModifier as any).y_shift = vexFlowVoltaHeight * EngravingRules.UnitToPx;
                             prevMeasure.ParentStaffLine.SkyBottomLineCalculator.updateSkyLineInRange(prevStart, prevEnd, newSkylineValueForMeasure);
                         }
                     }
@@ -1386,11 +1386,13 @@ export class VexFlowMeasure extends GraphicalMeasure {
                 default:
                 case PlacementEnum.Left:
                     modifierPosition = Vex.Flow.StaveModifier.Position.LEFT;
-                    offsetX -= note.baseFingeringXOffset * unitInPixels;
+                    offsetX -= note.baseFingeringXOffset
+                      * EngravingRules.UnitToPx;
                     break;
                 case PlacementEnum.Right:
                     modifierPosition = Vex.Flow.StaveModifier.Position.RIGHT;
-                    offsetX += note.baseFingeringXOffset * unitInPixels;
+                    offsetX += note.baseFingeringXOffset
+                      * EngravingRules.UnitToPx;
                     break;
                 case PlacementEnum.Above:
                     modifierPosition = Vex.Flow.StaveModifier.Position.ABOVE;
