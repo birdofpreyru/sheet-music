@@ -83,8 +83,19 @@ export class SkyBottomLineCalculator {
               = width && height ? ctx.getImageData(0, 0, width, height) : null;
             const rgbaLength: number = 4;
             const measureArrayLength: number = Math.max(Math.ceil(measure.PositionAndShape.Size.width * this.mRules.SamplingUnit), 1);
-            const tmpSkyLine: number[] = new Array(measureArrayLength);
-            const tmpBottomLine: number[] = new Array(measureArrayLength);
+
+            // TODO: In a project I get occasional errors reported in these
+            // lines as "Invalid array length". Thus adding some extra code
+            // to track the issue.
+            let tmpSkyLine: number[];
+            let tmpBottomLine: number[];
+            try {
+              tmpSkyLine = new Array(measureArrayLength);
+              tmpBottomLine = new Array(measureArrayLength);
+            } catch (error) {
+              throw Error(`${error.message}: ${measureArrayLength}`);
+            }
+
             for (let x: number = 0; x < width; x++) {
                 // SkyLine
                 for (let y: number = 0; y < height; y++) {
