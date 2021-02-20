@@ -197,7 +197,7 @@ export class OpenSheetMusicDisplay {
     public updateGraphic(): void {
         const calc: MusicSheetCalculator = new VexFlowMusicSheetCalculator(this.rules);
         this.graphic = new GraphicalMusicSheet(this.sheet, calc);
-        if (this.drawingParameters.drawCursors && this.cursor) {
+        if (this.drawingParameters.drawCursors && this.cursor && this.sheet) {
             this.cursor.init(this.sheet.MusicPartManager, this.graphic);
         }
     }
