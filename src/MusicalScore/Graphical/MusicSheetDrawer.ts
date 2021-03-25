@@ -139,27 +139,22 @@ export abstract class MusicSheetDrawer {
         this.renderRectangle(rectangle, layer, <number>rect.style);
     }
 
-    public calculatePixelDistance(unitDistance: number): number {
-        throw new Error("not implemented");
-    }
-
-    public drawLabel(graphicalLabel: GraphicalLabel, layer: number): Node[] {
+    public drawLabel(graphicalLabel: GraphicalLabel, layer: number): Node {
         if (!this.isVisible(graphicalLabel.PositionAndShape)) {
-            return [];
+            return undefined;
         }
         const label: Label = graphicalLabel.Label;
         if (label.text.trim() === "") {
-            return [];
+            return undefined;
         }
         const screenPosition: PointF2D = this.applyScreenTransformation(
           graphicalLabel.PositionAndShape.AbsolutePosition,
         );
-        const fontHeightInPixel: number = this.calculatePixelDistance(
-          label.font.Size,
-        );
-        const widthInPixel: number = this.calculatePixelDistance(
-          graphicalLabel.PositionAndShape.Size.width,
-        );
+        const fontHeightInPixel: number = label.font.Size
+          * EngravingRules.UnitToPx;
+        const widthInPixel: number =
+          graphicalLabel.PositionAndShape.Size.width
+          * EngravingRules.UnitToPx;
 
         const bitmapWidth: number = Math.ceil(widthInPixel);
         const bitmapHeight: number = Math.ceil(fontHeightInPixel * (0.2 + graphicalLabel.TextLines.length));
@@ -202,7 +197,13 @@ export abstract class MusicSheetDrawer {
                 throw new ArgumentOutOfRangeException("");
         }
 
-        return this.renderLabel(graphicalLabel, layer, bitmapWidth, bitmapHeight, fontHeightInPixel, screenPosition);
+        return this.renderLabel(
+          graphicalLabel,
+          layer,
+          bitmapWidth,
+          bitmapHeight,
+          screenPosition,
+        );
     }
 
     protected applyScreenTransformation(point: PointF2D): PointF2D {
@@ -241,9 +242,14 @@ export abstract class MusicSheetDrawer {
         // empty
     }
 
-    protected renderLabel(graphicalLabel: GraphicalLabel, layer: number, bitmapWidth: number,
-                          bitmapHeight: number, heightInPixel: number, screenPosition: PointF2D): Node[] {
-        throw new Error("not implemented");
+    protected renderLabel(
+      graphicalLabel: GraphicalLabel,
+      layer: number,
+      bitmapWidth: number,
+      bitmapHeight: number,
+      screenPosition: PointF2D,
+    ): Node {
+      throw new Error("not implemented");
     }
 
     protected renderSystemToScreen(system: MusicSystem, systemBoundingBoxInPixels: RectangleF2D,
@@ -574,8 +580,18 @@ export abstract class MusicSheetDrawer {
         const rectNode: Node = this.renderRectangle(tmpRect, <number>GraphicalLayers.Background, layer, color, 0.5);
         if (labelText) {
             const label: Label = new Label(labelText);
-            this.renderLabel(new GraphicalLabel(label, 0.8, TextAlignmentEnum.CenterCenter, this.rules),
-                layer, tmpRect.width, tmpRect.height, tmpRect.height, new PointF2D(tmpRect.x, tmpRect.y + 12));
+            this.renderLabel(
+              new GraphicalLabel(
+                label,
+                0.8,
+                TextAlignmentEnum.CenterCenter,
+                this.rules,
+              ),
+              layer,
+              tmpRect.width,
+              tmpRect.height,
+              new PointF2D(tmpRect.x, tmpRect.y + 12),
+            );
             // theoretically we should return the nodes from renderLabel here as well, so they can also be removed later
         }
         return rectNode;

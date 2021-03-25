@@ -99,15 +99,6 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
         this.zoom = zoom;
     }
 
-    /**
-     * Converts a distance from unit to pixel space.
-     * @param unitDistance the distance in units
-     * @returns {number} the distance in pixels
-     */
-    public calculatePixelDistance(unitDistance: number): number {
-      return unitDistance * EngravingRules.UnitToPx;
-    }
-
     protected drawStaffLine(staffLine: StaffLine): void {
         super.drawStaffLine(staffLine);
         const absolutePos: PointF2D = staffLine.PositionAndShape.AbsolutePosition;
@@ -413,13 +404,13 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
       layer: number,
       bitmapWidth: number,
       bitmapHeight: number,
-      fontHeightInPixel: number,
       screenPosition: PointF2D,
-    ): Node[] {
+    ): Node {
         if (!graphicalLabel.Label.print) {
-            return [];
+            return undefined;
         }
-        const nodes: Node[] = [];
+        const font: Font = graphicalLabel.Label.font.clone();
+        font.mergeDefaults(this.rules.DefaultFont);
         let color: string;
         if (this.rules.ColoringEnabled) {
             color = graphicalLabel.Label.colorDefault;
@@ -427,28 +418,33 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
                 color = this.rules.DefaultColorLabel;
             }
         }
-        const font: Font = graphicalLabel.Label.font.clone();
-        font.mergeDefaults(this.rules.DefaultFont);
+        let node: Node;
         for (let i: number = 0; i < graphicalLabel.TextLines?.length; i++) {
             const currLine: {text: string, xOffset: number, width: number} = graphicalLabel.TextLines[i];
-            const xOffsetInPixel: number = this.calculatePixelDistance(currLine.xOffset);
+            const xOffsetInPixel: number = currLine.xOffset
+              * EngravingRules.UnitToPx;
             const linePosition: PointF2D = new PointF2D(screenPosition.x + xOffsetInPixel, screenPosition.y);
-            nodes.push(
+            const newNode: Node =
               this.backend.renderText(
                 font,
                 currLine.text,
                 linePosition,
                 color,
                 graphicalLabel.Label.uuid,
-              ),
-            );
-            screenPosition.y = screenPosition.y + fontHeightInPixel;
+              );
+            if (!node) {
+              node = newNode;
+            } else {
+              node.appendChild(newNode);
+            }
+            screenPosition.y = screenPosition.y
+              + font.Size * EngravingRules.UnitToPx;
             if (graphicalLabel.TextLines.length > 1) {
-             screenPosition.y += this.rules.SpacingBetweenTextLines;
+                screenPosition.y += this.rules.SpacingBetweenTextLines;
             }
         }
         // font currently unused, replaced by fontFamily
-        return nodes;
+        return node; // alternatively, return Node[] and refactor annotationElementMap to handle node array instead of single node
     }
 
     /**
