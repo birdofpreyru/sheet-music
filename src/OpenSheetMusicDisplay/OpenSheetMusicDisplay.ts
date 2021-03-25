@@ -353,7 +353,9 @@ export class OpenSheetMusicDisplay {
 
     /** States whether the render() function can be safely called. */
     public IsReadyToRender(): boolean {
-        return Boolean(this.container && this.graphic);
+      return this.container && this.graphic
+        && this.container.clientHeight > 0
+        && this.container.clientWidth > 0;
     }
 
     /** Clears what OSMD has drawn on its canvas. */
