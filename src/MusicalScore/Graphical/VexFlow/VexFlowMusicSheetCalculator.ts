@@ -659,6 +659,11 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
             last_indices: [endNoteIndexInTie],
             last_note: vfEndNote
           });
+          if (tie.Tie.TieDirection === PlacementEnum.Below) {
+            vfTie.setDirection(1); // + is down in vexflow
+          } else if (tie.Tie.TieDirection === PlacementEnum.Above) {
+            vfTie.setDirection(-1);
+          }
         }
 
         const measure: VexFlowMeasure = (endNote.parentVoiceEntry.parentStaffEntry.parentMeasure as VexFlowMeasure);
@@ -673,7 +678,6 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       // we do already use the min/max in MusicSheetCalculator.calculateDynamicsExpressions,
       // but this may be necessary for StaffLinkedExpressions, not tested.
     }
-
     // calculate absolute Timestamp
     const absoluteTimestamp: Fraction = multiExpression.AbsoluteTimestamp;
     const measures: GraphicalMeasure[] = this.graphicalMusicSheet.MeasureList[measureIndex];
@@ -696,7 +700,8 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
         multiExpression.InstantaneousDynamic,
         staffLine,
         startMeasure);
-      this.calculateGraphicalInstantaneousDynamicExpression(graphicalInstantaneousDynamic, dynamicStartPosition);
+      this.calculateGraphicalInstantaneousDynamicExpression(graphicalInstantaneousDynamic, dynamicStartPosition, absoluteTimestamp);
+      this.dynamicExpressionMap.set(absoluteTimestamp.RealValue, graphicalInstantaneousDynamic.PositionAndShape);
     }
     if (multiExpression.StartingContinuousDynamic) {
       const continuousDynamic: ContinuousDynamicExpression = multiExpression.StartingContinuousDynamic;
@@ -709,6 +714,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       if (!graphicalContinuousDynamic.IsVerbal && continuousDynamic.EndMultiExpression) {
         try {
         this.calculateGraphicalContinuousDynamic(graphicalContinuousDynamic, dynamicStartPosition);
+        graphicalContinuousDynamic.updateSkyBottomLine();
         } catch (e) {
           // TODO this sometimes fails when the measure range to draw doesn't include all the dynamic's measures, method needs to be adjusted
           //   see calculateGraphicalContinuousDynamic(), also in MusicSheetCalculator.

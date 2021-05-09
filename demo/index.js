@@ -1,4 +1,6 @@
-import { OpenSheetMusicDisplay, BackendType } from '../src/OpenSheetMusicDisplay';
+import { OpenSheetMusicDisplay } from '../src/OpenSheetMusicDisplay/OpenSheetMusicDisplay';
+import { BackendType } from '../src/OpenSheetMusicDisplay/OSMDOptions';
+import { TransposeCalculator } from '../src/Plugins/Transpose/TransposeCalculator';
 
 import { jsPDF } from 'jspdf';
 import 'svg2pdf.js';
@@ -57,6 +59,7 @@ import 'svg2pdf.js';
             "OSMD Function Test - Auto Multirest Measures Single Staff": "Test_Auto_Multirest_1.musicxml",
             "OSMD Function Test - Auto Multirest Measures Multiple Staves": "Test_Auto_Multirest_2.musicxml",
             "OSMD Function Test - String number collisions": "test_string_number_collisions.musicxml",
+            "OSMD Function Test - Repeat Stave Connectors": "OSMD_function_Test_Repeat.musicxml",
             "Schubert, F. - An Die Musik": "Schubert_An_die_Musik.xml",
             "Actor, L. - Prelude (Large Sample, loading time)": "ActorPreludeSample.xml",
             "Actor, L. - Prelude (Large, No Print Part Names)": "ActorPreludeSample_PartName.xml",
@@ -94,7 +97,9 @@ import 'svg2pdf.js';
         debugReRenderBtn,
         debugClearBtn,
         selectPageSizes,
-        printPdfBtns;
+        printPdfBtns,
+        transpose,
+        transposeBtn;
     
     // manage option setting and resetting for specific samples, e.g. in the autobeam sample autobeam is set to true, otherwise reset to previous state
     // TODO design a more elegant option state saving & restoring system, though that requires saving the options state in OSMD
@@ -244,6 +249,8 @@ import 'svg2pdf.js';
         printPdfBtns = [];
         printPdfBtns.push(document.getElementById("print-pdf-btn"));
         printPdfBtns.push(document.getElementById("print-pdf-btn-optional"));
+        transpose = document.getElementById('transpose');
+        transposeBtn = document.getElementById('transpose-btn');
 
         //var defaultDisplayVisibleValue = "block"; // TODO in some browsers flow could be the better/default value
         var defaultVisibilityValue = "visible";
@@ -519,6 +526,16 @@ import 'svg2pdf.js';
             console.log("[OSMD] selectSampleOnChange addEventListener change");
             // selectSampleOnChange();
         });
+        if(transposeBtn && transpose){
+            openSheetMusicDisplay.TransposeCalculator = new TransposeCalculator();
+
+            transposeBtn.onclick = function(){
+                var transposeValue = parseInt(transpose.value);
+                openSheetMusicDisplay.Sheet.Transpose = transposeValue;
+                openSheetMusicDisplay.updateGraphic();
+                rerender();
+            }
+        }
 
         // TODO after selectSampleOnChange, the resize handler triggers immediately,
         //   so we render twice at the start of the demo.
@@ -609,6 +626,7 @@ import 'svg2pdf.js';
                 // This gives you access to the osmd object in the console. Do not use in production code
                 window.osmd = openSheetMusicDisplay;
                 openSheetMusicDisplay.zoom = zoom;
+                //openSheetMusicDisplay.Sheet.Transpose = 3; // try transposing between load and first render if you have transpose issues with F# etc
                 return openSheetMusicDisplay.render();
             },
             function (e) {

@@ -109,7 +109,7 @@ describe("MusicXML parser for element 'key'", () => {
         done();
       });
 
-      it("reads key signature B-major", (done: Done) => {
+      it("reads key signature Bb-major", (done: Mocha.Done) => {
         const keyInstruction: KeyInstruction = getMusicSheetWithKey(-2, "major").getFirstSourceMeasure().getKeyInstruction(0);
         chai.expect(keyInstruction.Key).to.equal(-2);
         chai.expect(keyInstruction.Mode).to.equal(KeyModeEnum.major);
