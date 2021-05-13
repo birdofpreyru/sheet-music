@@ -198,18 +198,16 @@ export class Cursor {
     const meassurePositionAndShape: BoundingBox = this.graphic.findGraphicalMeasure(iterator.CurrentMeasureIndex, 0).PositionAndShape;
     switch (this.cursorOptions.type) {
       case 1:
-        cursorElement.style.top = `${
-          10.0 * y * this.openSheetMusicDisplay.zoom }px`;
-        cursorElement.style.left = `${
-          (10.0 * x - width / 2) * this.openSheetMusicDisplay.zoom }px`;
+        cursorElement.style.top = (y * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
+        cursorElement.style.left = ((x - 1.5) * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
         cursorElement.height = (height * 10.0 * this.openSheetMusicDisplay.zoom);
-        newWidth = width * this.openSheetMusicDisplay.zoom;
+        newWidth = 5 * this.openSheetMusicDisplay.zoom;
         break;
       case 2:
         cursorElement.style.top = ((y-2.5) * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
         cursorElement.style.left = (x * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
         cursorElement.height = (1.5 * 10.0 * this.openSheetMusicDisplay.zoom);
-        newWidth = width * this.openSheetMusicDisplay.zoom;
+        newWidth = 5 * this.openSheetMusicDisplay.zoom;
         break;
       case 3:
         cursorElement.style.top = meassurePositionAndShape.AbsolutePosition.y * 10.0 * this.openSheetMusicDisplay.zoom +"px";
