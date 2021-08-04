@@ -1,5 +1,6 @@
 import { IXmlElement } from "./Xml";
 import * as JSZip from "jszip";
+import log from "loglevel";
 
 /**
  * Some helper methods to handle MXL files.
@@ -61,6 +62,8 @@ export class MXLHelper {
                 return zip.file("META-INF/container.xml").async("text");
             },
             (err: any) => {
+                // log jszip error. for some reason this isn't done in OSMD where this method is used.
+                log.error(err);
                 throw err;
             }
         ).then(
