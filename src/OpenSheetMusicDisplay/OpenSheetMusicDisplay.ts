@@ -366,7 +366,9 @@ export class OpenSheetMusicDisplay {
 
     /** Clears what OSMD has drawn on its canvas. */
     public clear(): void {
-        this.drawer.clear();
+        if (this.drawer) {
+          this.drawer.clear();
+        }
         this.reset(); // without this, resize will draw loaded sheet again
     }
 
