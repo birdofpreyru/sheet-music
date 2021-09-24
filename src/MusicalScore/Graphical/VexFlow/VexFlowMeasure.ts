@@ -153,8 +153,11 @@ export class VexFlowMeasure extends GraphicalMeasure {
             case SystemLinesEnum.BoldThinDots:
             case SystemLinesEnum.DotsThinBold:
                 return 10.0 / EngravingRules.UnitToPx;
+
+            // :||: = repeat ends, another repeat starts in next measure
             case SystemLinesEnum.DotsBoldBoldDots:
-                return 10.0 / EngravingRules.UnitToPx;
+                return 10.0 / EngravingRules.UnitToPx
+                  + this.rules.RepeatEndStartPadding;
             default:
                 return 0;
         }
@@ -657,7 +660,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
             for (const ve of voice.VoiceEntries) {
                 for (const note of ve.Notes) {
                     const gNote: VexFlowGraphicalNote = this.rules.GNote(note) as VexFlowGraphicalNote;
-                    if (!gNote.vfnote) { // can happen were invisible, then multi rest measure. TODO fix multi rest measure not removed
+                    if (!gNote?.vfnote) { // can happen were invisible, then multi rest measure. TODO fix multi rest measure not removed
                         return;
                     }
                     const vfnote: Vex.Flow.StemmableNote = gNote.vfnote[0];
@@ -726,7 +729,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
      */
     protected getRestFilledVexFlowStaveNotesPerVoice(voice: Voice): GraphicalVoiceEntry[] {
         let latestVoiceTimestamp: Fraction = undefined;
-        const gvEntries: GraphicalVoiceEntry[] = this.getGraphicalVoiceEntriesPerVoice(voice);
+        let gvEntries: GraphicalVoiceEntry[] = this.getGraphicalVoiceEntriesPerVoice(voice);
         for (let idx: number = 0, len: number = gvEntries.length; idx < len; ++idx) {
             const gve: GraphicalVoiceEntry = gvEntries[idx];
             const gNotesStartTimestamp: Fraction = gve.notes[0].sourceNote.getAbsoluteTimestamp();
@@ -745,11 +748,9 @@ export class VexFlowMeasure extends GraphicalMeasure {
                 const gapFromMeasureStart: Fraction = Fraction.minus(gNotesStartTimestamp, this.parentSourceMeasure.AbsoluteTimestamp);
                 if (gapFromMeasureStart.RealValue > 0) {
                     log.trace(`Ghost Found at start (measure ${this.MeasureNumber})`); // happens too often for valid measures to be logged to debug
-                    const vfghost: Vex.Flow.GhostNote = VexFlowConverter.GhostNote(gapFromMeasureStart);
-                    const ghostGve: VexFlowVoiceEntry = new VexFlowVoiceEntry(undefined, undefined);
-                    ghostGve.vfStaveNote = vfghost;
-                    gvEntries.splice(0, 0, ghostGve);
-                    idx++;
+                    const ghostGves: GraphicalVoiceEntry[] = this.createGhostGves(gapFromMeasureStart);
+                    gvEntries.splice(0, 0, ...ghostGves);
+                    idx += ghostGves.length;
                 }
             } else {
                 // get the length of the empty space between notes:
@@ -757,13 +758,11 @@ export class VexFlowMeasure extends GraphicalMeasure {
 
                 if (inBetweenLength.RealValue > 0) {
                     log.trace(`Ghost Found in between (measure ${this.MeasureNumber})`); // happens too often for valid measures to be logged to debug
-                    const vfghost: Vex.Flow.GhostNote = VexFlowConverter.GhostNote(inBetweenLength);
-                    const ghostGve: VexFlowVoiceEntry = new VexFlowVoiceEntry(undefined, undefined);
-                    ghostGve.vfStaveNote = vfghost;
-                    // add element before current element:
-                    gvEntries.splice(idx, 0, ghostGve);
-                    // and increase index, as we added an element:
-                    idx++;
+                    const ghostGves: VexFlowVoiceEntry[] = this.createGhostGves(inBetweenLength);
+                    // add elements before current element:
+                    gvEntries.splice(idx, 0, ...ghostGves);
+                    // and increase index, as we added elements:
+                    idx += ghostGves.length;
                 }
             }
 
@@ -778,12 +777,21 @@ export class VexFlowMeasure extends GraphicalMeasure {
             // starting from lastFraction
             // with length restLength:
             log.trace(`Ghost Found at end (measure ${this.MeasureNumber})`); // happens too often for valid measures to be logged to debug
-            const vfghost: Vex.Flow.GhostNote = VexFlowConverter.GhostNote(restLength);
-            const ghostGve: VexFlowVoiceEntry = new VexFlowVoiceEntry(undefined, undefined);
-            ghostGve.vfStaveNote = vfghost;
-            gvEntries.push(ghostGve);
+            const ghostGves: VexFlowVoiceEntry[] = this.createGhostGves(restLength);
+            gvEntries = gvEntries.concat(ghostGves);
         }
         return gvEntries;
+    }
+
+    private createGhostGves(duration: Fraction): VexFlowVoiceEntry[] {
+        const vfghosts: Vex.Flow.GhostNote[] = VexFlowConverter.GhostNotes(duration);
+        const ghostGves: VexFlowVoiceEntry[] = [];
+        for (const vfghost of vfghosts) {
+            const ghostGve: VexFlowVoiceEntry = new VexFlowVoiceEntry(undefined, undefined);
+            ghostGve.vfStaveNote = vfghost;
+            ghostGves.push(ghostGve);
+        }
+        return ghostGves;
     }
 
     /**

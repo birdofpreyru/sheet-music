@@ -3,6 +3,16 @@ The changelog of this customized fork is inside the GitHub releases page: \
 https://github.com/birdofpreyru/sheet-music/releases
 
 
+# [1.2.0](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.1.0...1.2.0) (2021-09-23)
+
+
+### Bug Fixes
+
+* **Note X-Positions:** Fix Cross Stave Note Position X-Shift and Ghost Notes for complex fractions ([#1063](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1063)) ([a04fd58](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/a04fd58767107beb57e6ea6974f8e6e480aa02cd)), closes [#1062](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1062) [#1062](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1062) [#1062](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1062)
+* **Repeats:** Fix Repeat end+start (:||:) collision ([#1061](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1061)) by adding padding ([88d7467](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/88d7467bf951e5903367d59181ecf18b5984165a)). Add EngravingRule RepeatEndStartPadding (previous default 0.0, now 2.0)
+* **Undefined errors:** ([#1051](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1051)) Add some more safeguards for undefined variables in complex/messy midi scores ([e0d70bc](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/e0d70bc67d26465078fc224c69615bd0789cdaa3))
+* **Dependencies:** Update JSZip to 3.7.1
+
 
 # [1.1.0](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.0.0...1.1.0) (2021-07-27)
 
@@ -13,7 +23,7 @@ https://github.com/birdofpreyru/sheet-music/releases
 * **ChordSymbols:** Prevent multiple rest measure generated over rest measures with chords ([#955](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/955)) ([d1e454b](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/d1e454bd400060a5b305022fd87c016681a6c3f7))
 * **GetNearestNote:** Handle undefined parentStaffEntry ([#1029](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1029), PR [#1031](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1031)) ([6ca4a05](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/6ca4a058c9eefb0f240655900d3ef40ed3b6ab6e))
 * **Multirest:** Fix repetition measures included in multiple rest measure ([#901](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/901)) ([e624f6a](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/e624f6a058aaba1eaf3e6ad708c95b8c886ab6ab))
-* **Note Alignment:** Fix notes not sharing stems/note heads ([#414](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/414)), voices not aligned ([#947](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/947)). Fix visual differences on re-render. ([d9aabab](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/d9aababa59d26d4aa3c2ef6ae93eebc3a41b8b78)), closes [#77](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/77) [#69](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/69)
+* **Note Alignment:** Fix notes not sharing stems/note heads ([#414](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/414)), voices not aligned ([#947](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/947)). Fix visual differences on re-render. ([d9aabab](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/d9aababa59d26d4aa3c2ef6ae93eebc3a41b8b78))
 * **Slurs:** Ignore measure numbers, improve staff split slurs, add optional softening mechanism ([bc71de7](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/bc71de774db0a3e4e91d8230d758fd41b15c30e1))
 * **Tabs:** Correctly read number of stafflines if staff-details node is given for multiple staves ([#1041](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1041)) ([341b696](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/341b696641f0c9fba5a716a6ffa39fa83f2ac34d))
 

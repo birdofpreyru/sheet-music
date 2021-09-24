@@ -439,6 +439,7 @@ import 'svg2pdf.js';
             autoResize: true,
             backend: backendType,
             //backend: "canvas",
+            //cursorsOptions: [{type: 3, color: "#2bb8cd", alpha: 0.6, follow: true}], // highlight current measure instead of just a small vertical bar over approximate notes
             disableCursor: false,
             drawingParameters: compactMode ? "compact" : "default", // try compact (instead of default)
             drawPartNames: true, // try false

@@ -188,14 +188,28 @@ export class Cursor {
     // height += 10;
 
     // Update the graphical cursor
-    // The following is the legacy cursor rendered on the canvas:
-    // // let cursor: GraphicalLine = new GraphicalLine(new PointF2D(x, y), new PointF2D(x, y + height), 3, OutlineAndFillStyleEnum.PlaybackCursor);
+    const measurePositionAndShape: BoundingBox = this.graphic.findGraphicalMeasure(iterator.CurrentMeasureIndex, 0).PositionAndShape;
+    this.updateWidthAndStyle(measurePositionAndShape, x, y, height, width);
 
-    // This the current HTML Cursor:
+    if (this.openSheetMusicDisplay.FollowCursor) {
+      if (!this.openSheetMusicDisplay.EngravingRules.RenderSingleHorizontalStaffline) {
+        const diff: number = this.cursorElement.getBoundingClientRect().top;
+        this.cursorElement.scrollIntoView({behavior: diff < 1000 ? "smooth" : "auto", block: "center"});
+      } else {
+        this.cursorElement.scrollIntoView({behavior: "smooth", inline: "center"});
+      }
+    }
+    // Show cursor
+    // // Old cursor: this.graphic.Cursors.push(cursor);
+    this.cursorElement.style.display = "";
+  }
+
+  public updateWidthAndStyle(
+    measurePositionAndShape: BoundingBox,
+    x: number, y: number, height: number, width: number,
+  ): void {
     const cursorElement: HTMLImageElement = this.cursorElement;
-
     let newWidth: number = 0;
-    const meassurePositionAndShape: BoundingBox = this.graphic.findGraphicalMeasure(iterator.CurrentMeasureIndex, 0).PositionAndShape;
     switch (this.cursorOptions.type) {
       case 1:
         cursorElement.style.top = (y * 10.0 * this.openSheetMusicDisplay.zoom) + "px";
@@ -211,17 +225,17 @@ export class Cursor {
         newWidth = 5 * this.openSheetMusicDisplay.zoom;
         break;
       case 3:
-        cursorElement.style.top = meassurePositionAndShape.AbsolutePosition.y * 10.0 * this.openSheetMusicDisplay.zoom +"px";
-        cursorElement.style.left = meassurePositionAndShape.AbsolutePosition.x * 10.0 * this.openSheetMusicDisplay.zoom +"px";
+        cursorElement.style.top = measurePositionAndShape.AbsolutePosition.y * 10.0 * this.openSheetMusicDisplay.zoom +"px";
+        cursorElement.style.left = measurePositionAndShape.AbsolutePosition.x * 10.0 * this.openSheetMusicDisplay.zoom +"px";
         cursorElement.height = (height * 10.0 * this.openSheetMusicDisplay.zoom);
-        newWidth = meassurePositionAndShape.Size.width * 10 * this.openSheetMusicDisplay.zoom;
+        newWidth = measurePositionAndShape.Size.width * 10 * this.openSheetMusicDisplay.zoom;
         break;
       case 4:
-        cursorElement.style.top = meassurePositionAndShape.AbsolutePosition.y * 10.0 * this.openSheetMusicDisplay.zoom +"px";
-        cursorElement.style.left = meassurePositionAndShape.AbsolutePosition.x * 10.0 * this.openSheetMusicDisplay.zoom +"px";
+        cursorElement.style.top = measurePositionAndShape.AbsolutePosition.y * 10.0 * this.openSheetMusicDisplay.zoom +"px";
+        cursorElement.style.left = measurePositionAndShape.AbsolutePosition.x * 10.0 * this.openSheetMusicDisplay.zoom +"px";
         cursorElement.height = (height * 10.0 * this.openSheetMusicDisplay.zoom);
         newWidth = (
-          10 * x - 10 * meassurePositionAndShape.AbsolutePosition.x
+          10 * x - 10 * measurePositionAndShape.AbsolutePosition.x
             - width / 2) * this.openSheetMusicDisplay.zoom;
         break;
       default:
@@ -239,17 +253,6 @@ export class Cursor {
       cursorElement.style.background = this.cursorOptions.color;
       cursorElement.style.opacity = this.cursorOptions.alpha.toString();
     }
-    if (this.openSheetMusicDisplay.FollowCursor) {
-      if (!this.openSheetMusicDisplay.EngravingRules.RenderSingleHorizontalStaffline) {
-        const diff: number = this.cursorElement.getBoundingClientRect().top;
-        this.cursorElement.scrollIntoView({behavior: diff < 1000 ? "smooth" : "auto", block: "center"});
-      } else {
-        this.cursorElement.scrollIntoView({behavior: "smooth", inline: "center"});
-      }
-    }
-    // Show cursor
-    // // Old cursor: this.graphic.Cursors.push(cursor);
-    this.cursorElement.style.display = "";
   }
 
   /**
