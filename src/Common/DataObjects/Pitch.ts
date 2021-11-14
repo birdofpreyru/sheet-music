@@ -25,8 +25,14 @@ export enum AccidentalEnum {
     TRIPLEFLAT,
     QUARTERTONESHARP,
     QUARTERTONEFLAT,
+    SLASHFLAT,
     THREEQUARTERSSHARP,
     THREEQUARTERSFLAT,
+    SLASHQUARTERSHARP,
+    SLASHSHARP,
+    DOUBLESLASHFLAT,
+    SORI,
+    KORON
 }
 
 // This class represents a musical note. The middle A (440 Hz) lies in the octave with the value 1.
@@ -44,6 +50,7 @@ export class Pitch {
     private octave: number;
     private fundamentalNote: NoteEnum;
     private accidental: AccidentalEnum = AccidentalEnum.NONE;
+    private accidentalXml: string;
     private frequency: number;
     private halfTone: number;
 
@@ -186,10 +193,11 @@ export class Pitch {
         return fundamentalNote;
     }
 
-    constructor(fundamentalNote: NoteEnum, octave: number, accidental: AccidentalEnum) {
+    constructor(fundamentalNote: NoteEnum, octave: number, accidental: AccidentalEnum, accidentalXml: string = undefined) {
         this.fundamentalNote = fundamentalNote;
         this.octave = octave;
         this.accidental = accidental;
+        this.accidentalXml = accidentalXml;
         this.halfTone = <number>(fundamentalNote) + (octave + Pitch.octXmlDiff) * 12 +
             Pitch.HalfTonesFromAccidental(accidental);
         this.frequency = Pitch.calcFrequency(this);
@@ -223,10 +231,22 @@ export class Pitch {
                 return 0.5;
             case AccidentalEnum.QUARTERTONEFLAT:
                 return -0.5;
+            case AccidentalEnum.SLASHFLAT:
+                return -0.51; // TODO currently necessary for quarter tone flat rendering after slash flat
             case AccidentalEnum.THREEQUARTERSSHARP:
                 return 1.5;
             case AccidentalEnum.THREEQUARTERSFLAT:
                 return -1.5;
+            case AccidentalEnum.SLASHQUARTERSHARP:
+                return 0.0013; // tmp for identification
+            case AccidentalEnum.SLASHSHARP:
+                return 0.0014; // tmp for identification
+            case AccidentalEnum.DOUBLESLASHFLAT:
+                return -0.0015; // tmp for identification
+            case AccidentalEnum.SORI:
+                return 0.0016; // tmp for identification
+            case AccidentalEnum.KORON:
+                return 0.0017; // tmp for identification
             default:
                 throw new Error("Unhandled AccidentalEnum value");
                 // return 0;
@@ -305,11 +325,29 @@ export class Pitch {
             case AccidentalEnum.QUARTERTONEFLAT:
                 acc = "d";
                 break;
+            case AccidentalEnum.SLASHFLAT:
+                acc = "bs";
+                break;
             case AccidentalEnum.THREEQUARTERSSHARP:
                 acc = "++";
                 break;
             case AccidentalEnum.THREEQUARTERSFLAT:
                 acc = "db";
+                break;
+            case AccidentalEnum.SLASHQUARTERSHARP:
+                acc = "+-";
+                break;
+            case AccidentalEnum.SLASHSHARP:
+                acc = "++-";
+                break;
+            case AccidentalEnum.DOUBLESLASHFLAT:
+                acc = "bss";
+                break;
+            case AccidentalEnum.SORI:
+                acc = "o";
+                break;
+            case AccidentalEnum.KORON:
+                acc = "k";
                 break;
             default:
         }
@@ -330,6 +368,10 @@ export class Pitch {
 
     public get Accidental(): AccidentalEnum {
         return this.accidental;
+    }
+
+    public get AccidentalXml(): string {
+        return this.accidentalXml;
     }
 
     public get Frequency(): number {

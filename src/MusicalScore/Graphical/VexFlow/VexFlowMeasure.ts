@@ -1160,18 +1160,16 @@ export class VexFlowMeasure extends GraphicalMeasure {
                     }
                     continue;
                 }
-                if (gve.notes[0].sourceNote.PrintObject) {
-                    (gve as VexFlowVoiceEntry).vfStaveNote = VexFlowConverter.StaveNote(gve);
-                } else {
+                (gve as VexFlowVoiceEntry).vfStaveNote = VexFlowConverter.StaveNote(gve);
+                //if (!gve.notes[0].sourceNote.PrintObject) {
                     // note can now also be added as StaveNote instead of GhostNote, because we set it to transparent
-                    (gve as VexFlowVoiceEntry).vfStaveNote = VexFlowConverter.StaveNote(gve);
 
                     // previous method: add as GhostNote instead of StaveNote. Can cause formatting issues if critical notes are missing in the measure
                     // don't render note. add ghost note, otherwise Vexflow can have issues with layouting when voices not complete.
                     //(gve as VexFlowVoiceEntry).vfStaveNote = VexFlowConverter.GhostNote(gve.notes[0].sourceNote.Length);
                     //graceGVoiceEntriesBefore = []; // if note is not rendered, its grace notes shouldn't be rendered, might need to be removed
                     //continue;
-                }
+                //}
                 if (graceGVoiceEntriesBefore.length > 0) {
                     // add grace notes that came before this main note to a GraceNoteGroup in Vexflow, attached to the main note
                     const graceNotes: Vex.Flow.GraceNote[] = [];
@@ -1238,6 +1236,10 @@ export class VexFlowMeasure extends GraphicalMeasure {
                 }
 
                 const vexFlowVoiceEntry: VexFlowVoiceEntry = voiceEntry as VexFlowVoiceEntry;
+                if ((vexFlowVoiceEntry.vfStaveNote as any).ticks.denominator === 0) {
+                    continue; // TODO not sure why the ticks aren't calculated correctly, see #1073
+                    // if denominator === 0, addTickable() below goes into an infinite loop.
+                }
                 if (voiceEntry.notes.length === 0 || !voiceEntry.notes[0] || !voiceEntry.notes[0].sourceNote.PrintObject) {
                     // GhostNote, don't add modifiers like in-measure clefs
                     this.vfVoices[voice.VoiceId].addTickable(vexFlowVoiceEntry.vfStaveNote);
@@ -1261,7 +1263,10 @@ export class VexFlowMeasure extends GraphicalMeasure {
 
                 // add fingering
                 if (voiceEntry.parentVoiceEntry && this.rules.RenderFingerings) {
-                    this.createFingerings(voiceEntry);
+                    if (this.rules.FingeringPosition === PlacementEnum.Left ||
+                        this.rules.FingeringPosition === PlacementEnum.Right) {
+                            this.createFingerings(voiceEntry);
+                    } // else created in MusicSheetCalculater.createFingerings() as Labels
                     this.createStringNumber(voiceEntry);
                 }
 
@@ -1271,6 +1276,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
                 this.vfVoices[voice.VoiceId].addTickable(vexFlowVoiceEntry.vfStaveNote);
             }
         }
+        this.setStemDirectionFromVexFlow();
         for (const graceGVoiceEntry of graveGVoiceEntriesAdded) {
             this.createFingerings(graceGVoiceEntry);
             this.createStringNumber(graceGVoiceEntry);
@@ -1278,7 +1284,6 @@ export class VexFlowMeasure extends GraphicalMeasure {
         }
         this.createArticulations();
         this.createOrnaments();
-        this.setStemDirectionFromVexFlow();
     }
 
     private createArpeggio(voiceEntry: GraphicalVoiceEntry): void {
@@ -1388,6 +1393,15 @@ export class VexFlowMeasure extends GraphicalMeasure {
             }
             fingeringIndex++; // 0 for first fingering
             let fingeringPosition: PlacementEnum = this.rules.FingeringPosition;
+            //currently only relevant for grace notes, because we create other fingerings above/below in MusicSheetCalculator.createFingerings
+            if (this.rules.FingeringPositionGrace === PlacementEnum.AboveOrBelow) {
+                //if (this.rules.FingeringPosition === PlacementEnum.AboveOrBelow) {
+                if (this.isUpperStaffOfInstrument()) { // (e.g. piano right hand)
+                    fingeringPosition = PlacementEnum.Above;
+                } else if (this.isLowerStaffOfInstrument()) {
+                    fingeringPosition = PlacementEnum.Below;
+                }
+            }
             if (fingering.placement !== PlacementEnum.NotYetDefined) {
                 fingeringPosition = fingering.placement;
             }

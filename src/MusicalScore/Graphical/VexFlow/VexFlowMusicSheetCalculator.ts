@@ -946,6 +946,9 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
             }
 
             let nextShiftLastMeasure: GraphicalMeasure = nextShiftStaffline.Measures[nextShiftStaffline.Measures.length - 1];
+            if (nextShiftLastMeasure.IsExtraGraphicalMeasure) { // key/rhythm change measure
+              nextShiftLastMeasure = nextShiftStaffline.Measures[nextShiftStaffline.Measures.length - 2];
+            }
             const firstNote: GraphicalStaffEntry = nextShiftFirstMeasure.staffEntries[0];
             let lastNote: GraphicalStaffEntry = nextShiftLastMeasure.staffEntries[nextShiftLastMeasure.staffEntries.length - 1];
 
@@ -955,6 +958,13 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
               lastNote = endStaffEntry;
             }
 
+            const logPrefix: string = "VexFlowMusicSheetCalculator.calculateSingleOctaveShift: ";
+            if (!firstNote) {
+              log.warn(logPrefix + "no firstNote found");
+            }
+            if (!lastNote) {
+              log.warn(logPrefix + "no lastNote found");
+            }
             nextOctaveShift.setStartNote(firstNote);
             nextOctaveShift.setEndNote(lastNote);
             nextShiftStaffline.OctaveShifts.push(nextOctaveShift);
@@ -975,7 +985,10 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
 
   private calculateOctaveShiftSkyBottomLine(startStaffEntry: GraphicalStaffEntry, endStaffEntry: GraphicalStaffEntry,
                                             vfOctaveShift: VexFlowOctaveShift, parentStaffline: StaffLine): void {
-
+    if (!endStaffEntry) {
+      log.warn("octaveshift: no endStaffEntry");
+      return;
+    }
     let startXOffset: number = startStaffEntry.PositionAndShape.Size.width;
     let endXOffset: number = endStaffEntry.PositionAndShape.Size.width;
 
@@ -1256,12 +1269,15 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
                     }
                     // add new VexFlowSlur to List
                     if (slur.StartNote === graphicalNote.sourceNote) {
-                      if (graphicalNote.sourceNote.NoteTie) {
-                        if (graphicalNote.parentVoiceEntry.parentStaffEntry.getAbsoluteTimestamp() !==
-                          graphicalNote.sourceNote.NoteTie.StartNote.getAbsoluteTimestamp()) {
-                          break;
-                        }
-                      }
+                      // TODO the following seems to have been intended to prevent unnecessary slurs that overlap ties,
+                      //   but it simply leads to correct slurs being left out where the tie end note is the slur start note.
+                      //   visual regression tests simply show valid slurs being left out in 4 samples.
+                      // if (graphicalNote.sourceNote.NoteTie) {
+                      //   if (graphicalNote.parentVoiceEntry.parentStaffEntry.getAbsoluteTimestamp() !==
+                      //     graphicalNote.sourceNote.NoteTie.StartNote.getAbsoluteTimestamp()) {
+                      //     break;
+                      //   }
+                      // }
 
                       // Add a Graphical Slur to the staffline, if the recent note is the Startnote of a slur
                       const gSlur: GraphicalSlur = new GraphicalSlur(slur, this.rules);

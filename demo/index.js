@@ -446,7 +446,8 @@ import 'svg2pdf.js';
             // drawTitle: false,
             // drawSubtitle: false,
             drawFingerings: true,
-            fingeringPosition: "left", // left is default. try right. experimental: auto, above, below.
+            //fingeringPosition: "left", // Above/Below is default. try left or right. experimental: above, below.
+            //fingeringPositionFromXML: false, // do this if you want them always left, for example.
             // fingeringInsideStafflines: "true", // default: false. true draws fingerings directly above/below notes
             setWantedStemDirectionByXml: true, // try false, which was previously the default behavior
             // drawUpToMeasureNumber: 3, // draws only up to measure 3, meaning it draws measure 1 to 3 of the piece.
@@ -477,6 +478,9 @@ import 'svg2pdf.js';
             // tripletsBracketed: true,
             // tupletsRatioed: true, // unconventional; renders ratios for tuplets (3:2 instead of 3 for triplets)
         });
+        //openSheetMusicDisplay.DrawSkyLine = true;
+        //openSheetMusicDisplay.DrawBottomLine = true;
+        //openSheetMusicDisplay.setDrawBoundingBox("GraphicalLabel", false);
         openSheetMusicDisplay.setLogLevel('info'); // set this to 'debug' if you want to see more detailed control flow information in console
         document.body.appendChild(canvas);
 

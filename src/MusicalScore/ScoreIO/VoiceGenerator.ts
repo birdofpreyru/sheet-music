@@ -117,7 +117,8 @@ export class VoiceGenerator {
               parentStaffEntry: SourceStaffEntry, parentMeasure: SourceMeasure,
               measureStartAbsoluteTimestamp: Fraction, maxTieNoteFraction: Fraction, chord: boolean, octavePlusOne: boolean,
               printObject: boolean, isCueNote: boolean, isGraceNote: boolean, stemDirectionXml: StemDirectionType, tremoloStrokes: number,
-              stemColorXml: string, noteheadColorXml: string, vibratoStrokes: boolean): Note {
+              stemColorXml: string, noteheadColorXml: string, vibratoStrokes: boolean,
+              dotsXml: number): Note {
     this.currentStaffEntry = parentStaffEntry;
     this.currentMeasure = parentMeasure;
     //log.debug("read called:", restNote);
@@ -127,6 +128,7 @@ export class VoiceGenerator {
         ? this.addRestNote(noteNode.element("rest"), noteDuration, noteTypeXml, normalNotes, printObject, isCueNote, noteheadColorXml)
         : this.addSingleNote(noteNode, noteDuration, noteTypeXml, typeDuration, normalNotes, chord, octavePlusOne,
                              printObject, isCueNote, isGraceNote, stemDirectionXml, tremoloStrokes, stemColorXml, noteheadColorXml, vibratoStrokes);
+      this.currentNote.DotsXml = dotsXml;
       // read lyrics
       const lyricElements: IXmlElement[] = noteNode.elements("lyric");
       if (this.lyricsReader !== undefined && lyricElements) {
@@ -236,10 +238,12 @@ export class VoiceGenerator {
         this.handleTimeModificationNode(noteNode);
       }
     } catch (err) {
+      log.warn(err);
       const errorMsg: string = ITextTranslation.translateText(
         "ReaderErrorMessages/NoteError", "Ignored erroneous Note."
       );
       this.musicSheet.SheetErrors.pushMeasureError(errorMsg);
+      this.musicSheet.SheetErrors.pushMeasureError(err);
     }
 
     return this.currentNote;
@@ -330,6 +334,7 @@ export class VoiceGenerator {
                         stemColorXml: string, noteheadColorXml: string, vibratoStrokes: boolean): Note {
     //log.debug("addSingleNote called");
     let noteAlter: number = 0;
+    let accidentalValue: string;
     let noteAccidental: AccidentalEnum = AccidentalEnum.NONE;
     let noteStep: NoteEnum = NoteEnum.C;
     let displayStepUnpitched: NoteEnum = NoteEnum.C;
@@ -386,9 +391,22 @@ export class VoiceGenerator {
 
           }
         } else if (noteElement.name === "accidental") {
-          const accidentalValue: string = noteElement.value;
+          accidentalValue = noteElement.value;
           if (accidentalValue === "natural") {
             noteAccidental = AccidentalEnum.NATURAL;
+            // following accidentals: ambiguous in alter value
+          } else if (accidentalValue === "slash-flat") {
+            noteAccidental = AccidentalEnum.SLASHFLAT;
+          } else if (accidentalValue === "slash-quarter-sharp") {
+            noteAccidental = AccidentalEnum.SLASHQUARTERSHARP;
+          } else if (accidentalValue === "slash-sharp") {
+            noteAccidental = AccidentalEnum.SLASHSHARP;
+          } else if (accidentalValue === "double-slash-flat") {
+            noteAccidental = AccidentalEnum.DOUBLESLASHFLAT;
+          } else if (accidentalValue === "sori") {
+            noteAccidental = AccidentalEnum.SORI;
+          } else if (accidentalValue === "koron") {
+            noteAccidental = AccidentalEnum.KORON;
           }
         } else if (noteElement.name === "unpitched") {
           const displayStepElement: IXmlElement = noteElement.element("display-step");
@@ -429,7 +447,7 @@ export class VoiceGenerator {
     }
 
     noteOctave -= Pitch.OctaveXmlDifference;
-    const pitch: Pitch = new Pitch(noteStep, noteOctave, noteAccidental);
+    const pitch: Pitch = new Pitch(noteStep, noteOctave, noteAccidental, accidentalValue);
     const noteLength: Fraction = Fraction.createFromFraction(noteDuration);
     let note: Note = undefined;
     let stringNumber: number = -1;
@@ -613,6 +631,11 @@ export class VoiceGenerator {
    */
   private handleOpenBeam(): void {
     const openBeam: Beam = this.openBeams.last();
+    if (openBeam.Notes.length === 0) {
+      // TODO why is there such a beam? sample: test_percussion_display_step_from_xml
+      this.endBeam(); // otherwise beamLastNote.ParentStaffEntry will throw an undefined error
+      return;
+    }
     if (openBeam.Notes.length === 1) {
       const beamNote: Note = openBeam.Notes[0];
       beamNote.NoteBeam = undefined;

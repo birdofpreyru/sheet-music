@@ -70,6 +70,7 @@ import { FillEmptyMeasuresWithWholeRests } from "../../OpenSheetMusicDisplay/OSM
 import { LyricsEntry } from "../VoiceData/Lyrics";
 import { IStafflineNoteCalculator } from "../Interfaces/IStafflineNoteCalculator";
 import { GraphicalUnknownExpression } from "./GraphicalUnknownExpression";
+import { GraphicalChordSymbolContainer } from ".";
 
 /**
  * Class used to do all the calculations in a MusicSheet, which in the end populates a GraphicalMusicSheet.
@@ -880,6 +881,7 @@ export abstract class MusicSheetCalculator {
                 this.calculateMeasureNumberPlacement(musicSystem);
             }
         }
+        this.calculateFingerings(); // if this is done after slurs, fingerings can be on top of slurs
         // calculate Slurs
         if (!this.leadSheet && this.rules.RenderSlurs) {
             this.calculateSlurs();
@@ -1002,23 +1004,66 @@ export abstract class MusicSheetCalculator {
     protected calculateChordSymbols(): void {
         for (const musicSystem of this.musicSystems) {
             for (const staffLine of musicSystem.StaffLines) {
-                const sbc: SkyBottomLineCalculator = staffLine.SkyBottomLineCalculator;
+                const skybottomcalculator: SkyBottomLineCalculator = staffLine.SkyBottomLineCalculator;
+                let minimumOffset: number = Number.MAX_SAFE_INTEGER; // only calculated if option set
+                if (this.rules.ChordSymbolYAlignment && this.rules.ChordSymbolYAlignmentScope === "staffline") {
+                    // get the max y position of all chord symbols in the staffline in advance
+                    const alignmentScopedStaffEntries: GraphicalStaffEntry[] = [];
+                    for (const measure of staffLine.Measures) {
+                        alignmentScopedStaffEntries.push(...measure.staffEntries);
+                    }
+                    minimumOffset = this.calculateAlignedChordSymbolsOffset(alignmentScopedStaffEntries, skybottomcalculator);
+                }
                 for (const measure of staffLine.Measures) {
+                    if (this.rules.ChordSymbolYAlignment && this.rules.ChordSymbolYAlignmentScope === "measure") {
+                        minimumOffset = this.calculateAlignedChordSymbolsOffset(measure.staffEntries, skybottomcalculator);
+                    }
                     for (const staffEntry of measure.staffEntries) {
                         if (!staffEntry.graphicalChordContainers || staffEntry.graphicalChordContainers.length === 0) {
                             continue;
                         }
-                        for (const graphicalChordContainer of staffEntry.graphicalChordContainers) {
+                        for (let i: number = 0; i < staffEntry.graphicalChordContainers.length; i++) {
+                            const graphicalChordContainer: GraphicalChordSymbolContainer = staffEntry.graphicalChordContainers[i];
                             const sps: BoundingBox = staffEntry.PositionAndShape;
                             const gps: BoundingBox = graphicalChordContainer.PositionAndShape;
                             const start: number = gps.BorderMarginLeft + sps.AbsolutePosition.x;
                             const end: number = gps.BorderMarginRight + sps.AbsolutePosition.x;
-                            sbc.updateSkyLineInRange(start, end, sps.BorderMarginTop);
+                            if (!this.rules.ChordSymbolYAlignment || minimumOffset > 0) {
+                                //minimumOffset = this.calculateAlignedChordSymbolsOffset([staffEntry], skybottomcalculator);
+                                minimumOffset = skybottomcalculator.getSkyLineMinInRange(start, end); // same as above, less code executed
+                            }
+                            let yShift: number = 0;
+                            if (i === 0) {
+                                yShift += this.rules.ChordSymbolYOffset;
+                                yShift += 0.1; // above is a bit closer to the notes than below ones for some reason
+                            } else {
+                                yShift += this.rules.ChordSymbolYPadding;
+                            }
+                            yShift *= -1;
+                            const gLabel: GraphicalLabel = graphicalChordContainer.GraphicalLabel;
+                            gLabel.PositionAndShape.RelativePosition.y = minimumOffset + yShift;
+                            gLabel.setLabelPositionAndShapeBorders();
+                            gLabel.PositionAndShape.calculateBoundingBox();
+                            skybottomcalculator.updateSkyLineInRange(start, end, minimumOffset + gLabel.PositionAndShape.BorderMarginTop);
                         }
                     }
                 }
             }
         }
+    }
+
+    protected calculateAlignedChordSymbolsOffset(staffEntries: GraphicalStaffEntry[], sbc: SkyBottomLineCalculator): number {
+        let minimumOffset: number = Number.MAX_SAFE_INTEGER;
+        for (const staffEntry of staffEntries) {
+            for (const graphicalChordContainer of staffEntry.graphicalChordContainers) {
+                const sps: BoundingBox = staffEntry.PositionAndShape;
+                const gps: BoundingBox = graphicalChordContainer.PositionAndShape;
+                const start: number = gps.BorderMarginLeft + sps.AbsolutePosition.x;
+                const end: number = gps.BorderMarginRight + sps.AbsolutePosition.x;
+                minimumOffset = Math.min(minimumOffset, sbc.getSkyLineMinInRange(start, end));
+            }
+        }
+        return minimumOffset;
     }
 
     /**
@@ -2581,6 +2626,81 @@ export abstract class MusicSheetCalculator {
                                 if (!(this.staffEntriesWithOrnaments.indexOf(graphicalStaffEntry) !== -1)) {
                                     this.staffEntriesWithOrnaments.push(graphicalStaffEntry);
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public calculateFingerings(): void {
+        if (this.rules.FingeringPosition === PlacementEnum.Left ||
+            this.rules.FingeringPosition === PlacementEnum.Right) {
+                return;
+        }
+        for (const system of this.musicSystems) {
+            for (const line of system.StaffLines) {
+                for (const measure of line.Measures) {
+                    const placement: PlacementEnum = measure.isUpperStaffOfInstrument() ? PlacementEnum.Above : PlacementEnum.Below;
+                    for (const gse of measure.staffEntries) {
+                        gse.FingeringEntries = [];
+                        const skybottomcalculator: SkyBottomLineCalculator = line.SkyBottomLineCalculator;
+                        const staffEntryPositionX: number = gse.PositionAndShape.RelativePosition.x +
+                            measure.PositionAndShape.RelativePosition.x;
+                        const fingerings: TechnicalInstruction[] = [];
+                        for (const voiceEntry of gse.graphicalVoiceEntries) {
+                            for (const note of voiceEntry.notes) {
+                                const sourceNote: Note = note.sourceNote;
+                                if (sourceNote.Fingering && !sourceNote.IsGraceNote) {
+                                    fingerings.push(sourceNote.Fingering);
+                                }
+                            }
+                        }
+                        if (placement === PlacementEnum.Below) {
+                            fingerings.reverse();
+                        }
+                        for (let i: number = 0; i < fingerings.length; i++) {
+                            const fingering: TechnicalInstruction = fingerings[i];
+                            const alignment: TextAlignmentEnum =
+                                placement === PlacementEnum.Above ? TextAlignmentEnum.CenterBottom : TextAlignmentEnum.CenterTop;
+                            const label: Label = new Label(fingering.value, alignment);
+                            const gLabel: GraphicalLabel = new GraphicalLabel(
+                                label, this.rules.FingeringTextSize, label.textAlignment, this.rules, line.PositionAndShape);
+                            const marginLeft: number = staffEntryPositionX + gLabel.PositionAndShape.BorderMarginLeft;
+                            const marginRight: number = staffEntryPositionX + gLabel.PositionAndShape.BorderMarginRight;
+                            let skybottomFurthest: number = undefined;
+                            if (placement === PlacementEnum.Above) {
+                                skybottomFurthest = skybottomcalculator.getSkyLineMinInRange(marginLeft, marginRight);
+                            } else {
+                                skybottomFurthest = skybottomcalculator.getBottomLineMaxInRange(marginLeft, marginRight);
+                            }
+                            let yShift: number = 0;
+                            if (i === 0) {
+                                yShift += this.rules.FingeringOffsetY;
+                                if (placement === PlacementEnum.Above) {
+                                    yShift += 0.1; // above fingerings are a bit closer to the notes than below ones for some reason
+                                }
+                            } else {
+                                yShift += this.rules.FingeringPaddingY;
+                            }
+                            if (placement === PlacementEnum.Above) {
+                                yShift *= -1;
+                            }
+                            gLabel.PositionAndShape.RelativePosition.y += skybottomFurthest + yShift;
+                            gLabel.PositionAndShape.RelativePosition.x = staffEntryPositionX;
+                            gLabel.setLabelPositionAndShapeBorders();
+                            gLabel.PositionAndShape.calculateBoundingBox();
+                            gse.FingeringEntries.push(gLabel);
+                            const start: number = gLabel.PositionAndShape.RelativePosition.x + gLabel.PositionAndShape.BorderLeft;
+                            //start -= line.PositionAndShape.RelativePosition.x;
+                            const end: number = start - gLabel.PositionAndShape.BorderLeft + gLabel.PositionAndShape.BorderRight;
+                            if (placement === PlacementEnum.Above) {
+                                skybottomcalculator.updateSkyLineInRange(
+                                    start, end, gLabel.PositionAndShape.RelativePosition.y + gLabel.PositionAndShape.BorderTop); // BorderMarginTop too much
+                            } else if (placement === PlacementEnum.Below) {
+                                skybottomcalculator.updateBottomLineInRange(
+                                    start, end, gLabel.PositionAndShape.RelativePosition.y + gLabel.PositionAndShape.BorderBottom);
                             }
                         }
                     }

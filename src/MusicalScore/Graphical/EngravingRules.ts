@@ -118,6 +118,9 @@ export class EngravingRules {
     public ChordSymbolXSpacing: number;
     public ChordOverlapAllowedIntoNextMeasure: number;
     public ChordSymbolYOffset: number;
+    public ChordSymbolYPadding: number;
+    public ChordSymbolYAlignment: boolean;
+    public ChordSymbolYAlignmentScope: string;
     public ChordSymbolLabelTexts: Dictionary<ChordSymbolEnum, string>;
     public CustomChords: CustomChord[];
     public RepetitionSymbolsYOffset: number;
@@ -245,6 +248,7 @@ export class EngravingRules {
     public DurationScalingDistanceDict: {[_: number]: number } = {};
 
     public AlignRests: number; // 0 = false, 1 = true, 2 = auto
+    public RestCollisionYPadding: number;
     public FillEmptyMeasuresWithWholeRest: FillEmptyMeasuresWithWholeRests | number;
     public ArpeggiosGoAcrossVoices: boolean;
     public RenderArpeggios: boolean;
@@ -292,9 +296,13 @@ export class EngravingRules {
     /** Position of fingering label in relation to corresponding note (left, right supported, above, below experimental) */
     public FingeringPosition: PlacementEnum;
     public FingeringPositionFromXML: boolean;
+    public FingeringPositionGrace: PlacementEnum;
     public FingeringInsideStafflines: boolean;
     public FingeringLabelFontHeight: number;
     public FingeringOffsetX: number;
+    public FingeringOffsetY: number;
+    public FingeringPaddingY: number;
+    public FingeringTextSize: number;
     /** Whether to render string numbers in classical scores, i.e. not the string numbers in tabs, but e.g. for violin. */
     public RenderStringNumbersClassical: boolean;
     /** This is not for tabs, but for classical scores, especially violin. */
@@ -440,7 +448,10 @@ export class EngravingRules {
         this.ChordSymbolRelativeXOffset = -1.0;
         this.ChordSymbolXSpacing = 1.0;
         this.ChordOverlapAllowedIntoNextMeasure = 0;
-        this.ChordSymbolYOffset = 2.0;
+        this.ChordSymbolYOffset = 0.1;
+        this.ChordSymbolYPadding = 0.0;
+        this.ChordSymbolYAlignment = true;
+        this.ChordSymbolYAlignmentScope = "staffline"; // "measure" or "staffline"
         this.ChordSymbolLabelTexts = new Dictionary<ChordSymbolEnum, string>();
         this.resetChordSymbolLabelTexts(this.ChordSymbolLabelTexts);
         this.CustomChords = [];
@@ -568,6 +579,7 @@ export class EngravingRules {
 
         // Render options (whether to render specific or invisible elements)
         this.AlignRests = AlignRestOption.Never; // 0 = false, 1 = true, 2 = auto
+        this.RestCollisionYPadding = 0.0; // 1.0 = half distance between staff lines (e.g. E to F). will be rounded to whole numbers.
         this.FillEmptyMeasuresWithWholeRest = FillEmptyMeasuresWithWholeRests.No;
         this.ArpeggiosGoAcrossVoices = false; // safe option, as otherwise arpeggios will always go across all voices in Vexflow, which is often unwanted
         this.RenderArpeggios = true;
@@ -623,11 +635,15 @@ export class EngravingRules {
         this.RenderKeySignatures = true;
         this.RenderTimeSignatures = true;
         this.ArticulationPlacementFromXML = true;
-        this.FingeringPosition = PlacementEnum.Left; // easier to get bounding box, and safer for vertical layout
+        this.FingeringPosition = PlacementEnum.AboveOrBelow; // AboveOrBelow = correct bounding boxes
         this.FingeringPositionFromXML = true;
+        this.FingeringPositionGrace = PlacementEnum.Left;
         this.FingeringInsideStafflines = false;
         this.FingeringLabelFontHeight = 1.7;
         this.FingeringOffsetX = 0.0;
+        this.FingeringOffsetY = 0.0;
+        this.FingeringPaddingY = -0.2;
+        this.FingeringTextSize = 1.5;
         this.RenderStringNumbersClassical = true;
         this.StringNumberOffsetY = 0.0;
         this.NewSystemAtXMLNewSystemAttribute = false;

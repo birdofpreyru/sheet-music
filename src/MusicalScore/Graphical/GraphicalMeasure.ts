@@ -69,6 +69,9 @@ export abstract class GraphicalMeasure extends GraphicalObject {
     private parentMusicSystem: MusicSystem;
     private measureNumber: number = -1;
     private parentStaffLine: StaffLine;
+    /** Used to show key, rhythm changes at the end of the system, has MeasureNumber < 0, because never set. */
+    public IsExtraGraphicalMeasure: boolean;
+    public ExtraGraphicalMeasurePreviousMeasure: GraphicalMeasure;
 
     public get ParentStaff(): Staff {
         return this.parentStaff;
@@ -311,6 +314,29 @@ export abstract class GraphicalMeasure extends GraphicalObject {
                 }
             }
         }
+    }
+
+    public isPianoRightHand(): boolean {
+        return this.isUpperStaffOfInstrument();
+    }
+
+    public isPianoLeftHand(): boolean {
+        return this.isLowerStaffOfInstrument();
+    }
+
+    public isUpperStaffOfInstrument(): boolean {
+        if (this.parentStaff.ParentInstrument.Staves.length === 1) {
+            return true;
+        }
+        return this.ParentStaff === this.parentStaff.ParentInstrument.Staves[0];
+    }
+
+    public isLowerStaffOfInstrument(): boolean {
+        if (this.parentStaff.ParentInstrument.Staves.length === 1) {
+            return false; // technically this could be true as well, but we want this to be treated as upper and not return the same value.
+            // e.g. for a violin, fingerings should go above.
+        }
+        return this.ParentStaff === this.ParentStaff.ParentInstrument.Staves.last();
     }
 
     public beginsWithLineRepetition(): boolean {
