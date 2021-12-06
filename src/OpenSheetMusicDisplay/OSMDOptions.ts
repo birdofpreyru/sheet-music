@@ -115,8 +115,8 @@ export interface IOSMDOptions {
     useXMLMeasureNumbers?: boolean;
     /** Whether to draw fingerings (only left to the note for now). Default true (unless solo part). */
     drawFingerings?: boolean;
-    /** Where to draw fingerings (left, right, above, below, or auto).
-     * Default left. Auto, above, below experimental (potential collisions because bounding box not correct)
+    /** Where to draw fingerings (above, below, aboveorbelow, left, right, or auto).
+     * Default AboveOrBelow. Auto experimental
      */
     fingeringPosition?: string;
     /** For above/below fingerings, whether to draw them directly above/below notes (default), or above/below staffline. */
@@ -127,13 +127,13 @@ export interface IOSMDOptions {
     drawLyrics?: boolean;
     /** Whether to calculate extra slurs with bezier curves not covered by Vexflow slurs. Default true. */
     drawSlurs?: boolean;
-    /** Only draw measure n to m, where m is the number specified. */
+    /** Only draw measure n to m, where m is the number specified. (for n, see drawFromMeasureNumber) */
     drawUpToMeasureNumber?: number;
     /** Only draw the first n systems, where n is the number specified. */
     drawUpToSystemNumber?: number;
     /** Only draw the first n pages, where n is the number specified. */
     drawUpToPageNumber?: number;
-    /** Only draw measure n to m, where n is the number you specify. */
+    /** Only draw measure n to m, where n is the number you specify. (for m, see drawUpToMeasureNumber) */
     drawFromMeasureNumber?: number;
     /** Whether to fill measures that don't have notes given in the XML with whole rests (visible = 1, invisible = 2, for layouting). Default No (0). */
     fillEmptyMeasuresWithWholeRest?: FillEmptyMeasuresWithWholeRests | number;
