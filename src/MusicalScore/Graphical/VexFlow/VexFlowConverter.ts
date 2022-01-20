@@ -450,7 +450,7 @@ export class VexFlowConverter {
             clef: vfClefType,
             duration: duration,
             keys: keys,
-            slash: gve.parentVoiceEntry.GraceNoteSlash,
+            slash: gve.GraceSlash,
         };
 
         const firstNote: Note = gve.notes[0].sourceNote;
@@ -463,6 +463,8 @@ export class VexFlowConverter {
             vfnote = new Vex.Flow.GraceNote(vfnoteStruct);
         } else {
             vfnote = new Vex.Flow.StaveNote(vfnoteStruct);
+            (vfnote as any).stagger_same_whole_notes = rules.StaggerSameWholeNotes;
+            //   it would be nice to only save this once, not for every note, but has to be accessible in stavenote.js
         }
         const lineShift: number = gve.notes[0].lineShift;
         if (lineShift !== 0) {
@@ -495,7 +497,7 @@ export class VexFlowConverter {
             const stemStyle: Object = { fillStyle: stemColor, strokeStyle: stemColor };
 
             if (stemColor) {
-                gve.parentVoiceEntry.StemColor = stemColor;
+                //gve.parentVoiceEntry.StemColor = stemColor; // this shouldn't be set by DefaultColorStem
                 vfnote.setStemStyle(stemStyle);
                 if (vfnote.flag && rules.ColorFlags) {
                     vfnote.setFlagStyle(stemStyle);

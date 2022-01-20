@@ -13,7 +13,7 @@ import log from "loglevel";
 export class SvgVexFlowBackend extends VexFlowBackend {
 
     private ctx: Vex.Flow.SVGContext;
-    private zoom: number;
+    public zoom: number; // currently unused
 
     constructor(rules: EngravingRules) {
         super();
@@ -83,14 +83,18 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         }
 
         // set background color if not transparent
-        if (this.rules.PageBackgroundColor !== undefined) {
-            this.ctx.save();
-            // note that this will hide the cursor
-            this.ctx.setFillStyle(this.rules.PageBackgroundColor);
-            this.ctx.setStrokeStyle("#12345600"); // transparent
+        if (this.rules.PageBackgroundColor) {
+        //     this.ctx.save();
+        //     // note that this will hide the cursor if its zIndex is negative.
+        //     this.ctx.setFillStyle(this.rules.PageBackgroundColor);
+        //     this.ctx.setStrokeStyle("#12345600"); // transparent
 
-            this.ctx.fillRect(0, 0, this.canvas.offsetWidth / this.zoom, this.canvas.offsetHeight / this.zoom);
-            this.ctx.restore();
+        //     this.ctx.fillRect(0, 0, this.canvas.offsetWidth / this.zoom, this.canvas.offsetHeight / this.zoom);
+        //     this.ctx.restore();
+            this.ctx.svg.style["background-color"] = this.rules.PageBackgroundColor;
+            // note that the cursor would be invisible if its zIndex remained negative here,
+            //   so we have to push it to a higher layer and make it more transparent.
+            // effectively, setting a background color will make the cursor more transparent.
         }
     }
 
@@ -109,7 +113,7 @@ export class SvgVexFlowBackend extends VexFlowBackend {
       dataIdx: string = undefined,
     ): Node {
         this.ctx.save();
-        const node: Node = this.ctx.openGroup();
+        const node: Node = this.ctx.openGroup("text");
 
         if (color) {
             this.ctx.attributes.fill = color;
@@ -144,7 +148,7 @@ export class SvgVexFlowBackend extends VexFlowBackend {
     }
     public renderRectangle(rectangle: RectangleF2D, styleId: number, colorHex: string, alpha: number = 1): Node {
         this.ctx.save();
-        const node: Node = this.ctx.openGroup();
+        const node: Node = this.ctx.openGroup("rect");
         if (colorHex) {
             this.ctx.attributes.fill = colorHex;
         } else {
@@ -160,7 +164,7 @@ export class SvgVexFlowBackend extends VexFlowBackend {
 
     public renderLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number = 2): Node {
         this.ctx.save();
-        const node: Node = this.ctx.openGroup();
+        const node: Node = this.ctx.openGroup("line");
         this.ctx.beginPath();
         this.ctx.moveTo(start.x, start.y);
         this.ctx.lineTo(stop.x, stop.y);
@@ -178,7 +182,8 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         return node;
     }
 
-    public renderCurve(points: PointF2D[]): void {
+    public renderCurve(points: PointF2D[]): Node {
+        const node: Node = this.ctx.openGroup("curve");
         this.ctx.beginPath();
         this.ctx.moveTo(points[0].x, points[0].y);
         this.ctx.bezierCurveTo(
@@ -202,6 +207,8 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         //this.ctx.stroke();
         this.ctx.closePath();
         this.ctx.fill();
+        this.ctx.closeGroup();
+        return node;
     }
 
     public export(): void {

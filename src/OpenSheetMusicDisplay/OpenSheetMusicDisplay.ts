@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.3.1-release"; // getter: this.Version
+    protected version: string = "1.4.3-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -580,6 +580,16 @@ export class OpenSheetMusicDisplay {
         if (options.setWantedStemDirectionByXml !== undefined) {
             this.rules.SetWantedStemDirectionByXml = options.setWantedStemDirectionByXml;
         }
+        if (options.darkMode) {
+            this.rules.applyDefaultColorMusic("#FFFFFF");
+            this.rules.PageBackgroundColor = "#000000";
+        } else if (options.darkMode === false) { // not if undefined!
+            this.rules.applyDefaultColorMusic("#000000");
+            this.rules.PageBackgroundColor = undefined;
+        }
+        if (options.defaultColorMusic) {
+            this.rules.applyDefaultColorMusic(options.defaultColorMusic);
+        }
         if (options.defaultColorNotehead) {
             this.rules.DefaultColorNotehead = options.defaultColorNotehead;
         }
@@ -658,7 +668,7 @@ export class OpenSheetMusicDisplay {
         if (options.cursorsOptions !== undefined) {
             this.cursorsOptions = options.cursorsOptions;
         } else {
-            this.cursorsOptions = [{type: 0, color: this.EngravingRules.DefaultColorCursor, alpha: 0.5, follow: options.followCursor}];
+            this.cursorsOptions = [{type: 0, color: this.EngravingRules.DefaultColorCursor, alpha: 0.5, follow: true}];
         }
     }
 
@@ -887,6 +897,8 @@ export class OpenSheetMusicDisplay {
         }
         backend.graphicalMusicPage = page; // the page the backend renders on. needed to identify DOM element to extract image/SVG
         backend.initialize(this.container, this.zoom);
+        backend.getContext().setFillStyle(this.rules.DefaultColorMusic);
+        backend.getContext().setStrokeStyle(this.rules.DefaultColorMusic);
         return backend;
     }
 

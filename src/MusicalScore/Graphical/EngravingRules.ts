@@ -241,6 +241,8 @@ export class EngravingRules {
     public MetronomeMarkXShift: number;
     public MetronomeMarkYShift: number;
     public SoftmaxFactorVexFlow: number;
+    /** Stagger (x-shift) whole notes that are the same note, but in different voices (show 2 instead of 1). */
+    public StaggerSameWholeNotes: boolean;
     public MaxInstructionsConstValue: number;
     public NoteDistances: number[] = [1.0, 1.0, 1.3, 1.6, 2.0, 2.5, 3.0, 4.0];
     public NoteDistancesScalingFactors: number[] = [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0];
@@ -261,10 +263,13 @@ export class EngravingRules {
     public ColorFlags: boolean;
     public ColorBeams: boolean;
     public ColoringSetCurrent: Dictionary<NoteEnum|number, string>;
+    /** Default color for all musical elements including key signature etc. Default undefined. */
+    public DefaultColorMusic: string;
     public DefaultColorNotehead: string;
     public DefaultColorRest: string;
     public DefaultColorStem: string;
     public DefaultColorLabel: string;
+    public DefaultColorChordSymbol: string;
     public DefaultColorTitle: string;
     public DefaultColorCursor: string;
     public DefaultFont: Readonly<Font>;
@@ -579,6 +584,7 @@ export class EngravingRules {
         this.SoftmaxFactorVexFlow = 15; // only applies to Vexflow 3.x. 15 seems like the sweet spot. Vexflow default is 100.
         // if too high, score gets too big, especially half notes. with half note quarter quarter, the quarters get squeezed.
         // if too low, smaller notes aren't positioned correctly.
+        this.StaggerSameWholeNotes = true;
 
         // Render options (whether to render specific or invisible elements)
         this.AlignRests = AlignRestOption.Never; // 0 = false, 1 = true, 2 = auto
@@ -592,11 +598,7 @@ export class EngravingRules {
         this.ColorStemsLikeNoteheads = false;
         this.ColorBeams = true;
         this.ColorFlags = true;
-        this.DefaultColorNotehead = "#000000"; // black. undefined is only black if a note's color hasn't been changed before.
-        this.DefaultColorRest = this.DefaultColorNotehead;
-        this.DefaultColorStem = this.DefaultColorNotehead;
-        this.DefaultColorLabel = this.DefaultColorNotehead;
-        this.DefaultColorTitle = this.DefaultColorNotehead;
+        this.applyDefaultColorMusic("#000000"); // black. undefined is only black if a note's color hasn't been changed before.
         this.DefaultColorCursor = "#33e02f"; // green
         this.DefaultFont = Object.freeze(
           new Font(
@@ -675,6 +677,20 @@ export class EngravingRules {
         } catch (ex) {
             log.info("EngravingRules()", ex);
         }
+    }
+
+    /** Makes it so that all musical elements (including key/time signature)
+     *  are colored with the given color by default,
+     *  unless an element has a different color set (e.g. VoiceEntry.StemColor).
+     */
+    public applyDefaultColorMusic(color: string): void {
+        this.DefaultColorMusic = color;
+        this.DefaultColorNotehead = this.DefaultColorMusic;
+        this.DefaultColorRest = this.DefaultColorNotehead;
+        this.DefaultColorStem = this.DefaultColorNotehead;
+        this.DefaultColorLabel = this.DefaultColorNotehead;
+        this.DefaultColorTitle = this.DefaultColorNotehead;
+        this.LedgerLineColorDefault = this.DefaultColorNotehead;
     }
 
     public addGraphicalNoteToNoteMap(note: Note, graphicalNote: GraphicalNote): void {

@@ -9,13 +9,12 @@ import {VexFlowMusicSheetCalculator} from "../../../../src/MusicalScore/Graphica
 import {TestUtils} from "../../../Util/TestUtils";
 import {SourceMeasure} from "../../../../src/MusicalScore/VoiceData/SourceMeasure";
 import {SourceStaffEntry} from "../../../../src/MusicalScore/VoiceData/SourceStaffEntry";
-import {GraphicalMeasure} from "../../../../src/MusicalScore/Graphical/GraphicalMeasure";
 import {MusicSheetCalculator} from "../../../../src/MusicalScore/Graphical/MusicSheetCalculator";
 import {EngravingRules} from "../../../../src/MusicalScore/Graphical/EngravingRules";
 
 describe("VexFlow Measure", () => {
 
-   it("GraphicalMusicSheet", (done: Done) => {
+   it("Can create GraphicalMusicSheet", (done: Done) => {
       const path: string = "MuzioClementi_SonatinaOpus36No1_Part1.xml";
       const score: Document = TestUtils.getScore(path);
       chai.expect(score).to.not.be.undefined;
@@ -30,22 +29,7 @@ describe("VexFlow Measure", () => {
       done();
    });
 
-   it("Simple Measure", (done: Done) => {
-      const sheet: MusicSheet = new MusicSheet();
-      sheet.Rules = new EngravingRules();
-      const measure: SourceMeasure = new SourceMeasure(1, sheet.Rules);
-      sheet.addMeasure(measure);
-      const calc: MusicSheetCalculator = new VexFlowMusicSheetCalculator(sheet.Rules);
-      const gms: GraphicalMusicSheet = new GraphicalMusicSheet(sheet, calc);
-      chai.expect(gms.MeasureList.length).to.equal(1);
-      chai.expect(gms.MeasureList[0].length).to.equal(1);
-      const gm: GraphicalMeasure = gms.MeasureList[0][0];
-      // console.log(gm);
-      chai.expect(gm).to.not.be.undefined; // at least necessary for linter so that variable is not unused
-      done();
-   });
-
-   it("Empty Measure", (done: Done) => {
+   it("Can have a single empty Measure", (done: Done) => {
       const sheet: MusicSheet = new MusicSheet();
       sheet.Rules = new EngravingRules();
       const measure: SourceMeasure = new SourceMeasure(1, sheet.Rules);

@@ -60,6 +60,6 @@ describe("GeneratePNGImages", () => {
             //fs.writeFileSync(fileName, imageBuffer, { encoding: "base64" });
 
             done();
-            }).timeout(10000);
+            }).timeout(30000);
     }
 });

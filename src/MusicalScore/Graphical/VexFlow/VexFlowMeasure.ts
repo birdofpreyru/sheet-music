@@ -35,6 +35,7 @@ import {AutoBeamOptions} from "../../../OpenSheetMusicDisplay/OSMDOptions";
 import {SkyBottomLineCalculator} from "../SkyBottomLineCalculator";
 import { NoteType } from "../../VoiceData/NoteType";
 import { Arpeggio } from "../../VoiceData/Arpeggio";
+import { GraphicalTie } from "../GraphicalTie";
 
 // type StemmableNote = Vex.Flow.StemmableNote;
 
@@ -729,7 +730,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
     protected getRestFilledVexFlowStaveNotesPerVoice(voice: Voice): GraphicalVoiceEntry[] {
         let latestVoiceTimestamp: Fraction = undefined;
         let gvEntries: GraphicalVoiceEntry[] = this.getGraphicalVoiceEntriesPerVoice(voice);
-        for (let idx: number = 0, len: number = gvEntries.length; idx < len; ++idx) {
+        for (let idx: number = 0; idx < gvEntries.length; idx++) {
             const gve: GraphicalVoiceEntry = gvEntries[idx];
             const gNotesStartTimestamp: Fraction = gve.notes[0].sourceNote.getAbsoluteTimestamp();
             // find the voiceEntry end timestamp:
@@ -1177,6 +1178,10 @@ export class VexFlowMeasure extends GraphicalMeasure {
                         //if (gveGrace.notes[0].sourceNote.PrintObject) {
                         // grace notes should generally be rendered independently of main note instead of skipped if main note is invisible
                         // could be an option to make grace notes transparent if main note is transparent. set grace notes' PrintObject to false then.
+                        gveGrace.GraceSlash = gveGrace.parentVoiceEntry.GraceNoteSlash;
+                        if (i > 0) {
+                            gveGrace.GraceSlash = false; // without this, Vexflow draws multiple grace slashes, which looks wrong.
+                        }
                         const vfStaveNote: StaveNote = VexFlowConverter.StaveNote(gveGrace);
                         gveGrace.vfStaveNote = vfStaveNote;
                         graceNotes.push(vfStaveNote);
@@ -1561,6 +1566,11 @@ export class VexFlowMeasure extends GraphicalMeasure {
 
         this.beginInstructionsWidth = (vfBeginInstructionsWidth ?? 0) / EngravingRules.UnitToPx;
         this.endInstructionsWidth = (vfEndInstructionsWidth ?? 0) / EngravingRules.UnitToPx;
+    }
+
+    public addStaveTie(stavetie: Vex.Flow.StaveTie, graphicalTie: GraphicalTie): void {
+        this.vfTies.push(stavetie);
+        graphicalTie.vfTie = stavetie;
     }
 }
 
