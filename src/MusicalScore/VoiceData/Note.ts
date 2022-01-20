@@ -14,7 +14,7 @@ import {NoteType} from "./NoteType";
 import { SourceMeasure } from "./SourceMeasure";
 import { TechnicalInstruction } from "./Instructions";
 
-import * as shortid from "shortid";
+import shortid from "shortid";
 
 /**
  * Represents a single pitch with a duration (length)

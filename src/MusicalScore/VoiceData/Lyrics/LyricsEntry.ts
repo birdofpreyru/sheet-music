@@ -2,7 +2,7 @@ import {Font} from "../../../Common/DataObjects/Font";
 import {LyricWord} from "./LyricsWord";
 import {VoiceEntry} from "../VoiceEntry";
 
-import * as shortid from "shortid";
+import shortid from "shortid";
 
 export class LyricsEntry {
     constructor(

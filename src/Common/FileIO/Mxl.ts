@@ -1,5 +1,5 @@
 import { IXmlElement } from "./Xml";
-import * as JSZip from "jszip";
+import JSZip from "jszip";
 import log from "loglevel";
 
 /**
