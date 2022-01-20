@@ -1,6 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
-
+import Vex from "vexflow";
 import { Font } from "../../../Common/DataObjects/Font";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";

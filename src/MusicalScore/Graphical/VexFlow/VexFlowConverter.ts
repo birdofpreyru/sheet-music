@@ -1,6 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
-
+import Vex from "vexflow";
 import {ClefEnum} from "../../VoiceData/Instructions/ClefInstruction";
 import {ClefInstruction} from "../../VoiceData/Instructions/ClefInstruction";
 import {Pitch} from "../../../Common/DataObjects/Pitch";
@@ -565,12 +563,10 @@ export class VexFlowConverter {
             vfnote.addDotToAll();
         }
 
-        /* This hack gives rendered note elements same IDs as the source notes
-         * have (with extra `vf-` prefix). It allows to update rendered note
-         * attributes directly. */
-        /* eslint-disable @typescript-eslint/dot-notation */
-        vfnote["attrs"].id = baseNote.sourceNote.Uuid;
-        /* eslint-enable @typescript-eslint/dot-notation */
+        // Helps to inject into rendered note elements an attribute with
+        // the same ID that source note has. It allows to update rendered
+        // note attributes directly.
+        (vfnote as any).setAttribute("data-idx", baseNote.sourceNote.Uuid);
 
         return vfnote;
     }

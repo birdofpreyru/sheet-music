@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
+import { Done } from "mocha";
 import { GraphicalMeasure } from "../../../../src/MusicalScore/Graphical/GraphicalMeasure";
 import { VexFlowGraphicalNote } from "../../../../src/MusicalScore/Graphical/VexFlow/VexFlowGraphicalNote";
 import { OpenSheetMusicDisplay } from "../../../../src/OpenSheetMusicDisplay/OpenSheetMusicDisplay";
 import { TestUtils } from "../../../Util/TestUtils";
 
 describe("VexFlow GraphicalNote", () => {
-    it("Can get SVG elements for note, stem and beam", (done: Mocha.Done) => {
+    it("Can get SVG elements for note, stem and beam", (done: Done) => {
         //const url: string = "base/test/data/test_rest_positioning_8th_quarter.musicxml"; // doesn't work, works for Mozart Clarinet Quintet
         const score: Document = TestUtils.getScore("test_beam_svg_double.musicxml");
         // sample should start with a beamed 8th note, and be simple.
@@ -42,6 +43,6 @@ describe("VexFlow GraphicalNote", () => {
                  done();
             },
             done
-        );
+        ).catch(done);
      });
 });

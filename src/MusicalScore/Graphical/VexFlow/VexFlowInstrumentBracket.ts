@@ -1,5 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
+import Vex from "vexflow";
 import { GraphicalObject } from "../GraphicalObject";
 import { VexFlowStaffLine } from "./VexFlowStaffLine";
 import { BoundingBox } from "../BoundingBox";

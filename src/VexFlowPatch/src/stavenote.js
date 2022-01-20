@@ -1221,7 +1221,17 @@ export class StaveNote extends StemmableNote {
 
     // Apply the overall style -- may be contradicted by local settings:
     this.applyStyle();
-    this.setAttribute('el', this.context.openGroup('stavenote', this.getAttribute('id')));
+
+    const staveNoteGroup = this.context.openGroup(
+      'stavenote',
+      this.getAttribute('id'),
+    );
+    // TODO: Probably, not needed.
+    if (staveNoteGroup) {
+      staveNoteGroup.setAttribute("data-idx", this.getAttribute("data-idx"));
+    }
+
+    this.setAttribute('el', staveNoteGroup);
     this.context.openGroup('note', null, { pointerBBox: true });
     if (shouldRenderStem) this.drawStem();
     this.drawNoteHeads();
