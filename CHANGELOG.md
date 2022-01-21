@@ -4,6 +4,71 @@ https://github.com/birdofpreyru/sheet-music/releases
 
 
 
+## [1.4.3](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.4.2...1.4.3) (2022-01-18)
+
+
+### Bug Fixes
+
+* **Ties:** Fix ties not containing all notes, created multiple times ([#1126](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1126)) ([a8fe5ae](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/a8fe5aee16e51b338186450cb7986313ba32a93c)), closes [#1097](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1097)
+
+
+### Features
+
+* **SVG:** Add group and class to SVG DOM for Clef ([7c218e2](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/7c218e2ece7b80355ac56ce6da000cbbd46d3f63)), KeySignature ([#1128](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1128)) ([1f7e710](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/1f7e7107717e7ee54f808d768b9b4505400126e9)), TimeSignature ([#1129](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1129)) ([6a95483](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/6a9548312066bb260c925e5de6c780f7c966ff6e)), GraphicalTie
+* **Ties:** GraphicalTie.SVGElement() gets SVG node ([#1127](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1127)) ([84406d6](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/84406d6e5b15f30ab4355d3a7bbe5c4960857947))
+
+
+
+## [1.4.2](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.4.1...1.4.2) (2022-01-17)
+
+### Bug Fixes
+
+* **Release:** Fix typings location for npm release ([8171984](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/81719844e99adae112dd21f480670bda73042aa4))
+
+## [1.4.1](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.4.0...1.4.1) (2022-01-17)
+
+
+### Bug Fixes
+
+* **Credit Error:** Fix NaN error when <credit> element has justify attribute ([dec2f1f](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/dec2f1f45cc82dcdc69c59a2ed098e92bd3a1f58))
+* **Release:** Fix typings not included in release (1.4.0) ([5829be3](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/5829be32d2601b2ca08e51e68d98ee1df7bc1630))
+
+### Features
+
+* **Color:** Able to set the option {defaultColorMusic: string} ([#1125](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1125)) to apply a color to the whole sheet ([2b3ea16](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/2b3ea16e50d6b993c92224f7f6400d9fe33441a1))
+* **Cursor:** Visible with PageBackgroundColor set (SVG) ([#1125](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1125)), transparency dependent on PageBackgroundColor ([a10f779](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/a10f779690d6f652b108d34e130674a144134cbf))
+* **Options:** Add darkMode option ([#1125](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1125)) ([d5a2d70](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/d5a2d708beea47e8713b76b419c282ad4a94ee59))
+
+
+
+# [1.4.0](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.3.1...1.4.0) (2022-01-14)
+
+
+### Bug Fixes
+
+* **Beam SVG:** VexFlowGraphicalNote.getBeamSVGs() gets SVGs of all beams starting on the note ([#1108](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1108)) ([f4675fd](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/f4675fd7288a78ba6cca112ae619a7fd97364d8d))
+* **Clefs**: Fix specific end of measure clef missing ([#1120](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1120))
+* **Cursor:** Fix follow for multiple cursors, can set cursor.cursorOptions.follow for each ([#1111](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1111)) ([37f9002](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/37f9002c5e90a351447854cc926f53ab16107edc))
+* **Grace Notes:** Don't draw multiple grace not slashes for a set of grace notes ([#1107](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1107)) ([89394db](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/89394dbf6ca885abdf0d96627ecc66b7a5fed37b))
+* **GroupBrackets:** Don't draw if only one instrument visible ([b72ef4e](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/b72ef4e04f77c0cd9dc2d6a70f9166bed39630d5))
+* **Note overlaps**: Fix notes overlapping / not staggering sometimes ([#1098](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1098)) (05c1ca7)
+* **Positioning:** Fix ghost notes only created for first few notes in measure, fixing cross stave positioning ([#1062](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1062)) ([0507917](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/05079175993c3a86b35ec15c1fcabe08caa0e4f1))
+* **Rehearsal Marks:** Fix undefined error with multi-measure rests and rehearsal marks ([76d5252](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/76d52522bdcde7023f92497396e054af5dd91951))
+* **Ties**: Fix ties missing/doubled, orientations ([#1097](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1097))
+
+
+### Features
+
+* **ChordSymbols:** Add EngravingRules.DefaultColorChordSymbol ([#1106](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1106)) ([7f00a9b](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/7f00a9b29eee4df85741bdc4554d7064b4f8fe25))
+* **Note:** Store TransposedPitch (for API access) ([72633da](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/72633da238a18c0f41c1a82e24fba26955ba16cf))
+* **Options:** Add EngravingRules.StaggerSameWholeNotes option to x-shift whole notes on same line ([#1098](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1098)) ([dc04dc5](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/dc04dc509eb480ee4b9c4f22f62f63d9942ca18d))
+* **Slurs:** GraphicalSlurs save their SVGElement (but not GraphicalTies) ([5686daa](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/5686daa7a78ad0dd4058131297e14f0e45988a86))
+* **SVG:** Stems and beams have an id in the DOM ([#1108](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1108)) ([a9b2c10](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/a9b2c1024ca7f7500f3522a0e622dfbfcb71b1f9))
+* **Transposing:** Able to transpose single instrument ([#1115](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1115)) independently of other instruments ([e997df9](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/e997df9464a78c146a7dc20d39be706bb4814e32))
+* **VexFlowGraphicalNote:** Add getStemSVG() and getBeamSVGs() helper methods ([#1108](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1108)) ([79b28c8](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/79b28c84bb4f6a6f6801db15acc8986ac23ee13a)) ([f4675fd](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/f4675fd7288a78ba6cca112ae619a7fd97364d8d))
+
+
+
 ## [1.3.1](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/compare/1.3.0...1.3.1) (2021-11-26)
 
 
@@ -16,7 +81,7 @@ https://github.com/birdofpreyru/sheet-music/releases
 
 ### Features
 
-* **GraphicalStaffEntry:** Add helper functions getHighestYAtEntry, getSkylineMin, same for bottomline, getAbsoluteStartAndEnd ([2b364a8](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/2b364a8ce47388f2092a09af04d91d2bf3ee9cae))
+* **GraphicalStaffEntry:** Add helper functions getHighestYAtEntry, getSkylineMin, same for bottomline, getAbsoluteStartAndEnd ([2b364a8](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/commit/2b364a8ce47388f2092a09af04d91d2bf3ee9cae)). For usage see [Wiki | Exploring the Demo](https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#drawing-overlay-lines-over-the-score-and-getting-a-notes-position)
 
 
 

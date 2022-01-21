@@ -107,11 +107,36 @@ export class RepetitionCalculator {
         break;
       }
       case RepetitionInstructionEnum.Ending: {
-        /* TODO: For now it picks up just the last created repetition, which
-         * is probably not correct in complex music sheets. */
+        // TODO: For now it picks up just the last created repetition, which
+        // is probably not correct in complex music sheets.
         let rep: Repetition = this.musicSheet.Repetitions[
           this.musicSheet.Repetitions.length - 1
         ];
+
+        // If there is no repetitions at all, create a new "virtual" repetition
+        // start at the very beginning of the document.
+        if (!rep) {
+          const startRepetitionInstruction: RepetitionInstruction =
+            new RepetitionInstruction(
+              0,
+              RepetitionInstructionEnum.StartLine,
+            );
+
+          // TODO: Should the last argument be "true" for
+          // a "Virtual Overall Repetition"? Or does it mean something different
+          // from what we need?
+          rep = new Repetition(this.musicSheet, false);
+
+          rep.startMarker = startRepetitionInstruction;
+          startRepetitionInstruction.parentRepetition = rep;
+
+          // TODO: The actual number of repetitions should be somehow deduced
+          // from the actual music sheet.
+          rep.UserNumberOfRepetitions = 2;
+
+          this.musicSheet.Repetitions.push(rep);
+        }
+
         currentRepetitionInstruction.parentRepetition = rep;
 
         // set ending start or end

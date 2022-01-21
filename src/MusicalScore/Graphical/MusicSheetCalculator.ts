@@ -2153,7 +2153,9 @@ export abstract class MusicSheetCalculator {
             // const currentMin: number = skyBottomLineCalculator.getSkyLineMinInRange(startX, endX);
 
             relative.y += lyricist.PositionAndShape.BorderBottom;
-            relative.y = Math.min(relative.y, composerRelativeY); // same height as composer label (at least not lower)
+            relative.y = Math.min(relative.y, composerRelativeY ?? Number.MAX_SAFE_INTEGER);
+            // same height as composer label (at least not lower). ?? prevents undefined -> Math.min returns NaN
+
             //skyBottomLineCalculator.updateSkyLineInRange(startX, endX, currentMin - lyricist.PositionAndShape.MarginSize.height);
             //relative.y = Math.max(relative.y, composer.PositionAndShape.RelativePosition.y);
             lyricist.PositionAndShape.RelativePosition = relative;
@@ -2171,12 +2173,25 @@ export abstract class MusicSheetCalculator {
                         const startStaffEntry: GraphicalStaffEntry = this.graphicalMusicSheet.findGraphicalStaffEntryFromMeasureList(
                             staffIndex, measureIndex, sourceStaffEntry
                         );
+                        if (startStaffEntry) {
+                            startStaffEntry.GraphicalTies.clear(); // don't duplicate ties when calling render() again
+                            startStaffEntry.ties.clear();
+                        }
+
                         for (let idx: number = 0, len: number = sourceStaffEntry.VoiceEntries.length; idx < len; ++idx) {
                             const voiceEntry: VoiceEntry = sourceStaffEntry.VoiceEntries[idx];
                             for (let idx2: number = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
                                 const note: Note = voiceEntry.Notes[idx2];
                                 if (note.NoteTie) {
                                     const tie: Tie = note.NoteTie;
+                                    if (note === note.NoteTie.Notes.last()) {
+                                        continue; // nothing to do on last note. don't create last tie twice.
+                                    }
+                                    for (const gTie of startStaffEntry.GraphicalTies) {
+                                        if (gTie.Tie === tie) {
+                                            continue; // don't handle the same tie on the same startStaffEntry twice
+                                        }
+                                    }
                                     this.handleTie(tie, startStaffEntry, staffIndex, measureIndex);
                                 }
                             }
@@ -2341,11 +2356,12 @@ export abstract class MusicSheetCalculator {
                 const instruction: AbstractNotationInstruction = sourceMeasure.FirstInstructionsStaffEntries[staffIndex].Instructions[idx];
                 if (instruction instanceof KeyInstruction) {
                     const key: KeyInstruction = KeyInstruction.copy(instruction);
-                    if (this.graphicalMusicSheet.ParentMusicSheet.Transpose !== 0 &&
+                    const transposeHalftones: number = measure.getTransposedHalftones();
+                    if (transposeHalftones !== 0 &&
                         measure.ParentStaff.ParentInstrument.MidiInstrumentId !== MidiInstrument.Percussion &&
                         MusicSheetCalculator.transposeCalculator) {
                         MusicSheetCalculator.transposeCalculator.transposeKey(
-                            key, this.graphicalMusicSheet.ParentMusicSheet.Transpose
+                            key, transposeHalftones
                         );
                     }
                     accidentalCalculator.ActiveKeyInstruction = key;
@@ -2515,11 +2531,12 @@ export abstract class MusicSheetCalculator {
     private checkNoteForAccidental(graphicalNote: GraphicalNote, accidentalCalculator: AccidentalCalculator, activeClef: ClefInstruction,
                                    octaveEnum: OctaveEnum): void {
         let pitch: Pitch = graphicalNote.sourceNote.Pitch;
-        const transpose: number = this.graphicalMusicSheet.ParentMusicSheet.Transpose;
-        if (transpose !== 0 && graphicalNote.sourceNote.ParentStaffEntry.ParentStaff.ParentInstrument.MidiInstrumentId !== MidiInstrument.Percussion) {
+        const transposeHalftones: number = graphicalNote.parentVoiceEntry.parentStaffEntry.parentMeasure.getTransposedHalftones();
+        if (transposeHalftones !== 0 && graphicalNote.sourceNote.ParentStaffEntry.ParentStaff.ParentInstrument.MidiInstrumentId !== MidiInstrument.Percussion) {
             pitch = graphicalNote.Transpose(
-                accidentalCalculator.ActiveKeyInstruction, activeClef, transpose, octaveEnum
+                accidentalCalculator.ActiveKeyInstruction, activeClef, transposeHalftones, octaveEnum
             );
+            graphicalNote.sourceNote.TransposedPitch = pitch;
         }
         graphicalNote.sourceNote.halfTone = pitch.getHalfTone();
         accidentalCalculator.checkAccidental(graphicalNote, pitch);

@@ -1,6 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
-
+import Vex from "vexflow";
 import {ClefEnum} from "../../VoiceData/Instructions/ClefInstruction";
 import {ClefInstruction} from "../../VoiceData/Instructions/ClefInstruction";
 import {Pitch} from "../../../Common/DataObjects/Pitch";
@@ -450,7 +448,7 @@ export class VexFlowConverter {
             clef: vfClefType,
             duration: duration,
             keys: keys,
-            slash: gve.parentVoiceEntry.GraceNoteSlash,
+            slash: gve.GraceSlash,
         };
 
         const firstNote: Note = gve.notes[0].sourceNote;
@@ -463,6 +461,8 @@ export class VexFlowConverter {
             vfnote = new Vex.Flow.GraceNote(vfnoteStruct);
         } else {
             vfnote = new Vex.Flow.StaveNote(vfnoteStruct);
+            (vfnote as any).stagger_same_whole_notes = rules.StaggerSameWholeNotes;
+            //   it would be nice to only save this once, not for every note, but has to be accessible in stavenote.js
         }
         const lineShift: number = gve.notes[0].lineShift;
         if (lineShift !== 0) {
@@ -495,7 +495,7 @@ export class VexFlowConverter {
             const stemStyle: Object = { fillStyle: stemColor, strokeStyle: stemColor };
 
             if (stemColor) {
-                gve.parentVoiceEntry.StemColor = stemColor;
+                //gve.parentVoiceEntry.StemColor = stemColor; // this shouldn't be set by DefaultColorStem
                 vfnote.setStemStyle(stemStyle);
                 if (vfnote.flag && rules.ColorFlags) {
                     vfnote.setFlagStyle(stemStyle);
@@ -563,12 +563,10 @@ export class VexFlowConverter {
             vfnote.addDotToAll();
         }
 
-        /* This hack gives rendered note elements same IDs as the source notes
-         * have (with extra `vf-` prefix). It allows to update rendered note
-         * attributes directly. */
-        /* eslint-disable @typescript-eslint/dot-notation */
-        vfnote["attrs"].id = baseNote.sourceNote.Uuid;
-        /* eslint-enable @typescript-eslint/dot-notation */
+        // Helps to inject into rendered note elements an attribute with
+        // the same ID that source note has. It allows to update rendered
+        // note attributes directly.
+        (vfnote as any).setAttribute("data-idx", baseNote.sourceNote.Uuid);
 
         return vfnote;
     }

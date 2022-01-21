@@ -1,10 +1,8 @@
 var path = require('path')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
 var webpack = require('webpack')
 
 module.exports = {
     entry: {
-        demo: './demo/index.js', // Demo index
         opensheetmusicdisplay: [
             './src/polyfills.ts',
             './src/index.ts'
@@ -56,18 +54,11 @@ module.exports = {
             DEBUG: false,
             DRAW_BOUNDING_BOX_ELEMENT: false //  Specifies the element to draw bounding boxes for (e.g. 'GraphicalLabels'). If 'all', bounding boxes are drawn for all elements.
         }),
-        // add a demo page to the build folder
-        new HtmlWebpackPlugin({
-            template: 'demo/index.html',
-            favicon: 'demo/favicon.ico',
-            title: 'OpenSheetMusicDisplay Demo'
-        })
     ],
     devServer: {
-        contentBase: [
+        static: [
             path.join(__dirname, 'test/data'),
             path.join(__dirname, 'build'),
-            path.join(__dirname, 'demo')
         ],
         port: 8000,
         compress: false

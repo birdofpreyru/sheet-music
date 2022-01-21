@@ -1,5 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
+import Vex from "vexflow";
 import { Slur } from "../../VoiceData/Expressions/ContinuousExpressions/Slur";
 
 export interface ICurveOptions {

@@ -1,6 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
-
+import Vex from "vexflow";
 import { Font } from "../../../Common/DataObjects/Font";
 import {VexFlowBackend} from "./VexFlowBackend";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
@@ -136,7 +134,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         return undefined; // can't return svg dom node
     }
 
-    public renderCurve(points: PointF2D[]): void {
+    public renderCurve(points: PointF2D[]): Node {
         this.ctx.beginPath();
         this.ctx.moveTo(points[0].x, points[0].y);
         this.ctx.bezierCurveTo(
@@ -160,6 +158,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         //this.ctx.stroke();
         this.ctx.closePath();
         this.ctx.fill();
+        return undefined;
     }
 
     private ctx: Vex.Flow.CanvasContext;

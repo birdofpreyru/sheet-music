@@ -1,5 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
+import Vex from "vexflow";
 import { GraphicalObject } from "../GraphicalObject";
 import { VexFlowStaffLine } from "./VexFlowStaffLine";
 import { BoundingBox } from "../BoundingBox";
@@ -11,7 +10,8 @@ import { EngravingRules } from "../EngravingRules";
  */
 export class VexFlowInstrumentBracket extends GraphicalObject {
 
-    protected vexflowConnector: Vex.Flow.StaveConnector;
+    public vexflowConnector: Vex.Flow.StaveConnector;
+    public Visible: boolean = true;
 
     constructor(firstVexFlowStaffLine: VexFlowStaffLine, lastVexFlowStaffLine: VexFlowStaffLine, depth: number = 0) {
         super();
@@ -27,7 +27,9 @@ export class VexFlowInstrumentBracket extends GraphicalObject {
      */
     public draw(ctx: Vex.IRenderContext): void {
         // Draw vexflow brace. This sets the positions inside the connector.
-        this.vexflowConnector.setContext(ctx).draw();
+        if (this.Visible) {
+            this.vexflowConnector.setContext(ctx).draw();
+        }
         // Set bounding box
         const con: Vex.Flow.StaveConnector = this.vexflowConnector;
         // First line in first stave

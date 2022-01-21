@@ -1,6 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
-
+import Vex from "vexflow";
 import { Font } from "../../../Common/DataObjects/Font";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
 import {PointF2D} from "../../../Common/DataObjects/PointF2D";
@@ -108,7 +106,7 @@ public abstract getContext(): Vex.IRenderContext;
 
   public abstract renderLine(start: PointF2D, stop: PointF2D, color: string, lineWidth: number): Node;
 
-  public abstract renderCurve(points: PointF2D[]): void;
+  public abstract renderCurve(points: PointF2D[]): Node;
 
   public abstract getVexflowBackendType(): Vex.Flow.Renderer.Backends;
 

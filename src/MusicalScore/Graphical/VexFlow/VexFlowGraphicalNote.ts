@@ -121,4 +121,24 @@ export class VexFlowGraphicalNote extends GraphicalNote {
         }
         return this.vfnote[0].getAttribute("el");
     }
+
+    /** Gets the SVG path element of the note's stem. */
+    public getStemSVG(): HTMLElement {
+        return document.getElementById("vf-" + this.getSVGId() + "-stem");
+        // more correct, but Vex.Prefix() is not in the definitions:
+        //return document.getElementById((Vex as any).Prefix(this.getSVGId() + "-stem"));
+    }
+
+    /** Gets the SVG path elements of the beams starting on this note. */
+    public getBeamSVGs(): HTMLElement[] {
+        const beamSVGs: HTMLElement[] = [];
+        for (let i: number = 0;; i++) {
+            const newSVG: HTMLElement = document.getElementById(`vf-${this.getSVGId()}-beam${i}`);
+            if (!newSVG) {
+                break;
+            }
+            beamSVGs.push(newSVG);
+        }
+        return beamSVGs;
+    }
 }

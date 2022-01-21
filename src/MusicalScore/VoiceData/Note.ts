@@ -14,7 +14,7 @@ import {NoteType} from "./NoteType";
 import { SourceMeasure } from "./SourceMeasure";
 import { TechnicalInstruction } from "./Instructions";
 
-import * as shortid from "shortid";
+import shortid from "shortid";
 
 /**
  * Represents a single pitch with a duration (length)
@@ -57,6 +57,8 @@ export class Note {
      * The untransposed (!!!) source data.
      */
     private pitch: Pitch;
+    /** The transposed pitch, if the score is transposed, otherwise undefined. */
+    public TransposedPitch: Pitch;
     public displayStepUnpitched: NoteEnum;
     public displayOctaveUnpitched: number;
     public get NoteAsString(): string {

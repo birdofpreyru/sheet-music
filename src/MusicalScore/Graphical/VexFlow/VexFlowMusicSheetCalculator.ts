@@ -21,8 +21,7 @@ import { Articulation } from "../../VoiceData/Articulation";
 import { Tuplet } from "../../VoiceData/Tuplet";
 import { VexFlowMeasure } from "./VexFlowMeasure";
 import { VexFlowTextMeasurer } from "./VexFlowTextMeasurer";
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
+import Vex from "vexflow";
 import * as log from "loglevel";
 import { VexFlowGraphicalNote } from "./VexFlowGraphicalNote";
 import { TechnicalInstruction } from "../../VoiceData/Instructions/TechnicalInstruction";
@@ -629,7 +628,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
           first_note: vfStartNote
         });
         const measure1: VexFlowMeasure = (startNote.parentVoiceEntry.parentStaffEntry.parentMeasure as VexFlowMeasure);
-        measure1.vfTies.push(vfTie1);
+        measure1.addStaveTie(vfTie1, tie);
       }
 
       if (vfEndNote) {
@@ -638,7 +637,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
           last_note: vfEndNote
         });
         const measure2: VexFlowMeasure = (endNote.parentVoiceEntry.parentStaffEntry.parentMeasure as VexFlowMeasure);
-        measure2.vfTies.push(vfTie2);
+        measure2.addStaveTie(vfTie2, tie);
       }
     } else {
       // normal case
@@ -681,15 +680,16 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
             last_indices: [endNoteIndexInTie],
             last_note: vfEndNote
           });
-          if (tie.Tie.TieDirection === PlacementEnum.Below) {
+          const tieDirection: PlacementEnum = tie.Tie.getTieDirection(startNote.sourceNote);
+          if (tieDirection === PlacementEnum.Below) {
             vfTie.setDirection(1); // + is down in vexflow
-          } else if (tie.Tie.TieDirection === PlacementEnum.Above) {
+          } else if (tieDirection === PlacementEnum.Above) {
             vfTie.setDirection(-1);
           }
         }
 
         const measure: VexFlowMeasure = (endNote.parentVoiceEntry.parentStaffEntry.parentMeasure as VexFlowMeasure);
-        measure.vfTies.push(vfTie);
+        measure.addStaveTie(vfTie, tie);
       }
     }
   }
@@ -782,7 +782,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       // }
       // console.log('max skyline: ' + maxSkylineBeginning);
     }
-    const skyline: number[] = this.graphicalMusicSheet.MeasureList[0][0].ParentStaffLine.SkyLine;
+    const skyline: number[] = this.graphicalMusicSheet.MeasureList[0][0].ParentStaffLine?.SkyLine;
     vfStave.setTempo(
       {
           bpm: metronomeExpression.TempoInBpm,
@@ -796,8 +796,10 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     (<any>vfStave.getModifiers()[vfStave.getModifiers().length - 1]).setShiftX(
       xShift
     );
-    // TODO calculate bounding box of metronome mark instead of hacking skyline to fix lyricist collision
-    skyline[0] = Math.min(skyline[0], -4.5 + yShift);
+    if (skyline) {
+      // TODO calculate bounding box of metronome mark instead of hacking skyline to fix lyricist collision
+      skyline[0] = Math.min(skyline[0], -4.5 + yShift);
+    }
     // somehow this is called repeatedly in Clementi, so skyline[0] = Math.min instead of -=
   }
 
@@ -809,7 +811,10 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     const firstMeasureNumber: number = this.graphicalMusicSheet.MeasureList[0][0].MeasureNumber; // 0 for pickup, 1 otherwise
     const measureNumber: number = Math.max(measure.MeasureNumber - firstMeasureNumber, 0);
     const staffNumber: number = 0;
-    const vfStave: Vex.Flow.Stave = (this.graphicalMusicSheet.MeasureList[measureNumber][staffNumber] as VexFlowMeasure).getVFStave();
+    const vfStave: Vex.Flow.Stave = (this.graphicalMusicSheet.MeasureList[measureNumber][staffNumber] as VexFlowMeasure)?.getVFStave();
+    if (!vfStave) { // potentially multi measure rest
+      return;
+    }
     const yOffset: number = -this.rules.RehearsalMarkYOffsetDefault - this.rules.RehearsalMarkYOffset;
     let xOffset: number = this.rules.RehearsalMarkXOffsetDefault + this.rules.RehearsalMarkXOffset;
     if (measure.IsSystemStartMeasure) {

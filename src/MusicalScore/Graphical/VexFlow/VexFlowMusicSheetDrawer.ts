@@ -1,6 +1,4 @@
-import * as VexModule from "vexflow";
-const Vex: any = (VexModule as any).default;
-
+import Vex from "vexflow";
 import { Font } from "../../../Common/DataObjects/Font";
 import { MusicSheetDrawer } from "../MusicSheetDrawer";
 import { RectangleF2D } from "../../../Common/DataObjects/RectangleF2D";
@@ -155,7 +153,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
         curvePointsInPixels.push(this.applyScreenTransformation(p2));
         curvePointsInPixels.push(this.applyScreenTransformation(p3));
         curvePointsInPixels.push(this.applyScreenTransformation(p4));
-        this.backend.renderCurve(curvePointsInPixels);
+        graphicalSlur.SVGElement = this.backend.renderCurve(curvePointsInPixels);
     }
 
     protected drawMeasure(measure: VexFlowMeasure): void {
