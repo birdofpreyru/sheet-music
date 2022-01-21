@@ -563,11 +563,6 @@ export class VexFlowConverter {
             vfnote.addDotToAll();
         }
 
-        // Helps to inject into rendered note elements an attribute with
-        // the same ID that source note has. It allows to update rendered
-        // note attributes directly.
-        (vfnote as any).setAttribute("data-idx", baseNote.sourceNote.Uuid);
-
         return vfnote;
     }
 

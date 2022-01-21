@@ -14,15 +14,12 @@ import {NoteType} from "./NoteType";
 import { SourceMeasure } from "./SourceMeasure";
 import { TechnicalInstruction } from "./Instructions";
 
-import shortid from "shortid";
-
 /**
  * Represents a single pitch with a duration (length)
  */
 export class Note {
 
     constructor(voiceEntry: VoiceEntry, parentStaffEntry: SourceStaffEntry, length: Fraction, pitch: Pitch, sourceMeasure: SourceMeasure, isRest?: boolean) {
-        this.uuid = shortid();
         this.voiceEntry = voiceEntry;
         this.parentStaffEntry = parentStaffEntry;
         this.length = length;
@@ -100,11 +97,7 @@ export class Note {
      * because Note.Notehead is undefined for normal Noteheads to save space and time.
      */
     private noteheadColor: string;
-    private uuid: string;
 
-    get Uuid(): string {
-      return this.uuid;
-    }
     private noteheadColorCurrentlyRendered: string;
     public Fingering: TechnicalInstruction; // this is also stored in VoiceEntry.TechnicalInstructions
     public StringInstruction: TechnicalInstruction; // this is also stored in VoiceEntry.TechnicalInstructions
