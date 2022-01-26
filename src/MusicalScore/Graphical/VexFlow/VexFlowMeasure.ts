@@ -34,6 +34,7 @@ import {SkyBottomLineCalculator} from "../SkyBottomLineCalculator";
 import { NoteType } from "../../VoiceData/NoteType";
 import { Arpeggio } from "../../VoiceData/Arpeggio";
 import { GraphicalTie } from "../GraphicalTie";
+import { GraphicalLyricEntry } from "..";
 
 // type StemmableNote = Vex.Flow.StemmableNote;
 
@@ -122,6 +123,18 @@ export class VexFlowMeasure extends GraphicalMeasure {
             this.stave.setEndBarType(Vex.Flow.Barline.type.NONE);
         }
         // the correct bar types seem to be set later
+
+        this.staffEntries.forEach((staffEntry) => {
+          for (let i: number  = 0; i < staffEntry.LyricsEntries.length; ++i) {
+            const lyrics: GraphicalLyricEntry = staffEntry.LyricsEntries[i];
+            const width: number = lyrics.GraphicalLabel.PositionAndShape.Size.width * EngravingRules.UnitToPx;
+            const vfGraphicalNote: VexFlowGraphicalNote =
+              staffEntry.graphicalVoiceEntries[i].notes[0] as VexFlowGraphicalNote;
+
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            vfGraphicalNote.vfnote[0]["minWidth"] = width;
+          }
+        });
 
         this.updateInstructionWidth();
     }

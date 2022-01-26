@@ -20,6 +20,9 @@ open group to get SVG group+class for clef
 keysignature.js (custom addition):
 open group to get SVG group+class for key signature
 
+note.js (custom addition)
+adds posibility to set the minimum note width
+
 stave.js (custom addition):
 prevent a bug where a modifier width is NaN, leading to a VexFlow error
 stave.setSection(section, y, xOffset = 0, fontSize = 12):
