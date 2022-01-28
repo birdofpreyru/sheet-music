@@ -229,6 +229,11 @@ export class EngravingRules {
     public MinSkyBottomDistBetweenStaves: number;
     public MinimumCrossedBeamDifferenceMargin: number;
 
+    /** Maximum width of sheet / HTMLElement containing the score. Canvas is limited to 32767 in current browsers, though SVG isn't.
+     *  Setting this to > 32767 will break the canvas backend (no problem if you only use SVG).
+     */
+    public SheetMaximumWidth: number;
+
     public VoiceSpacingMultiplierVexflow: number;
     public VoiceSpacingAddendVexflow: number;
     public PickupMeasureWidthMultiplier: number;
@@ -295,6 +300,7 @@ export class EngravingRules {
     public RenderMultipleRestMeasures: boolean;
     public AutoGenerateMutipleRestMeasuresFromRestMeasures: boolean;
     public RenderRehearsalMarks: boolean;
+    public RenderClefsAtBeginningOfStaffline: boolean;
     public RenderKeySignatures: boolean;
     public RenderTimeSignatures: boolean;
     public DynamicExpressionMaxDistance: number;
@@ -569,6 +575,9 @@ export class EngravingRules {
         // Line Widths
         this.MinimumCrossedBeamDifferenceMargin = 0.0001;
 
+        // Canvas is limited to 32767 in most browsers, though SVG isn't.
+        this.SheetMaximumWidth = 32767;
+
         // xSpacing Variables
         this.VoiceSpacingMultiplierVexflow = 0.85;
         this.VoiceSpacingAddendVexflow = 3.0;
@@ -637,6 +646,7 @@ export class EngravingRules {
         this.RenderMultipleRestMeasures = true;
         this.AutoGenerateMutipleRestMeasuresFromRestMeasures = true;
         this.RenderRehearsalMarks = true;
+        this.RenderClefsAtBeginningOfStaffline = true;
         this.RenderKeySignatures = true;
         this.RenderTimeSignatures = true;
         this.ArticulationPlacementFromXML = true;
