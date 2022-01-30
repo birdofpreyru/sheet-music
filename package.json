@@ -1,6 +1,6 @@
 {
   "name": "@dr.pogodin/sheet-music",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "A customized fork of the OpenSheetMusicDisplay library.",
   "main": "build/opensheetmusicdisplay.min.js",
   "types": "build/dist/src/index.d.ts",
@@ -31,7 +31,7 @@
     "generate:current:debug": "node ./test/Util/generateImages_browserless.mjs ../../build ./test/data ./visual_regression/current png 0 0 allSmall --debugosmdtesting",
     "generate:current:singletest": "node test/Util/generateImages_browserless.mjs ../../build ./test/data ./visual_regression/current png 0 0 ^Beethoven --osmdtestingsingle",
     "generate:blessed": "node ./test/Util/generateImages_browserless.mjs ../../build ./test/data ./visual_regression/blessed png 0 0 allSmall --osmdtesting",
-    "postinstall": "npm run prebuild",
+    "pretest": "npm run prebuild",
     "test:visual": "bash ./test/Util/visual_regression.sh ./visual_regression",
     "test:visual:build": "npm-run-all prebuild build:webpack generate:current test:visual",
     "test:visual:singletest": "sh ./test/Util/visual_regression.sh ./visual_regression Beethoven",
