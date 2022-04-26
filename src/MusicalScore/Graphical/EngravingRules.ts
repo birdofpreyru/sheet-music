@@ -4,10 +4,15 @@ import * as log from "loglevel";
 import { Font } from "../../Common/DataObjects/Font";
 import { TextAlignmentEnum } from "../../Common/Enums/TextAlignment";
 import { PlacementEnum } from "../VoiceData/Expressions/AbstractExpression";
-import { AutoBeamOptions, AlignRestOption, FillEmptyMeasuresWithWholeRests } from "../../OpenSheetMusicDisplay/OSMDOptions";
+import {
+    AutoBeamOptions,
+    AlignRestOption,
+    FillEmptyMeasuresWithWholeRests,
+    SkyBottomLineBatchCalculatorBackendType
+} from "../../OpenSheetMusicDisplay/OSMDOptions";
 import { ColoringModes as ColoringMode } from "./DrawingParameters";
 import { Dictionary } from "typescript-collections";
-import { NoteEnum } from "../../Common/DataObjects/Pitch";
+import { NoteEnum, AccidentalEnum } from "../../Common/DataObjects/Pitch";
 import { ChordSymbolEnum, CustomChord, DegreesInfo } from "../../MusicalScore/VoiceData/ChordSymbolContainer";
 import { GraphicalNote } from "./GraphicalNote";
 import { Note } from "../VoiceData/Note";
@@ -59,6 +64,7 @@ export class EngravingRules {
     public AutoBeamNotes: boolean;
     /** Options for autoBeaming like whether to beam over rests. See AutoBeamOptions interface. */
     public AutoBeamOptions: AutoBeamOptions;
+    public AutoBeamTabs: boolean;
     public BeamWidth: number;
     public BeamSpaceWidth: number;
     public BeamForwardLength: number;
@@ -122,6 +128,7 @@ export class EngravingRules {
     public ChordSymbolYAlignment: boolean;
     public ChordSymbolYAlignmentScope: string;
     public ChordSymbolLabelTexts: Dictionary<ChordSymbolEnum, string>;
+    public ChordAccidentalTexts: Dictionary<AccidentalEnum, string>;
     public CustomChords: CustomChord[];
     public RepetitionSymbolsYOffset: number;
     public RehearsalMarkXOffset: number;
@@ -336,6 +343,26 @@ export class EngravingRules {
 
     public static FixStafflineBoundingBox: boolean; // TODO temporary workaround
 
+    /** The skyline and bottom-line batch calculation algorithm to use.
+     *  Note that this can be overridden if AlwaysSetPreferredSkyBottomLineBackendAutomatically is true (which is the default).
+     */
+    public PreferredSkyBottomLineBatchCalculatorBackend: SkyBottomLineBatchCalculatorBackendType;
+    /** Whether to consider using WebGL in Firefox in EngravingRules.setPreferredSkyBottomLineBackendAutomatically() */
+    public DisableWebGLInFirefox: boolean;
+    /** Whether to consider using WebGL in Safari/iOS in EngravingRules.setPreferredSkyBottomLineBackendAutomatically() */
+    public DisableWebGLInSafariAndIOS: boolean;
+
+    /** The minimum number of measures in the sheet where the skyline and bottom-line batch calculation is enabled.
+     *  Batch is faster for medium to large size scores, but slower for very short scores.
+     */
+    public SkyBottomLineBatchMinMeasures: number;
+    /** The minimum number of measures in the sheet where WebGL will be used. WebGL is slower for short scores, but much faster for large ones.
+     * Note that WebGL is currently never used in Safari and Firefox, because it's always slower there.
+     */
+    public SkyBottomLineWebGLMinMeasures: number;
+    /** Whether to always set preferred backend (WebGL or Plain) automatically, depending on browser and number of measures. */
+    public AlwaysSetPreferredSkyBottomLineBackendAutomatically: boolean;
+
     constructor() {
         this.loadDefaultValues();
     }
@@ -387,6 +414,7 @@ export class EngravingRules {
             beam_rests: false,
             maintain_stem_directions: false
         };
+        this.AutoBeamTabs = false;
 
         // Beam Sizing Variables
         this.BeamWidth = EngravingRules.unit / 2.0;
@@ -466,6 +494,8 @@ export class EngravingRules {
         this.ChordSymbolYPadding = 0.0;
         this.ChordSymbolYAlignment = true;
         this.ChordSymbolYAlignmentScope = "staffline"; // "measure" or "staffline"
+        this.ChordAccidentalTexts = new Dictionary<AccidentalEnum, string>();
+        this.resetChordAccidentalTexts(this.ChordAccidentalTexts, false);
         this.ChordSymbolLabelTexts = new Dictionary<ChordSymbolEnum, string>();
         this.resetChordSymbolLabelTexts(this.ChordSymbolLabelTexts);
         this.CustomChords = [];
@@ -676,6 +706,13 @@ export class EngravingRules {
         this.NoteToGraphicalNoteMap = new Dictionary<number, GraphicalNote>();
         this.NoteToGraphicalNoteMapObjectCount = 0;
 
+        this.SkyBottomLineBatchMinMeasures = 5;
+        this.SkyBottomLineWebGLMinMeasures = 80;
+        this.AlwaysSetPreferredSkyBottomLineBackendAutomatically = true;
+        this.DisableWebGLInFirefox = true;
+        this.DisableWebGLInSafariAndIOS = true;
+        this.setPreferredSkyBottomLineBackendAutomatically();
+
         // this.populateDictionaries(); // these values aren't used currently
         try {
             this.MaxInstructionsConstValue = this.ClefLeftMargin + this.ClefRightMargin + this.KeyRightMargin + this.RhythmRightMargin + 11;
@@ -686,6 +723,25 @@ export class EngravingRules {
             //}
         } catch (ex) {
             log.info("EngravingRules()", ex);
+        }
+    }
+
+    public setPreferredSkyBottomLineBackendAutomatically(numberOfGraphicalMeasures: number = -1): void {
+        const vendor: string = globalThis.navigator?.vendor ?? "";
+        const userAgent: string = globalThis.navigator?.userAgent ?? "";
+        let alwaysUsePlain: boolean = false;
+        if (this.DisableWebGLInSafariAndIOS && (/apple/i).test(vendor)) { // doesn't apply to Chrome on MacOS
+            alwaysUsePlain = true;
+        } else if (this.DisableWebGLInFirefox && userAgent.includes("Firefox")) {
+            alwaysUsePlain = true;
+        }
+        // In Safari (/iOS) and Firefox, the plain version is always faster (currently, Safari 15).
+        //   WebGL is faster for large scores in Chrome and Edge (both Chromium based). See #1158
+        this.PreferredSkyBottomLineBatchCalculatorBackend = SkyBottomLineBatchCalculatorBackendType.Plain;
+        if (!alwaysUsePlain) {
+            if (numberOfGraphicalMeasures >= this.SkyBottomLineWebGLMinMeasures) {
+                this.PreferredSkyBottomLineBatchCalculatorBackend = SkyBottomLineBatchCalculatorBackendType.WebGL;
+            }
         }
     }
 
@@ -722,6 +778,13 @@ export class EngravingRules {
         this.NoteToGraphicalNoteMapObjectCount = 0;
     }
 
+    public resetChordAccidentalTexts(chordAccidentalTexts: Dictionary<AccidentalEnum, string>, useChordAccidentalsUnicode: boolean): void {
+        chordAccidentalTexts.setValue(AccidentalEnum.SHARP, useChordAccidentalsUnicode ? "♯" : "#");
+        chordAccidentalTexts.setValue(AccidentalEnum.FLAT, useChordAccidentalsUnicode ? "♭" : "b");
+        chordAccidentalTexts.setValue(AccidentalEnum.DOUBLEFLAT, useChordAccidentalsUnicode ? "𝄫" : "bb");
+        chordAccidentalTexts.setValue(AccidentalEnum.DOUBLESHARP, useChordAccidentalsUnicode ? "𝄪" : "x");
+    }
+
     public setChordSymbolLabelText(key: ChordSymbolEnum, value: string): void {
         this.ChordSymbolLabelTexts.setValue(key, value);
     }
@@ -734,7 +797,7 @@ export class EngravingRules {
         chordtexts.setValue(ChordSymbolEnum.minorseventh, "m7");
         chordtexts.setValue(ChordSymbolEnum.diminishedseventh, "dim7");
         chordtexts.setValue(ChordSymbolEnum.augmentedseventh, "aug7");
-        chordtexts.setValue(ChordSymbolEnum.halfdiminished, "m7b5");
+        chordtexts.setValue(ChordSymbolEnum.halfdiminished, `m7${this.ChordAccidentalTexts.getValue(AccidentalEnum.FLAT)}5`);
         chordtexts.setValue(ChordSymbolEnum.majorminor, "m(maj7)");
         chordtexts.setValue(ChordSymbolEnum.majorsixth, "maj6");
         chordtexts.setValue(ChordSymbolEnum.minorsixth, "m6");
@@ -777,9 +840,11 @@ export class EngravingRules {
     }
 
     public resetChordNames(): void {
+        const sharp: string = this.ChordAccidentalTexts.getValue(AccidentalEnum.SHARP);
+        const flat: string = this.ChordAccidentalTexts.getValue(AccidentalEnum.FLAT);
         // addChordName(alternateName, chordKindText, adds, alters, subtracts)
-        this.addChordName("alt", "major", ["#5", "b9", "#9"], ["b5"], []);
-        this.addChordName("7alt", "dominant", ["#5", "b9", "#9"], ["b5"], []);
+        this.addChordName("alt", "major", [`${sharp}5`, `${flat}9`, `${sharp}9`], [`${flat}5`], []);
+        this.addChordName("7alt", "dominant", [`${sharp}5`, `${flat}9`, `${sharp}9`], [`${flat}5`], []);
         this.addChordName("7sus4", "dominant", ["4"], [], ["3"]);
         this.addChordName("7sus4", "suspendedfourth", ["7"], [], []);
         this.addChordName("9sus4", "dominantninth", ["4"], [], ["3"]);
@@ -790,7 +855,7 @@ export class EngravingRules {
         this.addChordName("13sus4", "suspendedfourth", ["13"], [], []);
         this.addChordName("7sus2", "dominant", ["2"], [], ["3"]);
         this.addChordName("7sus2", "suspendedsecond", ["7"], [], []);
-        this.addChordName("m7b5", "minorseventh", [], ["b5"], []);
+        this.addChordName(`m7${flat}5`, "minorseventh", [], [`${flat}5`], []);
         this.addChordName("9sus2", "dominantninth", ["2"], [], ["3"]);
         this.addChordName("9sus2", "suspendedsecond", ["9"], [], []);
         this.addChordName("11sus2", "dominant11th", ["2"], [], ["3"]);

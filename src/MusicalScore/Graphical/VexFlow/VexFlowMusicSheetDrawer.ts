@@ -1,4 +1,5 @@
 import Vex from "vexflow";
+import VF = Vex.Flow;
 import { Font } from "../../../Common/DataObjects/Font";
 import { MusicSheetDrawer } from "../MusicSheetDrawer";
 import { RectangleF2D } from "../../../Common/DataObjects/RectangleF2D";
@@ -348,7 +349,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
             if (graphicalOctaveShift) {
                 const vexFlowOctaveShift: VexFlowOctaveShift = graphicalOctaveShift as VexFlowOctaveShift;
                 const ctx: Vex.IRenderContext = this.backend.getContext();
-                const textBracket: Vex.Flow.TextBracket = vexFlowOctaveShift.getTextBracket();
+                const textBracket: VF.TextBracket = vexFlowOctaveShift.getTextBracket();
                 textBracket.setContext(ctx);
                 try {
                     textBracket.draw();

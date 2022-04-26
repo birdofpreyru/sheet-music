@@ -1,4 +1,5 @@
 import Vex from "vexflow";
+import VF = Vex.Flow;
 import { Font } from "../../../Common/DataObjects/Font";
 import {VexFlowBackend} from "./VexFlowBackend";
 import {RectangleF2D} from "../../../Common/DataObjects/RectangleF2D";
@@ -16,8 +17,8 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         this.rules = rules;
     }
 
-    public getVexflowBackendType(): Vex.Flow.Renderer.Backends {
-        return Vex.Flow.Renderer.Backends.CANVAS;
+    public getVexflowBackendType(): VF.Renderer.Backends {
+        return VF.Renderer.Backends.CANVAS;
     }
 
     public getOSMDBackendType(): BackendType {
@@ -45,8 +46,8 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         this.canvas.style.zIndex = "0";
         this.inner.appendChild(this.canvas);
         container.appendChild(this.inner);
-        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getVexflowBackendType());
-        this.ctx = <Vex.Flow.CanvasContext>this.renderer.getContext();
+        this.renderer = new VF.Renderer(this.canvas, this.getVexflowBackendType());
+        this.ctx = <VF.CanvasContext>this.renderer.getContext();
     }
 
     /**
@@ -63,11 +64,11 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         this.canvas = document.createElement("canvas");
         (this.canvas as any).width = width;
         (this.canvas as any).height = height;
-        this.renderer = new Vex.Flow.Renderer(this.canvas, this.getVexflowBackendType());
-        this.ctx = <Vex.Flow.CanvasContext>this.renderer.getContext();
+        this.renderer = new VF.Renderer(this.canvas, this.getVexflowBackendType());
+        this.ctx = <VF.CanvasContext>this.renderer.getContext();
     }
 
-    public getContext(): Vex.Flow.CanvasContext {
+    public getContext(): VF.CanvasContext {
         return this.ctx;
     }
 
@@ -161,7 +162,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         return undefined;
     }
 
-    private ctx: Vex.Flow.CanvasContext;
+    private ctx: VF.CanvasContext;
 
     public get CanvasRenderingCtx(): CanvasRenderingContext2D {
         // This clusterfuck is only there to counter act my favorite vexflow line:

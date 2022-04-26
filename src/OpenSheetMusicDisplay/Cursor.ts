@@ -178,14 +178,15 @@ export class Cursor {
     }
     /* TODO: The cursor height and pos (i.e. what exactly it highlights)
      * should be modifiable through options. */
-    // console.log(musicSystem);
+    // y is common for both multirest and non-multirest, given the MusicSystem
     y = musicSystem.PositionAndShape.AbsolutePosition.y
-      + musicSystem.StaffLines[0].PositionAndShape.RelativePosition.y
+      + musicSystem.StaffLines[0]?.PositionAndShape.RelativePosition.y ?? 0
       + musicSystem.PositionAndShape.BorderTop;
     const bottomStaffline: StaffLine = musicSystem.StaffLines[musicSystem.StaffLines.length - 1];
-
-    const endY: number = musicSystem.PositionAndShape.AbsolutePosition.y +
-    bottomStaffline.PositionAndShape.RelativePosition.y + bottomStaffline.StaffHeight;
+    let endY: number = musicSystem.PositionAndShape.AbsolutePosition.y;
+    if (bottomStaffline) { // can be undefined if drawFromMeasureNumber changed after cursor was shown
+      endY += bottomStaffline.PositionAndShape.RelativePosition.y + bottomStaffline.StaffHeight;
+    }
     height = endY - y;
     height = musicSystem.PositionAndShape.BoundingMarginRectangle.height;
 

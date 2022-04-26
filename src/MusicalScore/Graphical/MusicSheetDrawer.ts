@@ -359,7 +359,7 @@ export abstract class MusicSheetDrawer {
                 }
             } else {
                 for (const bracket of musicSystem.GroupBrackets) {
-                    (bracket as VexFlowInstrumentBracket).Visible = false; //.setType(Vex.Flow.StaveConnector.type.NONE);
+                    (bracket as VexFlowInstrumentBracket).Visible = false; //.setType(VF.StaveConnector.type.NONE);
                 }
             }
         }

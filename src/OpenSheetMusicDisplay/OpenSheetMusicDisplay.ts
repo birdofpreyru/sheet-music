@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.4.5-release"; // getter: this.Version
+    protected version: string = "1.5.0-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -668,6 +668,12 @@ export class OpenSheetMusicDisplay {
             this.cursorsOptions = options.cursorsOptions;
         } else {
             this.cursorsOptions = [{type: 0, color: this.EngravingRules.DefaultColorCursor, alpha: 0.5, follow: true}];
+        }
+        if (options.preferredSkyBottomLineBatchCalculatorBackend !== undefined) {
+            this.rules.PreferredSkyBottomLineBatchCalculatorBackend = options.preferredSkyBottomLineBatchCalculatorBackend;
+        }
+        if (options.skyBottomLineBatchMinMeasures !== undefined) {
+            this.rules.SkyBottomLineBatchMinMeasures = options.skyBottomLineBatchMinMeasures;
         }
     }
 
