@@ -180,7 +180,7 @@ export class Cursor {
      * should be modifiable through options. */
     // y is common for both multirest and non-multirest, given the MusicSystem
     y = musicSystem.PositionAndShape.AbsolutePosition.y
-      + musicSystem.StaffLines[0]?.PositionAndShape.RelativePosition.y ?? 0
+      + (musicSystem.StaffLines[0]?.PositionAndShape.RelativePosition.y ?? 0)
       + musicSystem.PositionAndShape.BorderTop;
     const bottomStaffline: StaffLine = musicSystem.StaffLines[musicSystem.StaffLines.length - 1];
     let endY: number = musicSystem.PositionAndShape.AbsolutePosition.y;
