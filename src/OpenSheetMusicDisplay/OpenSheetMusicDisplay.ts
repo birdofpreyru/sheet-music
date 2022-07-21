@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.5.0-release"; // getter: this.Version
+    protected version: string = "1.5.1-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -93,13 +93,18 @@ export class OpenSheetMusicDisplay {
      *  the loaded XML document will be passed to this hook just before
      *  it is used to create OSMD data models, thus giving a chance to update
      *  its content.
+     * @param {string} [options.tempTitle="Untitled Score"] is used as
+     *  the title for the piece if there is no title in the XML.
      */
     public load(
       content: string | Document,
       options: {
         preProcessHook?: Function;
+        tempTitle?: string;
       } = {},
     ): Promise<{}> {
+        const {tempTitle = "Untitled Score"} = options;
+
         // Warning! This function is asynchronous! No error handling is done here.
         this.reset();
         //console.log("typeof content: " + typeof content);
@@ -174,7 +179,7 @@ export class OpenSheetMusicDisplay {
           }
           const score: IXmlElement = new IXmlElement(scorePartwiseElement);
           const reader: MusicSheetReader = new MusicSheetReader(undefined, this.rules);
-          this.sheet = reader.createMusicSheet(score, "Untitled Score");
+          this.sheet = reader.createMusicSheet(score, tempTitle);
           if (this.sheet === undefined) {
               // error loading sheet, probably already logged, do nothing
               return Promise.reject(new Error("given music sheet was incomplete or could not be loaded."));
