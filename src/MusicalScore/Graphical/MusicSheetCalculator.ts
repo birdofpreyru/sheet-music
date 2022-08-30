@@ -1099,6 +1099,67 @@ export abstract class MusicSheetCalculator {
     }
 
     protected calculateTupletNumbers(): void {
+        if (!this.rules.TupletNumberLimitConsecutiveRepetitions) {
+            return;
+        }
+        let currentTupletNumber: number = -1;
+        let consecutiveTupletCount: number = 0;
+        let currentTuplet: Tuplet = undefined;
+        let skipTuplet: Tuplet = undefined; // if set, ignore (further) handling of this tuplet
+        const disabledPerVoice: Object = {};
+        for (const instrument of this.graphicalMusicSheet.ParentMusicSheet.Instruments) {
+            for (const voice of instrument.Voices) {
+                disabledPerVoice[voice.VoiceId] = {};
+                for (const ve of voice.VoiceEntries) {
+                    if (ve.Notes.length > 0) {
+                        const firstNote: Note = ve.Notes[0];
+                        if (!firstNote.NoteTuplet) {
+                            currentTupletNumber = -1;
+                            consecutiveTupletCount = 0;
+                            currentTuplet = undefined;
+                            continue;
+                        }
+                        if (firstNote.NoteTuplet === skipTuplet) {
+                            continue;
+                        }
+                        if (firstNote.NoteTuplet !== currentTuplet) {
+                            if (disabledPerVoice[voice.VoiceId][firstNote.NoteTuplet.TupletLabelNumber]) {
+                                if (disabledPerVoice[voice.VoiceId][firstNote.NoteTuplet.TupletLabelNumber][firstNote.TypeLength.RealValue]) {
+                                    firstNote.NoteTuplet.RenderTupletNumber = false;
+                                    skipTuplet = firstNote.NoteTuplet;
+                                    continue;
+                                }
+                            }
+                        }
+                        if (firstNote.NoteTuplet.TupletLabelNumber !== currentTupletNumber) {
+                            currentTupletNumber = firstNote.NoteTuplet.TupletLabelNumber;
+                            consecutiveTupletCount = 0;
+                        }
+                        currentTuplet = firstNote.NoteTuplet;
+                        consecutiveTupletCount++;
+                        if (consecutiveTupletCount <= this.rules.TupletNumberMaxConsecutiveRepetitions) {
+                            firstNote.NoteTuplet.RenderTupletNumber = true; // need to re-activate after re-render when it was set to false
+                        }
+                        if (consecutiveTupletCount === this.rules.TupletNumberMaxConsecutiveRepetitions && this.rules.TupletNumberAlwaysDisableAfterFirstMax) {
+                            if (!disabledPerVoice[voice.VoiceId][currentTupletNumber]) {
+                                disabledPerVoice[voice.VoiceId][currentTupletNumber] = {};
+                            }
+                            disabledPerVoice[voice.VoiceId][currentTupletNumber][firstNote.TypeLength.RealValue] = true;
+                        }
+                        if (consecutiveTupletCount > this.rules.TupletNumberMaxConsecutiveRepetitions) {
+                            firstNote.NoteTuplet.RenderTupletNumber = false;
+                            if (this.rules.TupletNumberAlwaysDisableAfterFirstMax) {
+                                if (!disabledPerVoice[voice.VoiceId][currentTupletNumber]) {
+                                    disabledPerVoice[voice.VoiceId][currentTupletNumber] = {};
+                                }
+                                disabledPerVoice[voice.VoiceId][currentTupletNumber][firstNote.TypeLength.RealValue] = true;
+                            }
+                        }
+                        skipTuplet = currentTuplet;
+                    }
+                }
+            }
+        }
         return;
     }
 
@@ -1143,6 +1204,7 @@ export abstract class MusicSheetCalculator {
     * @param startPosInStaffline Starting point in staff line
     */
     public calculateGraphicalContinuousDynamic(graphicalContinuousDynamic: GraphicalContinuousDynamicExpression, startPosInStaffline: PointF2D): void {
+        const isSoftAccent: boolean = graphicalContinuousDynamic.IsSoftAccent;
         const staffIndex: number = graphicalContinuousDynamic.ParentStaffLine.ParentStaff.idInMusicSheet;
         // TODO: Previously the staffIndex was passed down. BUT you can (and this function actually does this) get it from
         // the musicSystem OR from the ParentStaffLine. Is this the same index?
@@ -1187,9 +1249,18 @@ export abstract class MusicSheetCalculator {
         const beginOfNextNote: Fraction = Fraction.plus(endAbsoluteTimestamp, maxNoteLength);
         const nextNotePosInStaffLine: PointF2D = this.getRelativePositionInStaffLineFromTimestamp(
             beginOfNextNote, staffIndex, endStaffLine, isPartOfMultiStaffInstrument, 0);
+        const wedgePadding: number = this.rules.SoftAccentWedgePadding;
+        const staffEntryWidth: number = container.getFirstNonNullStaffEntry().PositionAndShape.Size.width; // staff entry widths for whole notes is too long
+        const sizeFactor: number = this.rules.SoftAccentSizeFactor;
+        //const standardWidth: number = 2;
+
         //If the next note position is not on the next staffline
         //extend close to the next note
-        if (nextNotePosInStaffLine.x > endPosInStaffLine.x && nextNotePosInStaffLine.x < endOfMeasure) {
+        if (isSoftAccent) {
+            //startPosInStaffline.x -= 1;
+            startPosInStaffline.x -= staffEntryWidth / 2 * sizeFactor + wedgePadding;
+            endPosInStaffLine.x = startPosInStaffline.x + staffEntryWidth / 2 * sizeFactor;
+        } else if (nextNotePosInStaffLine.x > endPosInStaffLine.x && nextNotePosInStaffLine.x < endOfMeasure) {
             endPosInStaffLine.x += (nextNotePosInStaffLine.x - endPosInStaffLine.x) / this.rules.WedgeEndDistanceBetweenTimestampsFactor;
         } else { //Otherwise extend to the end of the measure
             endPosInStaffLine.x = endOfMeasure - this.rules.WedgeHorizontalMargin;
@@ -1213,13 +1284,13 @@ export abstract class MusicSheetCalculator {
         let secondGraphicalContinuousDynamic: GraphicalContinuousDynamicExpression = undefined;
 
         // last length check
-        if (sameStaffLine && endPosInStaffLine.x - startPosInStaffline.x < this.rules.WedgeMinLength) {
+        if (sameStaffLine && endPosInStaffLine.x - startPosInStaffline.x < this.rules.WedgeMinLength && !isSoftAccent) {
             endPosInStaffLine.x = startPosInStaffline.x + this.rules.WedgeMinLength;
         }
 
         // Upper staff wedge always starts at the given position and the lower staff wedge always starts at the begin of measure
         const upperStartX: number = startPosInStaffline.x;
-        const lowerStartX: number = endStaffLine.Measures[0].beginInstructionsWidth - this.rules.WedgeHorizontalMargin - 2;
+        let lowerStartX: number = endStaffLine.Measures[0].beginInstructionsWidth - this.rules.WedgeHorizontalMargin - 2;
         //TODO fix this when a range of measures to draw is given that doesn't include all the dynamic's measures (e.g. for crescendo)
         let upperEndX: number = 0;
         let lowerEndX: number = 0;
@@ -1235,6 +1306,17 @@ export abstract class MusicSheetCalculator {
             graphicalContinuousDynamic.IsSplittedPart = true;
         } else {
             upperEndX = endPosInStaffLine.x;
+        }
+        if (isSoftAccent) {
+            // secondGraphicalContinuousDynamic = new GraphicalContinuousDynamicExpression(
+            //     graphicalContinuousDynamic.ContinuousDynamic,
+            //     graphicalContinuousDynamic.ParentStaffLine,
+            //     graphicalContinuousDynamic.StartMeasure.parentSourceMeasure
+            // );
+            // secondGraphicalContinuousDynamic.StartIsEnd = true;
+            // doesn't work well with secondGraphicalDynamic, positions/rendering messed up
+            lowerStartX = endPosInStaffLine.x + wedgePadding;
+            lowerEndX = lowerStartX + staffEntryWidth / 2 * sizeFactor;
         }
 
         // the Height of the Expression's placement
@@ -1424,7 +1506,13 @@ export abstract class MusicSheetCalculator {
         // Crescendo (point to the left, opening to the right)
         graphicalContinuousDynamic.Lines.clear();
         if (graphicalContinuousDynamic.ContinuousDynamic.DynamicType === ContDynamicEnum.crescendo) {
-            if (sameStaffLine) {
+            if (isSoftAccent) {
+                graphicalContinuousDynamic.createFirstHalfCrescendoLines(upperStartX, upperEndX, idealY);
+                graphicalContinuousDynamic.createSecondHalfDiminuendoLines(lowerStartX, lowerEndX, idealY);
+                graphicalContinuousDynamic.calcPsi();
+                // secondGraphicalContinuousDynamic.createSecondHalfDiminuendoLines(lowerStartX, lowerEndX, idealY);
+                // secondGraphicalContinuousDynamic.calcPsi();
+            } else if (sameStaffLine && !isSoftAccent) {
                 graphicalContinuousDynamic.createCrescendoLines(upperStartX, upperEndX, idealY);
                 graphicalContinuousDynamic.calcPsi();
             } else {

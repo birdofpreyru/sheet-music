@@ -112,6 +112,8 @@ export class EngravingRules {
     public DistanceOffsetBetweenTwoHorizontallyCrossedWedges: number;
     public WedgeMinLength: number;
     public WedgeEndDistanceBetweenTimestampsFactor: number;
+    public SoftAccentWedgePadding: number;
+    public SoftAccentSizeFactor: number;
     public DistanceBetweenAdjacentDynamics: number;
     public TempoChangeMeasureValidity: number;
     public TempoContinousFactor: number;
@@ -154,6 +156,9 @@ export class EngravingRules {
     public TripletsBracketed: boolean;
     public TupletNumberLabelHeight: number;
     public TupletNumberYOffset: number;
+    public TupletNumberLimitConsecutiveRepetitions: boolean;
+    public TupletNumberMaxConsecutiveRepetitions: number;
+    public TupletNumberAlwaysDisableAfterFirstMax: boolean;
     public LabelMarginBorderFactor: number;
     public TupletVerticalLineLength: number;
     public TupletNumbersInTabs: boolean;
@@ -475,6 +480,8 @@ export class EngravingRules {
         this.DistanceOffsetBetweenTwoHorizontallyCrossedWedges = 0.3;
         this.WedgeMinLength = 2.0;
         this.WedgeEndDistanceBetweenTimestampsFactor = 1.75;
+        this.SoftAccentWedgePadding = 0.4;
+        this.SoftAccentSizeFactor = 0.6;
         this.DistanceBetweenAdjacentDynamics = 0.75;
 
         // Tempo Variables
@@ -517,6 +524,9 @@ export class EngravingRules {
         this.TripletsBracketed = false; // special setting for triplets, overrides tuplet setting (for triplets only)
         this.TupletNumberLabelHeight = 1.5 * EngravingRules.unit;
         this.TupletNumberYOffset = 0.5;
+        this.TupletNumberLimitConsecutiveRepetitions = true;
+        this.TupletNumberMaxConsecutiveRepetitions = 2;
+        this.TupletNumberAlwaysDisableAfterFirstMax = true;
         this.LabelMarginBorderFactor = 0.1;
         this.TupletVerticalLineLength = 0.5;
         this.TupletNumbersInTabs = false; // disabled by default, nonstandard in tabs, at least how we show them in non-tabs.
