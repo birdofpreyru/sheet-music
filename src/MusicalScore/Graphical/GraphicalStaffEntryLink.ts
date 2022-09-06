@@ -23,7 +23,7 @@ export class GraphicalStaffEntryLink {
         this.graphicalLinkedStaffEntries = value;
     }
     public isFilled(): boolean {
-        for (let i: number = 0; i < this.graphicalLinkedStaffEntries.length; i++) {
+        for (let i = 0; i < this.graphicalLinkedStaffEntries.length; i++) {
             if (!this.graphicalLinkedStaffEntries[i]) {
                 return false;
             }
@@ -39,7 +39,7 @@ export class GraphicalStaffEntryLink {
     public getLinkedStaffEntriesGraphicalNotes(graphicalStaffEntry: GraphicalStaffEntry): GraphicalNote[] {
         if (this.graphicalLinkedStaffEntries.indexOf(graphicalStaffEntry) !== -1) {
             const notes: GraphicalNote[] = [];
-            for (let idx: number = 0, len: number = this.graphicalLinkedStaffEntries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = this.graphicalLinkedStaffEntries.length; idx < len; ++idx) {
                 const graphicalLinkedStaffEntry: GraphicalStaffEntry = this.graphicalLinkedStaffEntries[idx];
                 for (const gve of graphicalLinkedStaffEntry.graphicalVoiceEntries) {
                     for (const graphicalNote of gve.notes) {
@@ -55,7 +55,7 @@ export class GraphicalStaffEntryLink {
         return undefined;
     }
     private initialize(): void {
-        for (let idx: number = 0, len: number = this.staffEntryLink.LinkStaffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntryLink.LinkStaffEntries.length; idx < len; ++idx) {
             this.graphicalLinkedStaffEntries.push(undefined);
         }
     }

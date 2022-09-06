@@ -12,8 +12,8 @@ export class PSMath {
     }
 
     public static meanSimple(values: number[]): number {
-        let sum: number = 0;
-        for (let i: number = 0; i < values.length; i++) {
+        let sum = 0;
+        for (let i = 0; i < values.length; i++) {
             sum += values[i];
         }
         return sum / values.length;
@@ -23,9 +23,9 @@ export class PSMath {
         if (values.length !== weights.length || values.length === 0) {
             return 0;
         }
-        let sumWeigtedValues: number = 0;
-        let sumWeights: number = 0;
-        for (let i: number = 0; i < values.length; i++) {
+        let sumWeigtedValues = 0;
+        let sumWeights = 0;
+        for (let i = 0; i < values.length; i++) {
             const weight: number = weights[i];
             sumWeigtedValues += values[i] * weight;
             sumWeights += weight;

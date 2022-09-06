@@ -13,7 +13,7 @@ export class SelectionStartSymbol extends GraphicalObject {
         super();
         const xCoordinate: number = xPosition;
         const yCoordinate: number = system.PositionAndShape.AbsolutePosition.y;
-        const lineThickness: number = 0.4;
+        const lineThickness = 0.4;
         const height: number = CollectionUtil.last(system.StaffLines).PositionAndShape.RelativePosition.y + 4;
         this.verticalLine = new GraphicalLine(
             new PointF2D(xCoordinate, yCoordinate),
@@ -21,7 +21,7 @@ export class SelectionStartSymbol extends GraphicalObject {
             lineThickness,
             OutlineAndFillStyleEnum.SelectionSymbol
         );
-        for (let idx: number = 0, len: number = system.StaffLines.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = system.StaffLines.length; idx < len; ++idx) {
             const staffLine: StaffLine = system.StaffLines[idx];
             const anchor: PointF2D = new PointF2D(xCoordinate, yCoordinate + staffLine.PositionAndShape.RelativePosition.y);
             const arrowPoints: PointF2D[] = new Array(7);

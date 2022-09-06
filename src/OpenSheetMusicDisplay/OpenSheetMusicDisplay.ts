@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.5.3-release"; // getter: this.Version
+    protected version = "1.5.3-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -64,10 +64,10 @@ export class OpenSheetMusicDisplay {
     public get cursor(): Cursor { // lowercase for backwards compatibility since cursor -> cursors change
         return this.cursors[0];
     }
-    public zoom: number = 1.0;
-    protected zoomUpdated: boolean = false;
+    public zoom = 1.0;
+    protected zoomUpdated = false;
     /** Timeout in milliseconds used in osmd.load(string) when string is a URL. */
-    public loadUrlTimeout: number = 5000;
+    public loadUrlTimeout = 5000;
 
     protected container: HTMLElement;
     protected backendType: BackendType;
@@ -166,7 +166,7 @@ export class OpenSheetMusicDisplay {
           log.debug("[OSMD] load(), Document url: " + xmlDocument.URL);
 
           let scorePartwiseElement: Element;
-          for (let i: number = 0, length: number = xmlDocumentNodes.length; i < length; i += 1) {
+          for (let i = 0, length: number = xmlDocumentNodes.length; i < length; i += 1) {
               const node: Node = xmlDocumentNodes[i];
               if (node.nodeType === Node.ELEMENT_NODE && node.nodeName.toLowerCase() === "score-partwise") {
                   scorePartwiseElement = <Element>node;
@@ -312,7 +312,7 @@ export class OpenSheetMusicDisplay {
         }
         // TODO width may need to be coordinated with render() where width is also used
         let height: number;
-        const canvasDimensionsLimit: number = 32767; // browser limitation. Chrome/Firefox (16 bit, 32768 causes an error).
+        const canvasDimensionsLimit = 32767; // browser limitation. Chrome/Firefox (16 bit, 32768 causes an error).
         // Could be calculated by canvas-size module.
         // see #678 on Github and here: https://stackoverflow.com/a/11585939/10295942
 
@@ -322,7 +322,7 @@ export class OpenSheetMusicDisplay {
                 break; // don't add the bounding boxes of pages that aren't drawn to the container height etc
             }
             const backend: VexFlowBackend = this.createBackend(this.backendType, page);
-            const sizeWarningPartTwo: string = " exceeds CanvasBackend limit of 32767. Cutting off score.";
+            const sizeWarningPartTwo = " exceeds CanvasBackend limit of 32767. Cutting off score.";
             if (backend.getOSMDBackendType() === BackendType.Canvas && width > canvasDimensionsLimit) {
                 log.warn("[OSMD] Warning: width of " + width + sizeWarningPartTwo);
                 width = canvasDimensionsLimit;
@@ -696,7 +696,7 @@ export class OpenSheetMusicDisplay {
             }
             // validate strings input
             for (const colorString of options.coloringSetCustom) {
-                const regExp: RegExp = /^\#[0-9a-fA-F]{6}$/;
+                const regExp = /^\#[0-9a-fA-F]{6}$/;
                 if (!regExp.test(colorString)) {
                     throw new Error(
                         "One of the color strings in options.coloringSetCustom was not a valid HTML Hex color:\n" + colorString);
@@ -706,12 +706,12 @@ export class OpenSheetMusicDisplay {
         } else if (options.coloringMode === ColoringModes.AutoColoring) {
             colorSetString = [];
             const keys: string[] = Object.keys(AutoColorSet);
-            for (let i: number = 0; i < keys.length; i++) {
+            for (let i = 0; i < keys.length; i++) {
                 colorSetString.push(AutoColorSet[keys[i]]);
             }
         } // for both cases:
         const coloringSetCurrent: Dictionary<NoteEnum | number, string> = new Dictionary<NoteEnum | number, string>();
-        for (let i: number = 0; i < noteIndices.length; i++) {
+        for (let i = 0; i < noteIndices.length; i++) {
             coloringSetCurrent.setValue(noteIndices[i], colorSetString[i]);
         }
         coloringSetCurrent.setValue(-1, colorSetString[7]);
@@ -812,7 +812,7 @@ export class OpenSheetMusicDisplay {
     protected handleResize(startCallback: () => void, endCallback: () => void): void {
         let rtime: number;
         let timeout: ReturnType<typeof setTimeout> = undefined;
-        const delta: number = 200;
+        const delta = 200;
         const self: OpenSheetMusicDisplay = this;
 
         function resizeStart(): void {
@@ -859,7 +859,7 @@ export class OpenSheetMusicDisplay {
     public enableOrDisableCursors(enable: boolean): void {
         this.drawingParameters.drawCursors = enable;
         if (enable) {
-            for (let i: number = 0; i < this.cursorsOptions.length; i++){
+            for (let i = 0; i < this.cursorsOptions.length; i++){
                 // save previous cursor state
                 const hidden: boolean = this.cursors[i]?.Hidden;
                 const previousIterator: MusicPartManagerIterator = this.cursors[i]?.Iterator;
@@ -996,7 +996,7 @@ export class OpenSheetMusicDisplay {
     public get DrawBoundingBox(): string {
         return this.drawBoundingBox;
     }
-    public setDrawBoundingBox(value: string, render: boolean = false): void {
+    public setDrawBoundingBox(value: string, render = false): void {
         this.drawBoundingBox = value;
         if (this.drawer) {
             this.drawer.drawableBoundingBoxElement = value; // drawer is sometimes created anew, losing this value, so it's saved in OSMD now.

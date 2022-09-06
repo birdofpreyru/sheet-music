@@ -55,7 +55,7 @@ export class VerticalGraphicalStaffEntryContainer {
      * @returns {any}
      */
     public getFirstNonNullStaffEntry(): GraphicalStaffEntry {
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
             if (graphicalStaffEntry) {
                 return graphicalStaffEntry;

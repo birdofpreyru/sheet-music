@@ -8,7 +8,7 @@ export class LyricWord {
         return this.syllables;
     }
     public containsVoiceEntry(voiceEntry: VoiceEntry): boolean {
-        for (let idx: number = 0, len: number = this.Syllables.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.Syllables.length; idx < len; ++idx) {
             const lyricsEntry: LyricsEntry = this.Syllables[idx];
             if (lyricsEntry.Parent === voiceEntry) {
                 return true;
@@ -17,7 +17,7 @@ export class LyricWord {
         return false;
     }
     public findLyricEntryInVoiceEntry(voiceEntry: VoiceEntry): LyricsEntry {
-        for (let idx: number = 0, len: number = this.Syllables.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.Syllables.length; idx < len; ++idx) {
             const lyricsEntry: LyricsEntry = this.Syllables[idx];
             if (lyricsEntry.Parent === voiceEntry) {
                 return lyricsEntry;

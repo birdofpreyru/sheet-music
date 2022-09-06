@@ -27,7 +27,7 @@ export class VoiceEntry {
      * @param graceNoteSlash States whether the grace note(s) have a slash (Acciaccatura, played before the beat)
      */
     constructor(timestamp: Fraction, parentVoice: Voice, parentSourceStaffEntry: SourceStaffEntry,
-                isGrace: boolean = false, graceNoteSlash: boolean = false, graceSlur: boolean = false) {
+                isGrace = false, graceNoteSlash = false, graceSlur = false) {
         this.timestamp = timestamp;
         this.parentVoice = parentVoice;
         this.parentSourceStaffEntry = parentSourceStaffEntry;
@@ -198,14 +198,14 @@ export class VoiceEntry {
         }
     }
     public hasTie(): boolean {
-        for (let idx: number = 0, len: number = this.Notes.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.Notes.length; idx < len; ++idx) {
             const note: Note = this.Notes[idx];
             if (note.NoteTie) { return true; }
         }
         return false;
     }
     public hasSlur(): boolean {
-        for (let idx: number = 0, len: number = this.Notes.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.Notes.length; idx < len; ++idx) {
             const note: Note = this.Notes[idx];
             if (note.NoteSlurs.length > 0) { return true; }
         }
@@ -228,7 +228,7 @@ export class VoiceEntry {
         return false;
     }
     public getVerseNumberForLyricEntry(lyricsEntry: LyricsEntry): number {
-        let verseNumber: number = 1;
+        let verseNumber = 1;
         this.lyricsEntries.forEach((key: number, value: LyricsEntry): void => {
             if (lyricsEntry === value) {
                 verseNumber = key;
@@ -261,7 +261,7 @@ export class VoiceEntry {
                 if (voiceEntryWithOrnament.OrnamentContainer.AccidentalAbove !== AccidentalEnum.NONE) {
                     alteration = voiceEntryWithOrnament.ornamentContainer.AccidentalAbove;
                 }
-                for (let i: number = 0; i < 8; i++) {
+                for (let i = 0; i < 8; i++) {
                     currentTimestamp = Fraction.plus(baseTimestamp, new Fraction(i * length.Numerator, length.Denominator));
                     if ((i % 2) === 0) {
                         this.createBaseVoiceEntry(currentTimestamp, length, baseVoice, baseNote, voiceEntries);

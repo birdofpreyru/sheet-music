@@ -35,8 +35,8 @@ import { GraphicalUnknownExpression } from "../GraphicalUnknownExpression";
 export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     private backend: VexFlowBackend;
     private backends: VexFlowBackend[] = [];
-    private zoom: number = 1.0;
-    private pageIdx: number = 0; // this is a bad solution, should use MusicPage.PageNumber instead.
+    private zoom = 1.0;
+    private pageIdx = 0; // this is a bad solution, should use MusicPage.PageNumber instead.
 
     constructor(drawingParameters: DrawingParameters = new DrawingParameters()) {
         super(new VexFlowTextMeasurer(drawingParameters.Rules), drawingParameters);
@@ -187,7 +187,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     /** Draws a line in the current backend. Only usable while pages are drawn sequentially, because backend reference is updated in that process.
      *  To add your own lines after rendering, use DrawOverlayLine.
      */
-    protected drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number = 0.2): Node {
+    protected drawLine(start: PointF2D, stop: PointF2D, color = "#FF0000FF", lineWidth = 0.2): Node {
         // TODO maybe the backend should be given as an argument here as well, otherwise this can't be used after rendering of multiple pages is done.
         start = this.applyScreenTransformation(start);
         stop = this.applyScreenTransformation(stop);
@@ -205,7 +205,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      *  To get a MusicPage, use GraphicalNote.ParentMusicPage.
      */
     public DrawOverlayLine(start: PointF2D, stop: PointF2D, musicPage: GraphicalMusicPage,
-                           color: string = "#FF0000FF", lineWidth: number = 0.2): Node {
+                           color = "#FF0000FF", lineWidth = 0.2): Node {
         if (!musicPage.PageNumber || musicPage.PageNumber > this.backends.length || musicPage.PageNumber < 1) {
             console.log("VexFlowMusicSheetDrawer.drawOverlayLine: invalid page number / music page number doesn't correspond to an existing backend.");
             return;
@@ -244,12 +244,12 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
      * @param width Max line width in units
      * @param color Color to paint in. Default is red
      */
-    private drawSampledLine(line: number[], startPosition: PointF2D, width: number, color: string = "#FF0000FF"): void {
+    private drawSampledLine(line: number[], startPosition: PointF2D, width: number, color = "#FF0000FF"): void {
         const indices: number[] = [];
-        let currentValue: number = 0;
+        let currentValue = 0;
         //Loops through bottom line, grabs all indices that don't equal the previously grabbed index
         //Starting with 0 (gets index of all line changes)
-        for (let i: number = 0; i < line.length; i++) {
+        for (let i = 0; i < line.length; i++) {
             if (line[i] !== currentValue) {
                 indices.push(i);
                 currentValue = line[i];
@@ -273,7 +273,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
                 this.drawLine(verticalStart, verticalEnd, color);
             }
 
-            for (let i: number = 1; i < indices.length; i++) {
+            for (let i = 1; i < indices.length; i++) {
                 horizontalStart = new PointF2D(indices[i - 1] / samplingUnit + absolute.x, absolute.y + line[indices[i - 1]]);
                 horizontalEnd = new PointF2D(indices[i] / samplingUnit + absolute.x, absolute.y + line[indices[i - 1]]);
                 this.drawLine(horizontalStart, horizontalEnd, color);
@@ -439,7 +439,7 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
             }
         }
         let node: Node;
-        for (let i: number = 0; i < graphicalLabel.TextLines?.length; i++) {
+        for (let i = 0; i < graphicalLabel.TextLines?.length; i++) {
             const currLine: {text: string, xOffset: number, width: number} = graphicalLabel.TextLines[i];
             const xOffsetInPixel: number = currLine.xOffset
               * EngravingRules.UnitToPx;

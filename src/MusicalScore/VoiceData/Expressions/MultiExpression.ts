@@ -187,7 +187,7 @@ export class MultiExpression {
         this.expressions.push(multiExpressionEntry);
     }
     private removeExpressionFromEntryList(expression: AbstractExpression): void {
-        for (let idx: number = 0, len: number = this.expressions.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.expressions.length; idx < len; ++idx) {
             const entry: MultiExpressionEntry = this.expressions[idx];
             if (entry.expression === expression) {
                 this.expressions.splice(idx, 1);

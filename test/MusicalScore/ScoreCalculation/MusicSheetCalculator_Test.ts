@@ -12,7 +12,7 @@ import {TestUtils} from "../../Util/TestUtils";
 import {EngravingRules} from "../../../src";
 
 describe("Music Sheet Calculator", () => {
-    const filename: string = "MuzioClementi_SonatinaOpus36No1_Part1.xml";
+    const filename = "MuzioClementi_SonatinaOpus36No1_Part1.xml";
     const reader: MusicSheetReader = new MusicSheetReader();
     const calculator: MusicSheetCalculator = new VexFlowMusicSheetCalculator(reader.rules);
     let score: IXmlElement;

@@ -6,7 +6,7 @@ import shortid from "shortid";
 
 export class LyricsEntry {
     constructor(
-      text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1, font: Font = undefined) {
+      text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber = -1, font: Font = undefined) {
         this.font = font;
         this.text = text;
         this.word = word;

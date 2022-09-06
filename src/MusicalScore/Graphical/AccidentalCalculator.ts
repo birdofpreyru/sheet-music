@@ -128,8 +128,8 @@ export class AccidentalCalculator {
         }
         this.keySignatureNoteAlterationsDict.clear();
         this.currentAlterationsComparedToKeyInstructionList.length = 0;
-        for (let octave: number = -9; octave < 9; octave++) {
-            for (let i: number = 0; i < noteEnums.length; i++) {
+        for (let octave = -9; octave < 9; octave++) {
+            for (let i = 0; i < noteEnums.length; i++) {
                 this.keySignatureNoteAlterationsDict.setValue(<number>noteEnums[i] + octave * 12, Pitch.HalfTonesFromAccidental(keyAccidentalType));
             }
         }

@@ -6,7 +6,7 @@ import {MusicSheet} from "../../../src/MusicalScore/MusicSheet";
 import {IXmlElement} from "../../../src/Common/FileIO/Xml";
 
 describe("Music Sheet Reader", () => {
-    const path: string = "test/data/MuzioClementi_SonatinaOpus36No1_Part1.xml";
+    const path = "test/data/MuzioClementi_SonatinaOpus36No1_Part1.xml";
     const reader: MusicSheetReader = new MusicSheetReader();
     let score: IXmlElement;
     let sheet: MusicSheet;

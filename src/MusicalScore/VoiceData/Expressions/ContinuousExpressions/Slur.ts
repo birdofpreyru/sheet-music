@@ -25,7 +25,7 @@ export class Slur {
     }
     public startNoteHasMoreStartingSlurs(): boolean {
         if (!this.startNote) { return false; }
-        for (let idx: number = 0, len: number = this.startNote.NoteSlurs.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.startNote.NoteSlurs.length; idx < len; ++idx) {
             const slur: Slur = this.startNote.NoteSlurs[idx];
             if (slur !== this && slur.StartNote === this.startNote) {
                 return true;
@@ -35,7 +35,7 @@ export class Slur {
     }
     public endNoteHasMoreEndingSlurs(): boolean {
         if (!this.endNote) { return false; }
-        for (let idx: number = 0, len: number = this.endNote.NoteSlurs.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.endNote.NoteSlurs.length; idx < len; ++idx) {
             const slur: Slur = this.endNote.NoteSlurs[idx];
             if (slur !== this && slur.EndNote === this.endNote) {
                 return true;
@@ -51,7 +51,7 @@ export class Slur {
             return false;
         }
         const length: Fraction = Fraction.minus(this.endNote.getAbsoluteTimestamp(), this.startNote.getAbsoluteTimestamp());
-        for (let idx: number = 0, len: number = this.startNote.NoteSlurs.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.startNote.NoteSlurs.length; idx < len; ++idx) {
             const slur: Slur = this.startNote.NoteSlurs[idx];
             if (
                 slur !== this
@@ -62,7 +62,7 @@ export class Slur {
                 return true;
             }
         }
-        for (let idx: number = 0, len: number = this.endNote.NoteSlurs.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.endNote.NoteSlurs.length; idx < len; ++idx) {
             const slur: Slur = this.endNote.NoteSlurs[idx];
             if (
                 slur !== this

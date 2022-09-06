@@ -8,7 +8,7 @@ import {ArgumentOutOfRangeException} from "../../Exceptions";
  * A [[ClefInstruction]] is the clef placed at the beginning of the stave, which indicates the pitch of the notes.
  */
 export class ClefInstruction extends AbstractNotationInstruction {
-    constructor(clefType: ClefEnum = ClefEnum.G, octaveOffset: number = 0, line: number = 2) {
+    constructor(clefType: ClefEnum = ClefEnum.G, octaveOffset = 0, line = 2) {
         super(undefined); // FIXME? Missing SourceStaffEntry!
         this.line = line;
         this.clefType = clefType;
@@ -17,8 +17,8 @@ export class ClefInstruction extends AbstractNotationInstruction {
     }
 
     private clefType: ClefEnum = ClefEnum.G;
-    private line: number = 2;
-    private octaveOffset: number = 0;
+    private line = 2;
+    private octaveOffset = 0;
     private clefPitch: Pitch;
     private referenceCyPosition: number;
 
@@ -49,11 +49,11 @@ export class ClefInstruction extends AbstractNotationInstruction {
 
     public static getAllPossibleClefs(): ClefInstruction[] {
         const clefList: ClefInstruction[] = [];
-        for (let i: number = 0; i <= 2; i++) {
+        for (let i = 0; i <= 2; i++) {
             const clefInstructionG: ClefInstruction = new ClefInstruction(ClefEnum.G, i, 2);
             clefList.push(clefInstructionG);
         }
-        for (let j: number = -2; j <= 0; j++) {
+        for (let j = -2; j <= 0; j++) {
             const clefInstructionF: ClefInstruction = new ClefInstruction(ClefEnum.F, j, 4);
             clefList.push(clefInstructionF);
         }

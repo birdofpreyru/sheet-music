@@ -129,7 +129,7 @@ export abstract class SkyBottomLineBatchCalculatorBackend {
      * This method calculates the skylines and the bottom lines for the measures passed to the constructor.
      */
     public calculateLines(): SkyBottomLineCalculationResult[] {
-        const debugTmpCanvas: boolean = false;
+        const debugTmpCanvas = false;
 
         const { numColumns, numRows, elementWidth } = this.tableConfiguration;
         const elementHeight: number = this.elementHeight;
@@ -144,12 +144,12 @@ export abstract class SkyBottomLineBatchCalculatorBackend {
         }
 
         const results: SkyBottomLineCalculationResult[] = [];
-        for (let i: number = 0; i < this.measures.length; i += numElementsPerTable) {
+        for (let i = 0; i < this.measures.length; i += numElementsPerTable) {
             vexFlowContext.clear();
 
             const measures: VexFlowMeasure[] = this.measures.slice(i, i + numElementsPerTable);
 
-            for (let j: number = 0; j < measures.length; ++j) {
+            for (let j = 0; j < measures.length; ++j) {
                 const measure: VexFlowMeasure = measures[j];
                 const vsStaff: VF.Stave = measure.getVFStave();
 
@@ -166,7 +166,7 @@ export abstract class SkyBottomLineBatchCalculatorBackend {
                 // must calculate first AbsolutePositions
                 measure.PositionAndShape.calculateAbsolutePositionsRecursive(0, 0);
 
-                const x: number = 0;
+                const x = 0;
                 vsStaff.setX(x);
 
                 // The magic number 100 is an offset from the top image border so that
@@ -204,7 +204,7 @@ export abstract class SkyBottomLineBatchCalculatorBackend {
             if (debugTmpCanvas) {
                 const canvasContext: CanvasRenderingContext2D = vexFlowContext as unknown as CanvasRenderingContext2D;
                 const oldFillStyle: string | CanvasGradient | CanvasPattern = canvasContext.fillStyle;
-                for (let j: number = 0; j < result.length; ++j) {
+                for (let j = 0; j < result.length; ++j) {
                     const { skyLine, bottomLine } = result[j];
 
                     const u: number = j % numColumns;

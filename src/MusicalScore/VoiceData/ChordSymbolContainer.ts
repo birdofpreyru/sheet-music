@@ -70,7 +70,7 @@ export class ChordSymbolContainer {
 
         for (const chordDegree of chordSymbol.ChordDegrees) {
             if (chordDegree) {
-                let t: string = "";
+                let t = "";
                 if (chordDegree.alteration !== AccidentalEnum.NONE) {
                     t += chordSymbol.getTextForAccidental(chordDegree.alteration);
                 }
@@ -99,7 +99,7 @@ export class ChordSymbolContainer {
                 continue;
             }
 
-            let hasCustomChordDegrees: boolean = true;
+            let hasCustomChordDegrees = true;
             for (const degType of degreeTypeAry) {
                 for (const deg of (customChord.degrees[degType] || [])) {
                     if (degrees[degType].indexOf(deg) < 0) {

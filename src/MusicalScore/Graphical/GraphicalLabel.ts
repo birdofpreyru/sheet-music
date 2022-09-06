@@ -55,8 +55,8 @@ export class GraphicalLabel extends Clickable {
         const labelMarginBorderFactor: number = this.rules?.LabelMarginBorderFactor ?? 0.1;
         const lines: string[] = this.Label.text.split(/[\n\r]+/g);
         const numOfLines: number = lines.length;
-        let maxWidth: number = 0;
-        for (let i: number = 0; i < numOfLines; i++) {
+        let maxWidth = 0;
+        for (let i = 0; i < numOfLines; i++) {
           const line: string = lines[i].trim();
           const widthToHeightRatio: number =
             MusicSheetCalculator.TextMeasurer.computeTextWidthToHeightRatio(
@@ -71,7 +71,7 @@ export class GraphicalLabel extends Clickable {
         // maxWidth is calculated ->
         // now also set the x-offsets:
         for (const line of this.TextLines) {
-          let xOffset: number = 0;
+          let xOffset = 0;
           switch (this.Label.textAlignment) {
               case TextAlignmentEnum.RightBottom:
               case TextAlignmentEnum.RightCenter:

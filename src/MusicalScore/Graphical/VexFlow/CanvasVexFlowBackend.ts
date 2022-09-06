@@ -55,7 +55,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
      * @param width Width of the canvas
      * @param height Height of the canvas
      */
-    public initializeHeadless(width: number = 300, height: number = 300): void {
+    public initializeHeadless(width = 300, height = 300): void {
         if (!this.graphicalMusicPage) {
             // not needed here yet, but just for future safety, make sure the page isn't undefined
             this.graphicalMusicPage = new GraphicalMusicPage(undefined);
@@ -110,7 +110,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         this.CanvasRenderingCtx.font = old;
         return undefined; // can't return svg dom node
     }
-    public renderRectangle(rectangle: RectangleF2D, styleId: number, colorHex: string, alpha: number = 1): Node {
+    public renderRectangle(rectangle: RectangleF2D, styleId: number, colorHex: string, alpha = 1): Node {
         const old: string | CanvasGradient | CanvasPattern = this.CanvasRenderingCtx.fillStyle;
         if (colorHex) {
             this.CanvasRenderingCtx.fillStyle = colorHex;
@@ -124,7 +124,7 @@ export class CanvasVexFlowBackend extends VexFlowBackend {
         return undefined; // can't return dom node like with SVG
     }
 
-    public renderLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number= 2): Node {
+    public renderLine(start: PointF2D, stop: PointF2D, color = "#FF0000FF", lineWidth= 2): Node {
         const oldStyle: string | CanvasGradient | CanvasPattern = this.CanvasRenderingCtx.strokeStyle;
         this.CanvasRenderingCtx.strokeStyle = color;
         this.CanvasRenderingCtx.beginPath();

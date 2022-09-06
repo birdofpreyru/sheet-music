@@ -29,7 +29,7 @@ export class Cursor {
 
     // set cursor id
     // TODO add this for the OSMD object as well and refactor this into a util method?
-    let id: number = 0;
+    let id = 0;
     this.cursorElementId = "cursorImg-0";
     // find unique cursor id in document
     while (document.getElementById(this.cursorElementId)) {
@@ -78,8 +78,8 @@ export class Cursor {
   private manager: MusicPartManager;
   public iterator: MusicPartManagerIterator;
   private graphic: GraphicalMusicSheet;
-  public hidden: boolean = true;
-  public currentPageNumber: number = 1;
+  public hidden = true;
+  public currentPageNumber = 1;
   private cursorOptions: CursorOptions;
 
   /** Initialize the cursor. Necessary before using functions like show() and next(). */
@@ -145,7 +145,7 @@ export class Cursor {
     if (iterator.EndReached || !iterator.CurrentVoiceEntries || voiceEntries.length === 0) {
       return;
     }
-    let x: number = 0, y: number = 0, height: number = 0;
+    let x = 0, y = 0, height = 0;
     let musicSystem: MusicSystem;
     let gseArr: VexFlowStaffEntry[] = [];
     if (iterator.CurrentMeasure.isReducedToMultiRest) {
@@ -192,7 +192,7 @@ export class Cursor {
 
     /* Cursor should be wider than the widest lyrics under this staff
      * entry. */
-    let width: number = 10.0;
+    let width = 10.0;
     gseArr.forEach((entry) => {
       entry.LyricsEntries.forEach((lyrics) => {
         const box: BoundingBox = lyrics.GraphicalLabel.PositionAndShape;
@@ -228,7 +228,7 @@ export class Cursor {
     x: number, y: number, height: number, width: number,
   ): void {
     const cursorElement: HTMLImageElement = this.cursorElement;
-    let newWidth: number = 0;
+    let newWidth = 0;
     switch (this.cursorOptions.type) {
       case 1:
         cursorElement.style.top = (y * 10.0 * this.openSheetMusicDisplay.zoom) + "px";

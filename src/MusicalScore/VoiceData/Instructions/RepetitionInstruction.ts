@@ -136,7 +136,7 @@ export class RepetitionInstruction /*implements IComparable*/ {
             this.endingIndices.length !== other.endingIndices.length) {
             return false;
         }
-        for (let i: number = 0; i < this.endingIndices.length; i++) {
+        for (let i = 0; i < this.endingIndices.length; i++) {
             if (this.endingIndices[i] !== other.endingIndices[i]) {
                 return false;
             }

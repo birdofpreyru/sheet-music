@@ -6,7 +6,7 @@ import {MultiTempoExpression} from "./MultiTempoExpression";
 
 export class InstantaneousTempoExpression extends AbstractTempoExpression {
     constructor(label: string, placement: PlacementEnum, staffNumber: number,
-                soundTempo: number, parentMultiTempoExpression: MultiTempoExpression, isMetronomeMark: boolean = false) {
+                soundTempo: number, parentMultiTempoExpression: MultiTempoExpression, isMetronomeMark = false) {
         /*if (isMetronomeMark) {
             label = " = " + soundTempo;
         }*/

@@ -14,14 +14,14 @@ export class Staff {
     public idInMusicSheet: number;
     public audible: boolean;
     public following: boolean;
-    public isTab: boolean = false;
+    public isTab = false;
 
     private parentInstrument: Instrument;
     private voices: Voice[] = [];
-    private volume: number = 1;
+    private volume = 1;
     private id: number;
-    private stafflineCount: number = 5;
-    public hasLyrics: boolean = false;
+    private stafflineCount = 5;
+    public hasLyrics = false;
     public openTieDict: { [_: number]: Tie } = {};
 
     public get ParentInstrument(): Instrument {

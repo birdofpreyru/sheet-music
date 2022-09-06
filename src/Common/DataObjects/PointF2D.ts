@@ -1,9 +1,9 @@
 // Represent a point on a plane, with (x,y) coordinates
 export class PointF2D {
-    public x: number = 0;
-    public y: number = 0;
+    public x = 0;
+    public y = 0;
 
-    constructor(x: number = 0, y: number = 0) {
+    constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
     }

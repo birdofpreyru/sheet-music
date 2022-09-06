@@ -14,7 +14,7 @@ export class VexFlowTextMeasurer implements ITextMeasurer {
     }
     // The context of a canvas used internally to compute font sizes
     private context: CanvasRenderingContext2D;
-    public defaultFontSize: number = 20;
+    public defaultFontSize = 20;
     private rules: EngravingRules;
 
     /**
@@ -38,7 +38,7 @@ export class VexFlowTextMeasurer implements ITextMeasurer {
         / f.Size;
     }
 
-    public setDefaultFontSize(value: number = 20): number {
+    public setDefaultFontSize(value = 20): number {
       this.defaultFontSize = value;
       return value;
     }

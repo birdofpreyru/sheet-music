@@ -48,12 +48,12 @@ export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
         const defaultColorNotehead: string = this.rules.DefaultColorNotehead;
         const defaultColorRest: string = this.rules.DefaultColorRest;
         const defaultColorStem: string = this.rules.DefaultColorStem;
-        const transparentColor: string = "#00000000"; // transparent color in vexflow
+        const transparentColor = "#00000000"; // transparent color in vexflow
         let noteheadColor: string; // if null: no noteheadcolor to set (stays black)
         let sourceNoteNoteheadColor: string;
 
         const vfStaveNote: any = (<VexFlowVoiceEntry>(this as any)).vfStaveNote;
-        for (let i: number = 0; i < this.notes.length; i++) {
+        for (let i = 0; i < this.notes.length; i++) {
             const note: GraphicalNote = this.notes[i];
 
             sourceNoteNoteheadColor = note.sourceNote.NoteheadColor;
@@ -102,8 +102,8 @@ export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
             // color notebeam if all noteheads have same color and stem coloring enabled
             if (this.rules.ColoringEnabled && note.sourceNote.NoteBeam && this.rules.ColorBeams) {
                 const beamNotes: Note[] = note.sourceNote.NoteBeam.Notes;
-                let colorBeam: boolean = true;
-                for (let j: number = 0; j < beamNotes.length; j++) {
+                let colorBeam = true;
+                for (let j = 0; j < beamNotes.length; j++) {
                     if (beamNotes[j].NoteheadColorCurrentlyRendered !== noteheadColor) {
                         colorBeam = false;
                     }
@@ -142,7 +142,7 @@ export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
 
         // color stems
         let stemColor: string = defaultColorStem; // reset to black/default when coloring was disabled. maybe needed elsewhere too
-        let setVoiceEntryStemColor: boolean = false;
+        let setVoiceEntryStemColor = false;
         if (this.rules.ColoringEnabled) {
             stemColor = this.parentVoiceEntry.StemColor; // TODO: once coloringSetCustom gets stem color, respect it
             if (!stemColor
@@ -155,7 +155,7 @@ export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
                 setVoiceEntryStemColor = true;
             }
         }
-        let stemTransparent: boolean = true;
+        let stemTransparent = true;
         for (const note of this.parentVoiceEntry.Notes) {
             if (note.PrintObject) {
                 stemTransparent = false;

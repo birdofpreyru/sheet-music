@@ -31,16 +31,16 @@ export class DrawingParameters {
     public drawScrollIndicator: boolean;
     public drawComments: boolean;
     public drawMarkedAreas: boolean;
-    public drawTitle: boolean = true;
-    public drawSubtitle: boolean = true;
-    public drawLyricist: boolean = true;
-    public drawComposer: boolean = true;
-    public drawCredits: boolean = true;
-    public drawPartNames: boolean = true;
+    public drawTitle = true;
+    public drawSubtitle = true;
+    public drawLyricist = true;
+    public drawComposer = true;
+    public drawCredits = true;
+    public drawPartNames = true;
     public coloringMode: ColoringModes;
     public fingeringPosition: PlacementEnum = PlacementEnum.Left;
     /** Draw notes set to be invisible (print-object="no" in XML). */
-    public drawHiddenNotes: boolean = false;
+    public drawHiddenNotes = false;
 
     constructor(drawingParameters: DrawingParametersEnum = DrawingParametersEnum.default) {
         this.DrawingParametersEnum = drawingParameters;

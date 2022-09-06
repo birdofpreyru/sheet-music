@@ -106,8 +106,8 @@ export class SourceStaffEntry {
     // }
 
     public removeAllInstructionsOfTypeClefInstruction(): number {
-        let i: number = 0;
-        let ret: number = 0;
+        let i = 0;
+        let ret = 0;
         while (i < this.instructions.length) {
             if (this.instructions[i] instanceof ClefInstruction) {
                 this.instructions.splice(i, 1);
@@ -125,7 +125,7 @@ export class SourceStaffEntry {
      * @returns {boolean}
      */
     public removeFirstInstructionOfTypeClefInstruction(): boolean {
-        for (let i: number = 0; i < this.instructions.length; i++) {
+        for (let i = 0; i < this.instructions.length; i++) {
             if (this.instructions[i] instanceof ClefInstruction) {
                 this.instructions.splice(i, 1);
                 return true;
@@ -135,8 +135,8 @@ export class SourceStaffEntry {
     }
 
     public removeAllInstructionsOfTypeKeyInstruction(): number {
-        let i: number = 0;
-        let ret: number = 0;
+        let i = 0;
+        let ret = 0;
         while (i < this.instructions.length) {
             if (this.instructions[i] instanceof KeyInstruction) {
                 this.instructions.splice(i, 1);
@@ -154,7 +154,7 @@ export class SourceStaffEntry {
      * @returns {boolean}
      */
     public removeFirstInstructionOfTypeKeyInstruction(): boolean {
-        for (let i: number = 0; i < this.instructions.length; i++) {
+        for (let i = 0; i < this.instructions.length; i++) {
             if (this.instructions[i] instanceof KeyInstruction) {
                 this.instructions.splice(i, 1);
                 return true;
@@ -164,8 +164,8 @@ export class SourceStaffEntry {
     }
 
     public removeAllInstructionsOfTypeRhythmInstruction(): number {
-        let i: number = 0;
-        let ret: number = 0;
+        let i = 0;
+        let ret = 0;
         while (i < this.instructions.length) {
             if (this.instructions[i] instanceof RhythmInstruction) {
                 this.instructions.splice(i, 1);
@@ -178,7 +178,7 @@ export class SourceStaffEntry {
     }
 
     public removeFirstInstructionOfTypeRhythmInstruction(): boolean {
-        for (let i: number = 0; i < this.instructions.length; i++) {
+        for (let i = 0; i < this.instructions.length; i++) {
             if (this.instructions[i] instanceof RhythmInstruction) {
                 this.instructions.splice(i, 1);
                 return true;
@@ -193,9 +193,9 @@ export class SourceStaffEntry {
      */
     public calculateMinNoteLength(): Fraction {
         let duration: Fraction = new Fraction(Number.MAX_VALUE, 1);
-        for (let idx: number = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
             const voiceEntry: VoiceEntry = this.VoiceEntries[idx];
-            for (let idx2: number = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
                 const note: Note = voiceEntry.Notes[idx2];
                 if (note.Length.lt(duration)) {
                     duration = note.Length;
@@ -207,14 +207,14 @@ export class SourceStaffEntry {
 
     public calculateMaxNoteLength(): Fraction {
         let duration: Fraction = new Fraction(0, 1);
-        for (let idx: number = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
             const voiceEntry: VoiceEntry = this.VoiceEntries[idx];
-            for (let idx2: number = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
                 const note: Note = voiceEntry.Notes[idx2];
                 if (note.NoteTie) {
                     // only add notes from this and after this sse!!
                     const tieRestDuration: Fraction = Fraction.createFromFraction(note.Length);
-                    let addFollowingNotes: boolean = false;
+                    let addFollowingNotes = false;
                     for (const n of note.NoteTie.Notes) {
                         if (n === note) {
                             addFollowingNotes = true;
@@ -236,7 +236,7 @@ export class SourceStaffEntry {
     }
 
     public hasNotes(): boolean {
-        for (let idx: number = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
             const voiceEntry: VoiceEntry = this.VoiceEntries[idx];
             if (voiceEntry.Notes.length > 0) {
                 return true;
@@ -246,7 +246,7 @@ export class SourceStaffEntry {
     }
 
     public hasTie(): boolean {
-        for (let idx: number = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.VoiceEntries.length; idx < len; ++idx) {
             const voiceEntry: VoiceEntry = this.VoiceEntries[idx];
             if (voiceEntry.hasTie()) {
                 return true;
@@ -256,9 +256,9 @@ export class SourceStaffEntry {
     }
 
     public findLinkedNotes(linkedNotes: Note[]): void {
-        for (let idx: number = 0, len: number = this.voiceEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.voiceEntries.length; idx < len; ++idx) {
             const voiceEntry: VoiceEntry = this.voiceEntries[idx];
-            for (let idx2: number = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
                 const note: Note = voiceEntry.Notes[idx2];
                 if (note.ParentStaffEntry === this) {
                     linkedNotes.push(note);

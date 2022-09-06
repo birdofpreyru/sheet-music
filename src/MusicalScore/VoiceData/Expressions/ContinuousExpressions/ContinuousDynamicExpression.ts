@@ -6,7 +6,7 @@ import {SourceMeasure} from "../../SourceMeasure";
 export class ContinuousDynamicExpression extends AbstractExpression {
     constructor(dynamicType: ContDynamicEnum, placement: PlacementEnum, staffNumber: number,
                 measure: SourceMeasure, numberXml: number,
-                label: string = "") {
+                label = "") {
         super(placement);
         super.parentMeasure = measure;
         this.NumberXml = numberXml;

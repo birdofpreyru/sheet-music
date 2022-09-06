@@ -63,16 +63,16 @@ export abstract class GraphicalMeasure extends GraphicalObject {
      * Whether or not this measure is nothing but rest(s).
      * Also see SourceMeasure.allRests, which is not the same, because a source measure can have multiple staffs/graphicalMeasures.
      */
-    public hasOnlyRests: boolean = false;
+    public hasOnlyRests = false;
 
     private parentStaff: Staff;
     private parentMusicSystem: MusicSystem;
-    private measureNumber: number = -1;
+    private measureNumber = -1;
     private parentStaffLine: StaffLine;
     /** Used to show key, rhythm changes at the end of the system, has MeasureNumber < 0, because never set. */
     public IsExtraGraphicalMeasure: boolean;
     public ExtraGraphicalMeasurePreviousMeasure: GraphicalMeasure;
-    public ShowTimeSignature: boolean = true;
+    public ShowTimeSignature = true;
 
     public get ParentStaff(): Staff {
         return this.parentStaff;
@@ -167,7 +167,7 @@ export abstract class GraphicalMeasure extends GraphicalObject {
      * This has to update/increase EndInstructionsWidth.
      * @param clef
      */
-    public addClefAtEnd(clef: ClefInstruction, visible: boolean = true): void {
+    public addClefAtEnd(clef: ClefInstruction, visible = true): void {
         throw new Error("not implemented");
     }
 
@@ -197,7 +197,7 @@ export abstract class GraphicalMeasure extends GraphicalObject {
     }
 
     public findGraphicalStaffEntryFromTimestamp(relativeTimestamp: Fraction): GraphicalStaffEntry {
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
             if (graphicalStaffEntry.relInMeasureTimestamp?.Equals(relativeTimestamp)) {
                 return graphicalStaffEntry;
@@ -212,7 +212,7 @@ export abstract class GraphicalMeasure extends GraphicalObject {
      * @returns {any}
      */
     public findGraphicalStaffEntryFromVerticalContainerTimestamp(absoluteTimestamp: Fraction): GraphicalStaffEntry {
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
             if (graphicalStaffEntry.sourceStaffEntry.VerticalContainerParent.getAbsoluteTimestamp().Equals(absoluteTimestamp)) {
                 return graphicalStaffEntry;
@@ -227,7 +227,7 @@ export abstract class GraphicalMeasure extends GraphicalObject {
      */
     public hasSameDurationWithSourceMeasureParent(): boolean {
         const duration: Fraction = new Fraction(0, 1);
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
             duration.Add(graphicalStaffEntry.findStaffEntryMinNoteLength());
         }
@@ -243,9 +243,9 @@ export abstract class GraphicalMeasure extends GraphicalObject {
             return false;
         }
         const voices: Voice[] = [];
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const staffEntry: GraphicalStaffEntry = this.staffEntries[idx];
-            for (let idx2: number = 0, len2: number = staffEntry.sourceStaffEntry.VoiceEntries.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = staffEntry.sourceStaffEntry.VoiceEntries.length; idx2 < len2; ++idx2) {
                 const voiceEntry: VoiceEntry = staffEntry.sourceStaffEntry.VoiceEntries[idx2];
                 if (voices.indexOf(voiceEntry.ParentVoice) < 0) {
                     voices.push(voiceEntry.ParentVoice);
@@ -265,16 +265,16 @@ export abstract class GraphicalMeasure extends GraphicalObject {
     public getGraphicalMeasureDurationFromStaffEntries(): Fraction {
         let duration: Fraction = new Fraction(0, 1);
         const voices: Voice[] = [];
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
-            for (let idx2: number = 0, len2: number = graphicalStaffEntry.sourceStaffEntry.VoiceEntries.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = graphicalStaffEntry.sourceStaffEntry.VoiceEntries.length; idx2 < len2; ++idx2) {
                 const voiceEntry: VoiceEntry = graphicalStaffEntry.sourceStaffEntry.VoiceEntries[idx2];
                 if (voices.indexOf(voiceEntry.ParentVoice) < 0) {
                     voices.push(voiceEntry.ParentVoice);
                 }
             }
         }
-        for (let idx: number = 0, len: number = voices.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = voices.length; idx < len; ++idx) {
             const voice: Voice = voices[idx];
             const voiceDuration: Fraction = new Fraction(0, 1);
             for (const graphicalStaffEntry of this.staffEntries) {

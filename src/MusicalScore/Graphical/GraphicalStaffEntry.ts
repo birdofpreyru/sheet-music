@@ -54,7 +54,7 @@ export abstract class GraphicalStaffEntry extends GraphicalObject {
     public staffEntryParent: GraphicalStaffEntry;
     public parentVerticalContainer: VerticalGraphicalStaffEntryContainer;
     public tabStaffEntry: GraphicalStaffEntry = undefined;
-    public MaxAccidentals: number = 0;
+    public MaxAccidentals = 0;
 
     private graphicalInstructions: AbstractGraphicalInstruction[] = [];
     public ties: Tie[] = [];
@@ -199,7 +199,7 @@ export abstract class GraphicalStaffEntry extends GraphicalObject {
      */
     public isVoiceEntryPartOfLinkedVoiceEntry(voiceEntry: VoiceEntry): boolean {
         if (this.sourceStaffEntry.Link) {
-            for (let idx: number = 0, len: number = this.sourceStaffEntry.Link.LinkStaffEntries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = this.sourceStaffEntry.Link.LinkStaffEntries.length; idx < len; ++idx) {
                 const sEntry: SourceStaffEntry = this.sourceStaffEntry.Link.LinkStaffEntries[idx];
                 if (sEntry.VoiceEntries.indexOf(voiceEntry) !== -1 && sEntry !== this.sourceStaffEntry) {
                     return true;
@@ -305,7 +305,7 @@ export abstract class GraphicalStaffEntry extends GraphicalObject {
      * Returns true if this staff entry has only rests
      */
     public hasOnlyRests(): boolean {
-        const hasOnlyRests: boolean = true;
+        const hasOnlyRests = true;
         for (const gve of this.graphicalVoiceEntries) {
             for (const graphicalNote of gve.notes) {
                 const note: Note = graphicalNote.sourceNote;

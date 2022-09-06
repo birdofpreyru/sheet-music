@@ -17,7 +17,7 @@ export class Tie {
 
     private notes: Note[] = [];
     private type: TieTypes;
-    public TieNumber: number = 1;
+    public TieNumber = 1;
     public TieDirection: PlacementEnum = PlacementEnum.NotYetDefined;
     /** Can contain tie directions at certain note indices.
      *  For example, if it contains {2: PlacementEnum.Below}, then
@@ -30,7 +30,7 @@ export class Tie {
         if (!startNote) {
             return this.TieDirection;
         }
-        for (let i: number = 0; i < this.Notes.length; i++) {
+        for (let i = 0; i < this.Notes.length; i++) {
             const tieNote: Note = this.Notes[i];
             if (tieNote === startNote) {
                 const directionAtIndex: PlacementEnum = this.NoteIndexToTieDirection[i];

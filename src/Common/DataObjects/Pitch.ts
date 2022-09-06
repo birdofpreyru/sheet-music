@@ -42,7 +42,7 @@ export class Pitch {
     ];
 
     private static halftoneFactor: number = 12 / (Math.LN2 / Math.LN10);
-    private static octXmlDiff: number = 3;
+    private static octXmlDiff = 3;
 
     // private _sourceOctave: number;
     // private _sourceFundamentalNote: NoteEnum;
@@ -86,7 +86,7 @@ export class Pitch {
         }
         const enums: NoteEnum[] = Pitch.pitchEnumValues;
         const originalIndex: number = enums.indexOf(noteEnum);
-        let octaveShift: number = 0;
+        let octaveShift = 0;
         let newIndex: number = (originalIndex + lines) % enums.length; // modulo only handles positive overflow
         if (originalIndex + lines > enums.length - 1) {
             octaveShift = 1;
@@ -111,7 +111,7 @@ export class Pitch {
     }
 
     public static WrapAroundCheck(value: number, limit: number): { halftone: number, overflow: number } {
-        let overflow: number = 0;
+        let overflow = 0;
 
         while (value < 0) {
             value += limit;
@@ -129,7 +129,7 @@ export class Pitch {
     //public static calcFrequency(fractionalKey: number): number;
 
     public static calcFrequency(obj: Pitch|number): number {
-        let octaveSteps: number = 0;
+        let octaveSteps = 0;
         let halfToneSteps: number;
         if (obj instanceof Pitch) {
             // obj is a pitch

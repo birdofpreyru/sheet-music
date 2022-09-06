@@ -10,7 +10,7 @@ export type IXmlAttribute = Attr;
 export class IXmlElement {
     public name: string;
     public value: string;
-    public hasAttributes: boolean = false;
+    public hasAttributes = false;
     public firstAttribute: IXmlAttribute;
     public hasElements: boolean;
 
@@ -58,7 +58,7 @@ export class IXmlElement {
         if (!this.attrs) {
             const attributes: NamedNodeMap = this.elem.attributes;
             const attrs: IXmlAttribute[] = [];
-            for (let i: number = 0; i < attributes.length; i += 1) {
+            for (let i = 0; i < attributes.length; i += 1) {
                 attrs.push(attributes[i]);
             }
             this.attrs = attrs;
@@ -73,7 +73,7 @@ export class IXmlElement {
      */
     public element(elementName: string): IXmlElement {
         const nodes: NodeList = this.elem.childNodes;
-        for (let i: number = 0, length: number = nodes.length; i < length; i += 1) {
+        for (let i = 0, length: number = nodes.length; i < length; i += 1) {
             const node: Node = nodes[i];
             if (node.nodeType === Node.ELEMENT_NODE && node.nodeName.toLowerCase() === elementName) {
                 return new IXmlElement(node as Element);
@@ -89,11 +89,11 @@ export class IXmlElement {
     public elements(nodeName?: string): IXmlElement[] {
         const nodes: NodeList = this.elem.childNodes;
         const ret: IXmlElement[] = [];
-        const nameUnset: boolean = !nodeName;
+        const nameUnset = !nodeName;
         if (!nameUnset) {
             nodeName = nodeName.toLowerCase();
         }
-        for (let i: number = 0; i < nodes.length; i += 1) {
+        for (let i = 0; i < nodes.length; i += 1) {
             const node: Node = nodes[i];
             if (node.nodeType === Node.ELEMENT_NODE &&
                 (nameUnset || node.nodeName.toLowerCase() === nodeName)

@@ -45,7 +45,7 @@ if (!Array.prototype.contains) {
 export class CollectionUtil {
 
     public static contains2(array: any[], object: any): boolean {
-        for (let i: number = 0; i < array.length; i++) {
+        for (let i = 0; i < array.length; i++) {
             if (array[i] === object) {
                 return true;
             }
@@ -74,7 +74,7 @@ export class CollectionUtil {
             }
         });
 
-        for (let i: number = 0; i < toDeleteEntries.length; i++) {
+        for (let i = 0; i < toDeleteEntries.length; i++) {
             dict.remove(toDeleteEntries[i]);
         }
     }
@@ -86,10 +86,10 @@ export class CollectionUtil {
     public static binarySearch<T>(array: T[],
                                   element: T,
                                   cmp: (elem1: T, elem2: T) => number,
-                                  startIndex: number = 0,
+                                  startIndex = 0,
                                   endIndex: number = array.length - 1): number {
-        let mid: number = 1;
-        let lastMidChecked: number = -1;
+        let mid = 1;
+        let lastMidChecked = -1;
         while (startIndex <= endIndex) {
             mid = Math.floor((startIndex + endIndex) / 2);
             if (mid === lastMidChecked) {

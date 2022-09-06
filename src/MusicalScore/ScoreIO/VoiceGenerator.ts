@@ -65,11 +65,11 @@ export class VoiceGenerator {
   private instrument: Instrument;
   // private lastBeamTag: string = "";
   private openBeams: Beam[] = []; // works like a stack, with push and pop
-  private beamNumberOffset: number = 0;
+  private beamNumberOffset = 0;
   private get openTieDict(): { [_: number]: Tie } { return this.staff.openTieDict; }
-  private currentOctaveShift: number = 0;
+  private currentOctaveShift = 0;
   private tupletDict: { [_: number]: Tuplet } = {};
-  private openTupletNumber: number = 0;
+  private openTupletNumber = 0;
 
   public get GetVoice(): Voice {
     return this.voice;
@@ -91,7 +91,7 @@ export class VoiceGenerator {
    * @param isGrace States whether the new VoiceEntry (only) has grace notes
    */
   public createVoiceEntry(musicTimestamp: Fraction, parentStaffEntry: SourceStaffEntry, addToVoice: boolean,
-                          isGrace: boolean = false, graceNoteSlash: boolean = false, graceSlur: boolean = false): void {
+                          isGrace = false, graceNoteSlash = false, graceSlur = false): void {
     this.currentVoiceEntry = new VoiceEntry(musicTimestamp.clone(), this.voice, parentStaffEntry, isGrace, graceNoteSlash, graceSlur);
     if (addToVoice) {
       this.voice.VoiceEntries.push(this.currentVoiceEntry);
@@ -135,7 +135,7 @@ export class VoiceGenerator {
         this.lyricsReader.addLyricEntry(lyricElements, this.currentVoiceEntry);
         this.voice.Parent.HasLyrics = true;
       }
-      let hasTupletCommand: boolean = false;
+      let hasTupletCommand = false;
       const notationNode: IXmlElement = noteNode.element("notations");
       if (notationNode) {
         // read articulations
@@ -162,7 +162,7 @@ export class VoiceGenerator {
           if (this.currentVoiceEntry.Arpeggio) { // add note to existing Arpeggio
             currentArpeggio = this.currentVoiceEntry.Arpeggio;
           } else { // create new Arpeggio
-            let arpeggioAlreadyExists: boolean = false;
+            let arpeggioAlreadyExists = false;
             for (const voiceEntry of this.currentStaffEntry.VoiceEntries) {
               if (voiceEntry.Arpeggio) {
                 arpeggioAlreadyExists = true;
@@ -334,24 +334,24 @@ export class VoiceGenerator {
                         printObject: boolean, isCueNote: boolean, isGraceNote: boolean, stemDirectionXml: StemDirectionType, tremoloStrokes: number,
                         stemColorXml: string, noteheadColorXml: string, vibratoStrokes: boolean): Note {
     //log.debug("addSingleNote called");
-    let noteAlter: number = 0;
+    let noteAlter = 0;
     let accidentalValue: string;
     let noteAccidental: AccidentalEnum = AccidentalEnum.NONE;
     let noteStep: NoteEnum = NoteEnum.C;
     let displayStepUnpitched: NoteEnum = NoteEnum.C;
-    let noteOctave: number = 0;
-    let displayOctaveUnpitched: number = 0;
+    let noteOctave = 0;
+    let displayOctaveUnpitched = 0;
     let playbackInstrumentId: string = undefined;
     let noteheadShapeXml: string = undefined;
     let noteheadFilledXml: boolean = undefined; // if undefined, the final filled parameter will be calculated from duration
 
     const xmlnodeElementsArr: IXmlElement[] = node.elements();
-    for (let idx: number = 0, len: number = xmlnodeElementsArr.length; idx < len; ++idx) {
+    for (let idx = 0, len: number = xmlnodeElementsArr.length; idx < len; ++idx) {
       const noteElement: IXmlElement = xmlnodeElementsArr[idx];
       try {
         if (noteElement.name === "pitch") {
           const noteElementsArr: IXmlElement[] = noteElement.elements();
-          for (let idx2: number = 0, len2: number = noteElementsArr.length; idx2 < len2; ++idx2) {
+          for (let idx2 = 0, len2: number = noteElementsArr.length; idx2 < len2; ++idx2) {
             const pitchElement: IXmlElement = noteElementsArr[idx2];
             noteheadShapeXml = undefined; // reinitialize for each pitch
             noteheadFilledXml = undefined;
@@ -424,7 +424,7 @@ export class VoiceGenerator {
           }
           if (displayStepElement) {
             noteStep = NoteEnum[displayStepElement.value.toUpperCase()];
-            let octaveShift: number = 0;
+            let octaveShift = 0;
             let noteValueShift: number = this.musicSheet.Rules.PercussionXMLDisplayStepNoteValueShift;
             if (this.instrument.Staves[0].StafflineCount === 1) {
               noteValueShift -= 3; // for percussion one line scores, we need to set the notes 3 lines lower
@@ -451,8 +451,8 @@ export class VoiceGenerator {
     const pitch: Pitch = new Pitch(noteStep, noteOctave, noteAccidental, accidentalValue);
     const noteLength: Fraction = Fraction.createFromFraction(noteDuration);
     let note: Note = undefined;
-    let stringNumber: number = -1;
-    let fretNumber: number = -1;
+    let stringNumber = -1;
+    let fretNumber = -1;
     const bends: {bendalter: number, direction: string}[] = [];
     // check for guitar tabs:
     const notationNode: IXmlElement = node.element("notations");
@@ -594,12 +594,12 @@ export class VoiceGenerator {
             beamNumber += this.beamNumberOffset;
           }
         }
-        let sameVoiceEntry: boolean = false;
+        let sameVoiceEntry = false;
         if (!(beamNumber > 0 && beamNumber <= this.openBeams.length) || !this.openBeams[beamNumber - 1]) {
           log.debug("[OSMD] invalid beamnumber"); // this shouldn't happen, probably error in this method
           return;
         }
-        for (let idx: number = 0, len: number = this.openBeams[beamNumber - 1].Notes.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.openBeams[beamNumber - 1].Notes.length; idx < len; ++idx) {
           const beamNote: Note = this.openBeams[beamNumber - 1].Notes[idx];
           if (this.currentVoiceEntry === beamNote.ParentVoiceEntry) {
             sameVoiceEntry = true;
@@ -657,7 +657,7 @@ export class VoiceGenerator {
           .VerticalSourceStaffEntryContainers[horizontalIndex + 1]
           .StaffEntries[verticalIndex];
         if (nextStaffEntry) {
-          for (let idx: number = 0, len: number = nextStaffEntry.VoiceEntries.length; idx < len; ++idx) {
+          for (let idx = 0, len: number = nextStaffEntry.VoiceEntries.length; idx < len; ++idx) {
             const voiceEntry: VoiceEntry = nextStaffEntry.VoiceEntries[idx];
             if (voiceEntry.ParentVoice === this.voice) {
               const candidateNote: Note = voiceEntry.Notes[0];
@@ -683,7 +683,7 @@ export class VoiceGenerator {
    * @returns {number}
    */
   private addTuplet(node: IXmlElement, tupletNodeList: IXmlElement[]): number {
-    let bracketed: boolean = false; // xml bracket attribute value
+    let bracketed = false; // xml bracket attribute value
     // TODO refactor this to not duplicate lots of code for the cases tupletNodeList.length == 1 and > 1
     if (tupletNodeList !== undefined && tupletNodeList.length > 1) {
       let timeModNode: IXmlElement = node.element("time-modification");
@@ -691,7 +691,7 @@ export class VoiceGenerator {
         timeModNode = timeModNode.element("actual-notes");
       }
       const tupletNodeListArr: IXmlElement[] = tupletNodeList;
-      for (let idx: number = 0, len: number = tupletNodeListArr.length; idx < len; ++idx) {
+      for (let idx = 0, len: number = tupletNodeListArr.length; idx < len; ++idx) {
         const tupletNode: IXmlElement = tupletNodeListArr[idx];
         if (tupletNode !== undefined && tupletNode.attributes()) {
           const bracketAttr: Attr = tupletNode.attribute("bracket");
@@ -701,11 +701,11 @@ export class VoiceGenerator {
 
           const type: Attr = tupletNode.attribute("type");
           if (type && type.value === "start") {
-            let tupletNumber: number = 1;
+            let tupletNumber = 1;
             if (tupletNode.attribute("number")) {
               tupletNumber = parseInt(tupletNode.attribute("number").value, 10);
             }
-            let tupletLabelNumber: number = 0;
+            let tupletLabelNumber = 0;
             if (timeModNode) {
               tupletLabelNumber = parseInt(timeModNode.value, 10);
               if (isNaN(tupletLabelNumber)) {
@@ -745,7 +745,7 @@ export class VoiceGenerator {
             this.currentNote.NoteTuplet = tuplet;
             this.openTupletNumber = tupletNumber;
           } else if (type.value === "stop") {
-            let tupletNumber: number = 1;
+            let tupletNumber = 1;
             if (tupletNode.attribute("number")) {
               tupletNumber = parseInt(tupletNode.attribute("number").value, 10);
             }
@@ -766,7 +766,7 @@ export class VoiceGenerator {
               //If our placement hasn't been from XML, check all the notes in the tuplet
               //Search for the first non-rest and use it's stem direction
               if (!tuplet.PlacementFromXml) {
-                let foundNonRest: boolean = false;
+                let foundNonRest = false;
                 for (const subList of tuplet.Notes) {
                   for (const note of subList) {
                     if (!note.isRest()) {
@@ -800,7 +800,7 @@ export class VoiceGenerator {
       const n: IXmlElement = tupletNodeList[0];
       if (n.hasAttributes) {
         const type: string = n.attribute("type").value;
-        let tupletnumber: number = 1;
+        let tupletnumber = 1;
         if (n.attribute("number")) {
           tupletnumber = parseInt(n.attribute("number").value, 10);
         }
@@ -811,7 +811,7 @@ export class VoiceGenerator {
           bracketed = true;
         }
         if (type === "start") {
-          let tupletLabelNumber: number = 0;
+          let tupletLabelNumber = 0;
           let timeModNode: IXmlElement = node.element("time-modification");
           if (timeModNode) {
             timeModNode = timeModNode.element("actual-notes");
@@ -876,7 +876,7 @@ export class VoiceGenerator {
             //If our placement hasn't been from XML, check all the notes in the tuplet
             //Search for the first non-rest and use it's stem direction
             if (!tuplet.PlacementFromXml) {
-              let foundNonRest: boolean = false;
+              let foundNonRest = false;
               for (const subList of tuplet.Notes) {
                 for (const note of subList) {
                   if (!note.isRest()) {
@@ -1032,7 +1032,7 @@ export class VoiceGenerator {
       return 1;
     }
     keys.sort((a, b) => (+a - +b)); // FIXME Andrea: test
-    for (let i: number = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
       if ("" + (i + 1) !== keys[i]) {
         return i + 1;
       }

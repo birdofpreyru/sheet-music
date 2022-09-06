@@ -68,7 +68,7 @@ export class Note {
     private playbackInstrumentId: string = undefined;
     private notehead: Notehead = undefined;
     /** States whether the note should be displayed. False if xmlNode.attribute("print-object").value = "no". */
-    private printObject: boolean = true;
+    private printObject = true;
     /** The Arpeggio this note is part of. */
     private arpeggio: Arpeggio;
     /** States whether this is a cue note (Stichnote) (smaller size). */
@@ -269,7 +269,7 @@ export class Note {
         );
     }
     public checkForDoubleSlur(slur: Slur): boolean {
-        for (let idx: number = 0, len: number = this.slurs.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.slurs.length; idx < len; ++idx) {
             const noteSlur: Slur = this.slurs[idx];
             if (
               noteSlur.StartNote !== undefined &&

@@ -15,7 +15,7 @@ export class Voice {
      * The Id given in the MusicXMl file to distinguish the different voices. It is unique per instrument.
      */
     private voiceId: number;
-    private volume: number = 1;
+    private volume = 1;
 
     constructor(parent: Instrument, voiceId: number) {
         this.parent = parent;

@@ -66,7 +66,7 @@ export class SkyBottomLineCalculator {
 
         const subSampledSkyLine: number[] = [];
         const subSampledBottomLine: number[] = [];
-        for (let chunkIndex: number = 0; chunkIndex < this.mSkyLine.length; chunkIndex += arrayChunkSize) {
+        for (let chunkIndex = 0; chunkIndex < this.mSkyLine.length; chunkIndex += arrayChunkSize) {
             if (subSampledSkyLine.length === arrayLength) {
                 break; // TODO find out why skyline.length becomes arrayLength + 1. see log.debug below
             }
@@ -149,14 +149,14 @@ export class SkyBottomLineCalculator {
             // Since we are only interested in black or white we can take 32bit words at once
             const imageData: any
               = width && height ? ctx.getImageData(0, 0, width, height) : null;
-            const rgbaLength: number = 4;
+            const rgbaLength = 4;
             const measureArrayLength: number = Math.max(Math.ceil(measure.PositionAndShape.Size.width * samplingUnit), 1);
             const tmpSkyLine: number[] = new Array(measureArrayLength);
             const tmpBottomLine: number[] = new Array(measureArrayLength);
 
-            for (let x: number = 0; x < width; x++) {
+            for (let x = 0; x < width; x++) {
                 // SkyLine
-                for (let y: number = 0; y < height; y++) {
+                for (let y = 0; y < height; y++) {
                     const yOffset: number = y * width * rgbaLength;
                     const bufIndex: number = yOffset + x * rgbaLength;
                     const alpha: number = imageData.data[bufIndex + 3];
@@ -177,12 +177,12 @@ export class SkyBottomLineCalculator {
                 }
             }
 
-            for (let idx: number = 0; idx < tmpSkyLine.length; idx++) {
+            for (let idx = 0; idx < tmpSkyLine.length; idx++) {
                 if (tmpSkyLine[idx] === undefined) {
                     tmpSkyLine[idx] = Math.max(this.findPreviousValidNumber(idx, tmpSkyLine), this.findNextValidNumber(idx, tmpSkyLine));
                 }
             }
-            for (let idx: number = 0; idx < tmpBottomLine.length; idx++) {
+            for (let idx = 0; idx < tmpBottomLine.length; idx++) {
                 if (tmpBottomLine[idx] === undefined) {
                     tmpBottomLine[idx] = Math.max(this.findPreviousValidNumber(idx, tmpBottomLine), this.findNextValidNumber(idx, tmpBottomLine));
                 }
@@ -191,7 +191,7 @@ export class SkyBottomLineCalculator {
             results.push(new SkyBottomLineCalculationResult(tmpSkyLine, tmpBottomLine));
 
             // Set to true to only show the "mini canvases" and the corresponding skylines
-            const debugTmpCanvas: boolean = false;
+            const debugTmpCanvas = false;
             if (debugTmpCanvas) {
                 tmpSkyLine.forEach((y, x) => this.drawPixel(new PointF2D(x, y), tmpCanvas));
                 tmpBottomLine.forEach((y, x) => this.drawPixel(new PointF2D(x, y), tmpCanvas, "blue"));
@@ -497,7 +497,7 @@ export class SkyBottomLineCalculator {
      * @param backend the backend to be used
      * @param color the color to be used, default is red
      */
-    private drawPixel(coord: PointF2D, backend: CanvasVexFlowBackend, color: string = "#FF0000FF"): void {
+    private drawPixel(coord: PointF2D, backend: CanvasVexFlowBackend, color = "#FF0000FF"): void {
         const ctx: any = backend.getContext();
         const oldStyle: string = ctx.fillStyle;
         ctx.fillStyle = color;
@@ -512,7 +512,7 @@ export class SkyBottomLineCalculator {
      * @param endIndex end index of array (excluding, default: array length)
      * @param value value to fill in (default: 0)
      */
-    private updateInRange(array: number[], startIndex: number = 0, endIndex: number = array.length, value: number = 0): void {
+    private updateInRange(array: number[], startIndex = 0, endIndex: number = array.length, value = 0): void {
         startIndex = Math.floor(startIndex * this.SamplingUnit);
         endIndex = Math.ceil(endIndex * this.SamplingUnit);
 
@@ -540,7 +540,7 @@ export class SkyBottomLineCalculator {
      * @param endIndex end index of array (excluding, default: array length)
      * @param value value to fill in (default: 0)
      */
-    private setInRange(array: number[], startIndex: number = 0, endIndex: number = array.length, value: number = 0): void {
+    private setInRange(array: number[], startIndex = 0, endIndex: number = array.length, value = 0): void {
         startIndex = Math.floor(startIndex * this.SamplingUnit);
         endIndex = Math.ceil(endIndex * this.SamplingUnit);
 

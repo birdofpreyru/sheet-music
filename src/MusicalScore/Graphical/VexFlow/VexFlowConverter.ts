@@ -170,7 +170,7 @@ export class VexFlowConverter {
         const fund: string = NoteEnum[pitch.FundamentalNote].toLowerCase();
         const acc: string = Pitch.accidentalVexflow(pitch.Accidental);
         const octave: number = pitch.Octave - clef.OctaveOffset + octaveOffset;
-        let noteheadCode: string = "";
+        let noteheadCode = "";
         if (notehead) {
             noteheadCode = this.NoteHeadCode(notehead);
         }
@@ -195,7 +195,7 @@ export class VexFlowConverter {
 
     /** returns the Vexflow code for a note head. Some are still unsupported, see Vexflow/tables.js */
     public static NoteHeadCode(notehead: Notehead): string {
-        const codeStart: string = "/";
+        const codeStart = "/";
         const codeFilled: string = notehead.Filled ? "2" : "1"; // filled/unfilled notehead code in most vexflow glyphs
         switch (notehead.Shape) {
             case NoteHeadShape.NORMAL:
@@ -264,10 +264,10 @@ export class VexFlowConverter {
         }
         let vfClefType: string = undefined;
         let numDots: number = baseNote.numberOfDots;
-        let alignCenter: boolean = false;
-        let xShift: number = 0;
-        let slashNoteHead: boolean = false;
-        let isRest: boolean = false;
+        let alignCenter = false;
+        let xShift = 0;
+        let slashNoteHead = false;
+        let isRest = false;
         let restYPitch: Pitch;
         for (const note of notes) {
             if (numDots < note.numberOfDots) {
@@ -289,8 +289,8 @@ export class VexFlowConverter {
                     if (pauseVoiceEntry) {
                         const neighborGSEs: GraphicalStaffEntry[] = note.parentVoiceEntry?.parentStaffEntry.parentMeasure.staffEntries;
                         let previousVoiceEntry: VoiceEntry, followingVoiceEntry: VoiceEntry;
-                        let pauseVEIndex: number = -1;
-                        for (let i: number = 0; i < neighborGSEs.length; i++) {
+                        let pauseVEIndex = -1;
+                        for (let i = 0; i < neighborGSEs.length; i++) {
                             if (neighborGSEs[i]?.graphicalVoiceEntries[0].parentVoiceEntry === pauseVoiceEntry) {
                                 pauseVEIndex = i;
                                 break;
@@ -388,7 +388,7 @@ export class VexFlowConverter {
                         }
                     }
                     if (maxHalftone > 0) {
-                        let octaveOffset: number = 3;
+                        let octaveOffset = 3;
                         const restClefInstruction: ClefInstruction = (note as VexFlowGraphicalNote).Clef();
                         switch (restClefInstruction.ClefType) {
                             case ClefEnum.F:
@@ -431,7 +431,7 @@ export class VexFlowConverter {
             }
         }
 
-        for (let i: number = 0, len: number = numDots; i < len; ++i) {
+        for (let i = 0, len: number = numDots; i < len; ++i) {
             duration += "d";
         }
         if (slashNoteHead) {
@@ -527,7 +527,7 @@ export class VexFlowConverter {
         }
 
         // add accidentals
-        for (let i: number = 0, len: number = notes.length; i < len; i += 1) {
+        for (let i = 0, len: number = notes.length; i < len; i += 1) {
             (notes[i] as VexFlowGraphicalNote).setIndex(vfnote, i);
             if (accidentals[i]) {
                 if (accidentals[i] === "###") { // triple sharp
@@ -555,12 +555,12 @@ export class VexFlowConverter {
         // half note tremolo: set notehead to half note (Vexflow otherwise takes the notehead from duration) (Hack)
         if (firstNote.Length.RealValue === 0.25 && firstNote.Notehead && firstNote.Notehead.Filled === false) {
             const keyProps: Object[] = vfnote.getKeyProps();
-            for (let i: number = 0; i < keyProps.length; i++) {
+            for (let i = 0; i < keyProps.length; i++) {
                 (<any>keyProps[i]).code = "v81";
             }
         }
 
-        for (let i: number = 0, len: number = numDots; i < len; ++i) {
+        for (let i = 0, len: number = numDots; i < len; ++i) {
             vfnote.addDotToAll();
         }
 
@@ -757,8 +757,8 @@ export class VexFlowConverter {
         const frac: Fraction = gve.notes[0].graphicalNoteLength;
         const isTuplet: boolean = gve.notes[0].sourceNote.NoteTuplet !== undefined;
         let duration: string = VexFlowConverter.durations(frac, isTuplet)[0];
-        let numDots: number = 0;
-        let tabVibrato: boolean = false;
+        let numDots = 0;
+        let tabVibrato = false;
         for (const note of gve.notes) {
             const tabNote: TabNote = note.sourceNote as TabNote;
             const tabPosition: {str: number, fret: number} = {str: tabNote.StringNumberTab, fret: tabNote.FretNumber};
@@ -790,7 +790,7 @@ export class VexFlowConverter {
                 numDots = note.numberOfDots;
             }
         }
-        for (let i: number = 0, len: number = numDots; i < len; ++i) {
+        for (let i = 0, len: number = numDots; i < len; ++i) {
             duration += "d";
         }
 
@@ -799,7 +799,7 @@ export class VexFlowConverter {
             positions: tabPositions,
         });
 
-        for (let i: number = 0, len: number = notes.length; i < len; i += 1) {
+        for (let i = 0, len: number = notes.length; i < len; i += 1) {
             (notes[i] as VexFlowGraphicalNote).setIndex(vfnote, i);
         }
 
@@ -827,7 +827,7 @@ export class VexFlowConverter {
      * @see        https://github.com/0xfe/vexflow/blob/master/src/clef.js
      * @see        https://github.com/0xfe/vexflow/blob/master/tests/clef_tests.js
      */
-    public static Clef(clef: ClefInstruction, size: string = "default"): { type: string, size: string, annotation: string } {
+    public static Clef(clef: ClefInstruction, size = "default"): { type: string, size: string, annotation: string } {
         let type: string;
         let annotation: string;
 

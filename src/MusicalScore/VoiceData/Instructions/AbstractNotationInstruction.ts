@@ -8,7 +8,7 @@ export abstract class AbstractNotationInstruction {
 
     protected parent: SourceStaffEntry;
     /** States whether the object should be displayed. False if xmlNode.attribute("print-object").value = "no". */
-    private printObject: boolean = true;
+    private printObject = true;
 
     public get Parent(): SourceStaffEntry {
         return this.parent;

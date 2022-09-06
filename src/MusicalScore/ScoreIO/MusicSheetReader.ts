@@ -41,7 +41,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
     private repetitionCalculator: RepetitionCalculator;
     private afterSheetReadingModules: IAfterSheetReadingModule[];
     private musicSheet: MusicSheet;
-    private completeNumberOfStaves: number = 0;
+    private completeNumberOfStaves = 0;
     private currentMeasure: SourceMeasure;
     private previousMeasure: SourceMeasure;
     private currentFraction: Fraction;
@@ -122,7 +122,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
 
     private _createMusicSheet(root: IXmlElement, path: string): MusicSheet {
         const instrumentReaders: InstrumentReader[] = [];
-        let sourceMeasureCounter: number = 0;
+        let sourceMeasureCounter = 0;
         this.musicSheet = new MusicSheet();
         this.musicSheet.Path = path;
         this.musicSheet.Rules = this.rules;
@@ -138,9 +138,9 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         const partInst: IXmlElement[] = root.elements("part");
         const partList: IXmlElement[] = partlistNode.elements();
         this.initializeReading(partList, partInst, instrumentReaders);
-        let couldReadMeasure: boolean = true;
+        let couldReadMeasure = true;
         this.currentFraction = new Fraction(0, 1);
-        let octavePlusOneEncoding: boolean = false; // GuitarPro and Sibelius give octaves -1 apparently
+        let octavePlusOneEncoding = false; // GuitarPro and Sibelius give octaves -1 apparently
         let encoding: IXmlElement = root.element("identification");
         if (encoding) {
             encoding = encoding.element("encoding");
@@ -190,7 +190,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         this.musicSheet.checkForInstrumentWithNoVoice();
         this.musicSheet.fillStaffList();
         //this.musicSheet.DefaultStartTempoInBpm = this.musicSheet.SheetPlaybackSetting.BeatsPerMinute;
-        for (let idx: number = 0, len: number = this.afterSheetReadingModules.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.afterSheetReadingModules.length; idx < len; ++idx) {
          const afterSheetReadingModule: IAfterSheetReadingModule = this.afterSheetReadingModules[idx];
          afterSheetReadingModule.calculate(this.musicSheet);
         }
@@ -210,13 +210,13 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
             this.currentMeasure = undefined;
             this.previousMeasure = undefined;
         }
-        let counter: number = 0;
+        let counter = 0;
         for (const node of partInst) {
             const idNode: IXmlAttribute = node.attribute("id");
             if (idNode) {
                 const currentInstrument: Instrument = instrumentDict[idNode.value];
                 const xmlMeasureList: IXmlElement[] = node.elements("measure");
-                let instrumentNumberOfStaves: number = 1;
+                let instrumentNumberOfStaves = 1;
                 try {
                     instrumentNumberOfStaves = this.getInstrumentNumberOfStavesFromXml(node);
                 } catch (err) {
@@ -247,7 +247,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
      */
     private checkIfRhythmInstructionsAreSetAndEqual(instrumentReaders: InstrumentReader[]): void {
         const rhythmInstructions: RhythmInstruction[] = [];
-        for (let i: number = 0; i < this.completeNumberOfStaves; i++) {
+        for (let i = 0; i < this.completeNumberOfStaves; i++) {
             if (this.currentMeasure.FirstInstructionsStaffEntries[i]) {
                 const last: AbstractNotationInstruction = this.currentMeasure.FirstInstructionsStaffEntries[i].Instructions[
                 this.currentMeasure.FirstInstructionsStaffEntries[i].Instructions.length - 1
@@ -257,9 +257,9 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                 }
             }
         }
-        let maxRhythmValue: number = 0.0;
-        let index: number = -1;
-        for (let idx: number = 0, len: number = rhythmInstructions.length; idx < len; ++idx) {
+        let maxRhythmValue = 0.0;
+        let index = -1;
+        for (let idx = 0, len: number = rhythmInstructions.length; idx < len; ++idx) {
             const rhythmInstruction: RhythmInstruction = rhythmInstructions[idx];
             if (rhythmInstruction.Rhythm.RealValue > maxRhythmValue) {
                 if (this.areRhythmInstructionsMixed(rhythmInstructions) && rhythmInstruction.SymbolEnum !== RhythmSymbolEnum.NONE) {
@@ -271,7 +271,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         }
         if (rhythmInstructions.length > 0 && rhythmInstructions.length < this.completeNumberOfStaves) {
             const rhythmInstruction: RhythmInstruction = rhythmInstructions[index].clone();
-            for (let i: number = 0; i < this.completeNumberOfStaves; i++) {
+            for (let i = 0; i < this.completeNumberOfStaves; i++) {
                 if (
                     this.currentMeasure.FirstInstructionsStaffEntries[i] !== undefined &&
                     !(this._lastElement(this.currentMeasure.FirstInstructionsStaffEntries[i].Instructions) instanceof RhythmInstruction)
@@ -284,14 +284,14 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                     this.currentMeasure.FirstInstructionsStaffEntries[i].Instructions.push(rhythmInstruction.clone());
                 }
             }
-            for (let idx: number = 0, len: number = instrumentReaders.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = instrumentReaders.length; idx < len; ++idx) {
                 const instrumentReader: InstrumentReader = instrumentReaders[idx];
                 instrumentReader.ActiveRhythm = rhythmInstruction;
             }
         }
         if (rhythmInstructions.length === 0 && this.currentMeasure === this.musicSheet.SourceMeasures[0]) {
             const rhythmInstruction: RhythmInstruction = new RhythmInstruction(new Fraction(4, 4, 0, false), RhythmSymbolEnum.NONE);
-            for (let i: number = 0; i < this.completeNumberOfStaves; i++) {
+            for (let i = 0; i < this.completeNumberOfStaves; i++) {
                 if (!this.currentMeasure.FirstInstructionsStaffEntries[i]) {
                     this.currentMeasure.FirstInstructionsStaffEntries[i] = new SourceStaffEntry(undefined, undefined);
                 } else {
@@ -299,12 +299,12 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                 }
                 this.currentMeasure.FirstInstructionsStaffEntries[i].Instructions.push(rhythmInstruction);
             }
-            for (let idx: number = 0, len: number = instrumentReaders.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = instrumentReaders.length; idx < len; ++idx) {
                 const instrumentReader: InstrumentReader = instrumentReaders[idx];
                 instrumentReader.ActiveRhythm = rhythmInstruction;
             }
         }
-        for (let idx: number = 0, len: number = rhythmInstructions.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = rhythmInstructions.length; idx < len; ++idx) {
             const rhythmInstruction: RhythmInstruction = rhythmInstructions[idx];
             if (rhythmInstruction.Rhythm.RealValue < maxRhythmValue) {
                 if (this._lastElement(
@@ -332,7 +332,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
      * @returns {boolean}
      */
     private areRhythmInstructionsMixed(rhythmInstructions: RhythmInstruction[]): boolean {
-        for (let i: number = 1; i < rhythmInstructions.length; i++) {
+        for (let i = 1; i < rhythmInstructions.length; i++) {
             if (
                 Math.abs(rhythmInstructions[i].Rhythm.RealValue - rhythmInstructions[0].Rhythm.RealValue) < 0.000001 &&
                 rhythmInstructions[i].SymbolEnum !== rhythmInstructions[0].SymbolEnum
@@ -384,7 +384,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         // }
         this.currentMeasure.ActiveTimeSignature = activeRhythm;
         this.currentMeasure.MeasureNumber = sourceMeasureCounter;
-        for (let i: number = 0; i < instrumentsDurations.length; i++) {
+        for (let i = 0; i < instrumentsDurations.length; i++) {
             const instrumentsDuration: Fraction = instrumentsDurations[i];
             if (
                 (this.currentMeasure.ImplicitMeasure && instrumentsDuration !== maxInstrumentDuration) ||
@@ -392,7 +392,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                 !this.allInstrumentsHaveSameDuration(instrumentsDurations, maxInstrumentDuration)
             ) {
                 const firstStaffIndexOfInstrument: number = this.musicSheet.getGlobalStaffIndexOfFirstStaff(this.musicSheet.Instruments[i]);
-                for (let staffIndex: number = 0; staffIndex < this.musicSheet.Instruments[i].Staves.length; staffIndex++) {
+                for (let staffIndex = 0; staffIndex < this.musicSheet.Instruments[i].Staves.length; staffIndex++) {
                     if (!this.graphicalMeasureIsEmpty(firstStaffIndexOfInstrument + staffIndex)) {
                         this.currentMeasure.setErrorInGraphicalMeasure(firstStaffIndexOfInstrument + staffIndex, true);
                         const errorMsg: string = ITextTranslation.translateText("ReaderErrorMessages/MissingNotesError",
@@ -442,8 +442,8 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
      * @returns {boolean}
      */
     private allInstrumentsHaveSameDuration(instrumentsDurations: Fraction[], maxInstrumentDuration: Fraction): boolean {
-        let counter: number = 0;
-        for (let idx: number = 0, len: number = instrumentsDurations.length; idx < len; ++idx) {
+        let counter = 0;
+        for (let idx = 0, len: number = instrumentsDurations.length; idx < len; ++idx) {
             const instrumentsDuration: Fraction = instrumentsDurations[idx];
             if (instrumentsDuration.Equals(maxInstrumentDuration)) {
                 counter++;
@@ -453,8 +453,8 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
     }
 
     private graphicalMeasureIsEmpty(index: number): boolean {
-        let counter: number = 0;
-        for (let i: number = 0; i < this.currentMeasure.VerticalSourceStaffEntryContainers.length; i++) {
+        let counter = 0;
+        for (let i = 0; i < this.currentMeasure.VerticalSourceStaffEntryContainers.length; i++) {
             if (!this.currentMeasure.VerticalSourceStaffEntryContainers[i].StaffEntries[index]) {
                 counter++;
             }
@@ -485,8 +485,8 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
             }
         }
         for (let i: number = this.currentMeasure.VerticalSourceStaffEntryContainers.length - 1; i >= 0; i--) {
-            let counter: number = 0;
-            for (let idx: number = 0, len: number = this.currentMeasure.VerticalSourceStaffEntryContainers[i].StaffEntries.length; idx < len; ++idx) {
+            let counter = 0;
+            for (let idx = 0, len: number = this.currentMeasure.VerticalSourceStaffEntryContainers[i].StaffEntries.length; idx < len; ++idx) {
                 const sourceStaffEntry: SourceStaffEntry = this.currentMeasure.VerticalSourceStaffEntryContainers[i].StaffEntries[idx];
                 if (!sourceStaffEntry) {
                     counter++;
@@ -541,7 +541,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         const identificationNode: IXmlElement = root.element("identification");
         if (identificationNode) {
             const creators: IXmlElement[] = identificationNode.elements("creator");
-            for (let idx: number = 0, len: number = creators.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = creators.length; idx < len; ++idx) {
                 const creator: IXmlElement = creators[idx];
                 if (creator.hasAttributes) {
                     if (this.presentAttrsWithValue(creator, "composer")) {
@@ -561,13 +561,13 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         if (systemYCoordinates === 0) {
             return;
         }
-        let largestTitleCreditSize: number = 1;
+        let largestTitleCreditSize = 1;
         let finalTitle: string = undefined;
-        let largestCreditYInfo: number = 0;
+        let largestCreditYInfo = 0;
         let finalSubtitle: string = undefined;
         let possibleTitle: string = undefined;
         const creditElements: IXmlElement[] = root.elements("credit");
-        for (let idx: number = 0, len: number = creditElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = creditElements.length; idx < len; ++idx) {
             const credit: IXmlElement = creditElements[idx];
             if (!credit.attribute("page")) {
                 return;
@@ -636,8 +636,8 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         if (!root.element("defaults")) {
             return 0;
         }
-        let paperHeight: number = 0;
-        let topSystemDistance: number = 0;
+        let paperHeight = 0;
+        let topSystemDistance = 0;
         try {
             const defi: string = root.element("defaults").element("page-layout").element("page-height").value;
             paperHeight = parseFloat(defi);
@@ -645,15 +645,15 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
             log.info("MusicSheetReader.computeSystemYCoordinates(): couldn't find page height, not reading title/composer.");
             return 0;
         }
-        let found: boolean = false;
+        let found = false;
         const parts: IXmlElement[] = root.elements("part");
-        for (let idx: number = 0, len: number = parts.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = parts.length; idx < len; ++idx) {
             const measures: IXmlElement[] = parts[idx].elements("measure");
-            for (let idx2: number = 0, len2: number = measures.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = measures.length; idx2 < len2; ++idx2) {
                 const measure: IXmlElement = measures[idx2];
                 if (measure.element("print")) {
                     const systemLayouts: IXmlElement[] = measure.element("print").elements("system-layout");
-                    for (let idx3: number = 0, len3: number = systemLayouts.length; idx3 < len3; ++idx3) {
+                    for (let idx3 = 0, len3: number = systemLayouts.length; idx3 < len3; ++idx3) {
                         const syslab: IXmlElement = systemLayouts[idx3];
                         if (syslab.element("top-system-distance")) {
                             const topSystemDistanceString: string = syslab.element("top-system-distance").value;
@@ -692,7 +692,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
             }
         }
         const movementNode: IXmlElement = root.element("movement-title");
-        let finalSubTitle: string = "";
+        let finalSubTitle = "";
         if (movementNode) {
             if (!this.musicSheet.Title) {
                 this.musicSheet.Title = new Label(this.trimString(movementNode.value));
@@ -725,19 +725,19 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
      * @returns {{}}
      */
     private createInstrumentGroups(entryList: IXmlElement[]): { [_: string]: Instrument } {
-        let instrumentId: number = 0;
+        let instrumentId = 0;
         const instrumentDict: { [_: string]: Instrument } = {};
         let currentGroup: InstrumentalGroup;
         try {
             const entryArray: IXmlElement[] = entryList;
-            for (let idx: number = 0, len: number = entryArray.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = entryArray.length; idx < len; ++idx) {
                 const node: IXmlElement = entryArray[idx];
                 if (node.name === "score-part") {
                     const instrIdString: string = node.attribute("id").value;
                     const instrument: Instrument = new Instrument(instrumentId, instrIdString, this.musicSheet, currentGroup);
                     instrumentId++;
                     const partElements: IXmlElement[] = node.elements();
-                    for (let idx2: number = 0, len2: number = partElements.length; idx2 < len2; ++idx2) {
+                    for (let idx2 = 0, len2: number = partElements.length; idx2 < len2; ++idx2) {
                         const partElement: IXmlElement = partElements[idx2];
                         try {
                             if (partElement.name === "part-name") {
@@ -759,7 +759,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                                 }
                             } else if (partElement.name === "midi-instrument") {
                                 let subInstrument: SubInstrument = instrument.getSubInstrument(partElement.firstAttribute.value);
-                                for (let idx3: number = 0, len3: number = instrument.SubInstruments.length; idx3 < len3; ++idx3) {
+                                for (let idx3 = 0, len3: number = instrument.SubInstruments.length; idx3 < len3; ++idx3) {
                                     const subInstr: SubInstrument = instrument.SubInstruments[idx3];
                                     if (subInstr.idString === partElement.value) {
                                         subInstrument = subInstr;
@@ -767,7 +767,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                                     }
                                 }
                                 const instrumentElements: IXmlElement[] = partElement.elements();
-                                for (let idx3: number = 0, len3: number = instrumentElements.length; idx3 < len3; ++idx3) {
+                                for (let idx3 = 0, len3: number = instrumentElements.length; idx3 < len3; ++idx3) {
                                     const instrumentElement: IXmlElement = instrumentElements[idx3];
                                     try {
                                         if (instrumentElement.name === "midi-channel") {
@@ -855,7 +855,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
             throw new MusicSheetReadingException(errorMsg, e);
         }
 
-        for (let idx: number = 0, len: number = this.musicSheet.Instruments.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.musicSheet.Instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.musicSheet.Instruments[idx];
             if (!instrument.Name) {
                 instrument.Name = "Instr. " + instrument.IdString;
@@ -870,7 +870,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
      * @returns {number} - Complete number of Staves for all Instruments.
      */
     private getCompleteNumberOfStavesFromXml(partInst: IXmlElement[]): number {
-        let num: number = 0;
+        let num = 0;
         for (const partNode of partInst) {
             const xmlMeasureList: IXmlElement[] = partNode.elements("measure");
             if (xmlMeasureList.length > 0) {
@@ -903,7 +903,7 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
      * @returns {number}
      */
     private getInstrumentNumberOfStavesFromXml(partNode: IXmlElement): number {
-        let num: number = 0;
+        let num = 0;
         const xmlMeasure: IXmlElement = partNode.element("measure");
         if (xmlMeasure) {
             const attributes: IXmlElement = xmlMeasure.element("attributes");

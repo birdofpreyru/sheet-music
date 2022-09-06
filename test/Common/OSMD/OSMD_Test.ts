@@ -107,7 +107,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     });
 
     it("load invalid MXL from string", (done: Done) => {
-        const mxl: string = "\x50\x4b\x03\x04";
+        const mxl = "\x50\x4b\x03\x04";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(mxl).then(
@@ -156,7 +156,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         //   the test is unreliable, which makes it hard to test.
         //   also, it's better not to use OSMD to fetch one's score anyways.
         //   also, the timeout adds unnecessary time to the testing suite.
-        const score: string = "https://httpstat.us/408";
+        const score = "https://httpstat.us/408";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(score).then(
@@ -170,7 +170,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     });
 
     it("load MXL Document by URL", (done: Done) => {
-        const url: string = "base/test/data/Mozart_Clarinet_Quintet_Excerpt.mxl";
+        const url = "base/test/data/Mozart_Clarinet_Quintet_Excerpt.mxl";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(url).then(
@@ -183,7 +183,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     });
 
     it("load something invalid by URL", (done: Done) => {
-        const url: string = "https://www.google.com";
+        const url = "https://www.google.com";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(url).then(
@@ -201,7 +201,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     }).timeout(5000);
 
     it("load invalid URL", (done: Done) => {
-        const url: string = "https://www.afjkhfjkauu2ui3z2uiu.com";
+        const url = "https://www.afjkhfjkauu2ui3z2uiu.com";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(url).then(
@@ -219,7 +219,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     }).timeout(5000);
 
     it("load invalid XML string", (done: Done) => {
-        const xml: string = "<?xml";
+        const xml = "<?xml";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(xml).then(
@@ -301,7 +301,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
             osmd.Sheet.Instruments[1].Visible = false;
             osmd.render();
             osmd.cursors[0].show();
-            for (let i: number = 0; i < 100; i++) {
+            for (let i = 0; i < 100; i++) {
                 osmd.cursors[0].next();
             }
             // After 100 steps in the visible score, cursor reached 3rd note from 17, a C

@@ -31,7 +31,7 @@ export class TestUtils {
      */
     public static getPartWiseElement(doc: Document): Element {
         const nodes: NodeList = doc.childNodes;
-        for (let i: number = 0, length: number = nodes.length; i < length; i += 1) {
+        for (let i = 0, length: number = nodes.length; i < length; i += 1) {
             const node: Node = nodes[i];
             if (node.nodeType === Node.ELEMENT_NODE && node.nodeName.toLowerCase() === "score-partwise") {
                 return <Element>node;

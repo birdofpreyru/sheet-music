@@ -20,12 +20,12 @@ export class Repetition extends PartListEntry /*implements IRepetition*/ {
     private backwardJumpInstructions: RepetitionInstruction[] = [];
     private endingParts: RepetitionEndingPart[] = [];
     private endingIndexDict: { [_: number]: RepetitionEndingPart } = {};
-    private userNumberOfRepetitions: number = 0;
+    private userNumberOfRepetitions = 0;
     private visibles: boolean[] = [];
-    private fromWords: boolean = false;
+    private fromWords = false;
     private musicSheet2: MusicSheet;
     private repetitonIterationOrder: number[] = [];
-    private numberOfEndings: number = 1;
+    private numberOfEndings = 1;
     private virtualOverallRepetition: boolean;
 
     public get BackwardJumpInstructions(): RepetitionInstruction[] {
@@ -44,7 +44,7 @@ export class Repetition extends PartListEntry /*implements IRepetition*/ {
         this.visibles = value;
     }
     public get DefaultNumberOfRepetitions(): number {
-        let defaultNumber: number = 2;
+        let defaultNumber = 2;
         if (this.virtualOverallRepetition) { defaultNumber = 1; }
         return Math.max(defaultNumber, Object.keys(this.endingIndexDict).length, this.checkRepetitionForMultipleLyricVerses());
     }
@@ -55,7 +55,7 @@ export class Repetition extends PartListEntry /*implements IRepetition*/ {
         this.userNumberOfRepetitions = value;
         this.repetitonIterationOrder = [];
         const endingsDiff: number = this.userNumberOfRepetitions - this.NumberOfEndings;
-        for (let i: number = 1; i <= this.userNumberOfRepetitions; i++) {
+        for (let i = 1; i <= this.userNumberOfRepetitions; i++) {
             if (i <= endingsDiff) {
                 this.repetitonIterationOrder.push(1);
             } else {
@@ -129,15 +129,15 @@ export class Repetition extends PartListEntry /*implements IRepetition*/ {
         return result;
     }
     private checkRepetitionForMultipleLyricVerses(): number {
-        let lyricVerses: number = 0;
+        let lyricVerses = 0;
         const start: number = this.StartIndex;
         const end: number = this.EndIndex;
         for (let measureIndex: number = start; measureIndex <= end; measureIndex++) {
             const sourceMeasure: SourceMeasure = this.musicSheet2.SourceMeasures[measureIndex];
-            for (let i: number = 0; i < sourceMeasure.CompleteNumberOfStaves; i++) {
+            for (let i = 0; i < sourceMeasure.CompleteNumberOfStaves; i++) {
                 for (const sourceStaffEntry of sourceMeasure.VerticalSourceStaffEntryContainers[i].StaffEntries) {
                     if (sourceStaffEntry) {
-                        let verses: number = 0;
+                        let verses = 0;
                         for (const voiceEntry of sourceStaffEntry.VoiceEntries) {
                             verses += Object.keys(voiceEntry.LyricsEntries).length;
                         }
