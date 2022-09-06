@@ -102,6 +102,7 @@ export class EngravingRules {
     public SetWantedStemDirectionByXml: boolean;
     public GraceNoteScalingFactor: number;
     public GraceNoteXOffset: number;
+    public GraceNoteGroupXMargin: number;
     public WedgeOpeningLength: number;
     public WedgeMeasureEndOpeningLength: number;
     public WedgeMeasureBeginOpeningLength: number;
@@ -176,6 +177,7 @@ export class EngravingRules {
     public LyricsAlignmentStandard: TextAlignmentEnum;
     public DefaultLyricsHeight: number;
     public LyricsYOffsetToStaffHeight: number;
+    public LyricsYMarginToBottomLine: number;
     public VerticalBetweenLyricsDistance: number;
     public HorizontalBetweenLyricsDistance: number;
     public BetweenSyllableMaximumDistance: number;
@@ -468,6 +470,8 @@ export class EngravingRules {
         // GraceNote Variables
         this.GraceNoteScalingFactor = 0.6;
         this.GraceNoteXOffset = 0.2;
+        this.GraceNoteGroupXMargin = 0.0; // More than 0 leads to too much space in most cases.
+        //  see test_end_clef_measure. only potential 'tight' case: test_graceslash_simple
 
         // Wedge Variables
         this.WedgeOpeningLength = 1.2;
@@ -568,6 +572,7 @@ export class EngravingRules {
         this.LyricsAlignmentStandard = TextAlignmentEnum.CenterBottom; // CenterBottom and LeftBottom tested, spacing-optimized
         this.DefaultLyricsHeight = 2.0; // actually size of lyrics
         this.LyricsYOffsetToStaffHeight = 0.0; // distance between lyrics and staff. could partly be even lower/dynamic
+        this.LyricsYMarginToBottomLine = 0.2;
         this.VerticalBetweenLyricsDistance = 0.5;
         this.HorizontalBetweenLyricsDistance = 0.2;
         this.BetweenSyllableMaximumDistance = 10.0;
