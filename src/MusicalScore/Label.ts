@@ -9,12 +9,12 @@ import { Font } from "../Common/DataObjects/Font";
 export class Label {
 
     constructor(
-      text: string = "",
+      text = "",
       alignment: TextAlignmentEnum = TextAlignmentEnum.CenterBottom,
       font: Font = new Font(),
       color: string = undefined,
       uuid: string = undefined,
-      print: boolean = true,
+      print = true,
     ) {
         this.uuid = uuid;
         this.text = text;
@@ -32,7 +32,7 @@ export class Label {
     public colorDefault: string; // TODO this is Vexflow format, convert to OSMDColor. for now convenient for default colors.
     public font: Font;
     public textAlignment: TextAlignmentEnum;
-    public IsCreditLabel: boolean = false;
+    public IsCreditLabel = false;
 
     public ToString(): string {
         return this.text;

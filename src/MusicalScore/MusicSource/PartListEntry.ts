@@ -12,7 +12,7 @@ export abstract class PartListEntry {
     public endIndex: number;
 
     protected enrolledTimestamps: Fraction[] = [];
-    protected visible: boolean = true;
+    protected visible = true;
     protected musicSheet: MusicSheet;
 
     public get Visible(): boolean {

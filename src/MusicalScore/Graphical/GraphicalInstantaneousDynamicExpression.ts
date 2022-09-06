@@ -20,7 +20,7 @@ export class GraphicalInstantaneousDynamicExpression extends AbstractGraphicalEx
         const skyBottomLineCalculator: SkyBottomLineCalculator = this.parentStaffLine.SkyBottomLineCalculator;
         const left: number = this.PositionAndShape.RelativePosition.x + this.PositionAndShape.BorderMarginLeft;
         const right: number = this.PositionAndShape.RelativePosition.x + this.PositionAndShape.BorderMarginRight;
-        let yValue: number = 0;
+        let yValue = 0;
         switch (this.Placement) {
             case PlacementEnum.Above:
                 yValue = this.PositionAndShape.RelativePosition.y + this.PositionAndShape.BorderMarginTop;

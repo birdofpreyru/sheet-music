@@ -220,9 +220,9 @@ export abstract class StaffLine extends GraphicalObject {
      */
     public findClosestStaffEntry(xPosition: number): GraphicalStaffEntry {
         let closestStaffentry: GraphicalStaffEntry = undefined;
-        for (let idx: number = 0, len: number = this.Measures.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.Measures.length; idx < len; ++idx) {
             const graphicalMeasure: GraphicalMeasure = this.Measures[idx];
-            for (let idx2: number = 0, len2: number = graphicalMeasure.staffEntries.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = graphicalMeasure.staffEntries.length; idx2 < len2; ++idx2) {
                 const graphicalStaffEntry: GraphicalStaffEntry = graphicalMeasure.staffEntries[idx2];
                 if (
                     Math.abs(graphicalStaffEntry.PositionAndShape.RelativePosition.x - xPosition + graphicalMeasure.PositionAndShape.RelativePosition.x) < 5.0

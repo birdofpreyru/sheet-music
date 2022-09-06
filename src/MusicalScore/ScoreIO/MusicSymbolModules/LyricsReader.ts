@@ -22,10 +22,10 @@ export class LyricsReader {
     public addLyricEntry(lyricNodeList: IXmlElement[], currentVoiceEntry: VoiceEntry): void {
         if (lyricNodeList) {
             const lyricNodeListArr: IXmlElement[] = lyricNodeList;
-            for (let idx: number = 0, len: number = lyricNodeListArr.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = lyricNodeListArr.length; idx < len; ++idx) {
                 const lyricNode: IXmlElement = lyricNodeListArr[idx];
                 try {
-                    let syllabic: string = "single"; // Single as default
+                    let syllabic = "single"; // Single as default
                     if (lyricNode.element("text")) {
                         let textNode: IXmlElement = lyricNode.element("text");
                         if (lyricNode.element("syllabic")) {
@@ -33,7 +33,7 @@ export class LyricsReader {
                         }
                         if (textNode) {
                             const font: Font = Font.Read(textNode);
-                            let text: string = "";
+                            let text = "";
                             const textAndElisionNodes: IXmlElement[] = lyricNode.elements();
                             for (const node of textAndElisionNodes) {
                                 if (node.name === "text" || node.name === "elision") {
@@ -46,8 +46,8 @@ export class LyricsReader {
                             // we calculate the Dash element much later
                             if (lyricNode.element("elision") !== undefined && text === "-") {
                                 const lyricNodeChildren: IXmlElement[] = lyricNode.elements();
-                                let elisionIndex: number = 0;
-                                for (let i: number = 0; i < lyricNodeChildren.length; i++) {
+                                let elisionIndex = 0;
+                                for (let i = 0; i < lyricNodeChildren.length; i++) {
                                     const child: IXmlElement = lyricNodeChildren[i];
                                     if (child.name === "elision") {
                                         elisionIndex = i;
@@ -73,8 +73,8 @@ export class LyricsReader {
                                     syllabic = "middle";
                                 }
                             }
-                            let currentLyricVerseNumber: number = 1;
-                            let errorNumberParse1: boolean = false;
+                            let currentLyricVerseNumber = 1;
+                            let errorNumberParse1 = false;
                             if (lyricNode.attributes() !== undefined && lyricNode.attribute("number")) {
                                 try {
                                     currentLyricVerseNumber = parseInt(lyricNode.attribute("number").value, 10); // usually doesn't throw error, but returns NaN

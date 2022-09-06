@@ -1,7 +1,7 @@
 import { PointF2D } from "../../Common/DataObjects/PointF2D";
 
 export class GraphicalCurve {
-    private static bezierCurveStepSize: number = 1000;
+    private static bezierCurveStepSize = 1000;
     private static tPow3: number[];
     private static oneMinusTPow3: number[];
     private static bezierFactorOne: number[];
@@ -13,7 +13,7 @@ export class GraphicalCurve {
         GraphicalCurve.oneMinusTPow3 = new Array(GraphicalCurve.bezierCurveStepSize);
         GraphicalCurve.bezierFactorOne = new Array(GraphicalCurve.bezierCurveStepSize);
         GraphicalCurve.bezierFactorTwo = new Array(GraphicalCurve.bezierCurveStepSize);
-        for (let i: number = 0; i < GraphicalCurve.bezierCurveStepSize; i++) {
+        for (let i = 0; i < GraphicalCurve.bezierCurveStepSize; i++) {
             const t: number =  i / GraphicalCurve.bezierCurveStepSize;
 
             GraphicalCurve.tPow3[i] = Math.pow(t, 3);

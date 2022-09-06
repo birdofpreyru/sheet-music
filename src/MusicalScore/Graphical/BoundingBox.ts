@@ -14,24 +14,24 @@ import { GraphicalObject } from "./GraphicalObject";
  * @param connectChildToParent Create a child to parent relationship too. Will be true by default
  */
 export class BoundingBox {
-    protected isSymbol: boolean = false;
-    protected relativePositionHasBeenSet: boolean = false;
-    protected xBordersHaveBeenSet: boolean = false;
-    protected yBordersHaveBeenSet: boolean = false;
+    protected isSymbol = false;
+    protected relativePositionHasBeenSet = false;
+    protected xBordersHaveBeenSet = false;
+    protected yBordersHaveBeenSet = false;
     protected absolutePosition: PointF2D = new PointF2D();
     protected relativePosition: PointF2D = new PointF2D();
     protected size: SizeF2D = new SizeF2D();
     protected marginSize: SizeF2D = new SizeF2D();
     protected upperLeftCorner: PointF2D = new PointF2D();
     protected upperLeftMarginCorner: PointF2D = new PointF2D();
-    protected borderLeft: number = 0;
-    protected borderRight: number = 0;
-    protected borderTop: number = 0;
-    protected borderBottom: number = 0;
-    protected borderMarginLeft: number = 0;
-    protected borderMarginRight: number = 0;
-    protected borderMarginTop: number = 0;
-    protected borderMarginBottom: number = 0;
+    protected borderLeft = 0;
+    protected borderRight = 0;
+    protected borderTop = 0;
+    protected borderBottom = 0;
+    protected borderMarginLeft = 0;
+    protected borderMarginRight = 0;
+    protected borderMarginTop = 0;
+    protected borderMarginBottom = 0;
     protected boundingRectangle: RectangleF2D;
     protected boundingMarginRectangle: RectangleF2D;
     protected childElements: BoundingBox[] = [];
@@ -43,7 +43,7 @@ export class BoundingBox {
      * @param parent Parent bounding box of an object in a higher hierarchy position
      * @param isSymbol Defines the bounding box to be symbol thus not calculating its boundaries by itself. NOTE: Borders need to be set!
      */
-    constructor(dataObject: Object = undefined, parent: BoundingBox = undefined, isSymbol: boolean = false) {
+    constructor(dataObject: Object = undefined, parent: BoundingBox = undefined, isSymbol = false) {
         this.parent = parent;
         this.dataObject = dataObject;
         this.isSymbol = isSymbol;
@@ -264,7 +264,7 @@ export class BoundingBox {
     public calculateAbsolutePositionsRecursiveWithoutTopelement(): void {
         this.absolutePosition.x = 0.0;
         this.absolutePosition.y = 0.0;
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const child: BoundingBox = this.ChildElements[idx];
             child.calculateAbsolutePositionsRecursive(this.absolutePosition.x, this.absolutePosition.y);
         }
@@ -279,7 +279,7 @@ export class BoundingBox {
     public calculateAbsolutePositionsRecursive(x: number, y: number): void {
         this.absolutePosition.x = this.relativePosition.x + x;
         this.absolutePosition.y = this.relativePosition.y + y;
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const child: BoundingBox = this.ChildElements[idx];
             child.calculateAbsolutePositionsRecursive(this.absolutePosition.x, this.absolutePosition.y);
         }
@@ -289,7 +289,7 @@ export class BoundingBox {
      * calculates the absolute positions of all children of this boundingBox
      */
     public calculateAbsolutePositionsOfChildren(): void {
-      for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+      for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
         const child: BoundingBox = this.ChildElements[idx];
         child.calculateAbsolutePositionsRecursive(this.absolutePosition.x, this.absolutePosition.y);
       }
@@ -302,7 +302,7 @@ export class BoundingBox {
         if (this.childElements.length === 0) {
             return;
         }
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             childElement.calculateBoundingBox();
         }
@@ -330,7 +330,7 @@ export class BoundingBox {
         }
 
         // ChildElements will have their borders calculated, so calculate current borders
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             minLeft = Math.min(minLeft, childElement.relativePosition.x + childElement.borderLeft);
             maxRight = Math.max(maxRight, childElement.relativePosition.x + childElement.borderRight);
@@ -361,7 +361,7 @@ export class BoundingBox {
         if (this.childElements.length === 0) {
             return;
         }
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             childElement.calculateTopBottomBorders();
         }
@@ -375,7 +375,7 @@ export class BoundingBox {
             minMarginTop = this.borderMarginTop;
             maxMarginBottom = this.borderMarginBottom;
         }
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             minTop = Math.min(minTop, childElement.relativePosition.y + childElement.borderTop);
             if (!EngravingRules.FixStafflineBoundingBox || !(childElement.dataObject instanceof StaffLineActivitySymbol)) {
@@ -404,8 +404,8 @@ export class BoundingBox {
     public computeNonOverlappingPositionWithMargin(placementPsi: BoundingBox, direction: ColDirEnum, position: PointF2D): void {
         this.RelativePosition = new PointF2D(position.x, position.y);
         this.setAbsolutePositionFromParent();
-        let currentPosition: number = 0.0;
-        let hasBeenMoved: boolean = false;
+        let currentPosition = 0.0;
+        let hasBeenMoved = false;
         do {
             switch (direction) {
                 case ColDirEnum.Left:
@@ -536,8 +536,8 @@ export class BoundingBox {
     public computeNonOverlappingPosition(placementPsi: BoundingBox, direction: ColDirEnum, position: PointF2D): void {
         this.RelativePosition = new PointF2D(position.x, position.y);
         this.setAbsolutePositionFromParent();
-        let currentPosition: number = 0.0;
-        let hasBeenMoved: boolean = false;
+        let currentPosition = 0.0;
+        let hasBeenMoved = false;
         do {
             switch (direction) {
                 case ColDirEnum.Left:
@@ -563,7 +563,7 @@ export class BoundingBox {
         if (this.pointLiesInsideBorders(clickPosition) && (<T>obj)) {
             return (obj as T);
         }
-        for (let idx: number = 0, len: number = this.childElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.childElements.length; idx < len; ++idx) {
             const psi: BoundingBox = this.childElements[idx];
             const innerObject: Object = psi.getClickedObjectOfType<T>(clickPosition);
             if (innerObject) {
@@ -576,7 +576,7 @@ export class BoundingBox {
     //Generics don't work like this in TS. Casting doesn't filter out objects.
     //instanceof doesn't work either with generic types. Hopefully instanceof becomes available at some point, for now we have to do annoyingly
     //specific implementations after calling this to filter the objects.
-    public getObjectsInRegion<T extends GraphicalObject>(region: BoundingBox, liesInside: boolean = true,
+    public getObjectsInRegion<T extends GraphicalObject>(region: BoundingBox, liesInside = true,
                                                          className: string = GraphicalObject.name): T[] {
         let result: T[] = [];
         for (const child of this.childElements) {
@@ -631,7 +631,7 @@ export class BoundingBox {
 
         // check for collision only at symbols and return border
         if (this.isSymbol && this.marginCollisionDetection(toBePlaced)) {
-            let shiftDistance: number = 0;
+            let shiftDistance = 0;
             switch (direction) {
                 case ColDirEnum.Left:
                     shiftDistance = (this.absolutePosition.x + this.borderMarginLeft) - (toBePlaced.absolutePosition.x + toBePlaced.borderMarginRight);
@@ -659,7 +659,7 @@ export class BoundingBox {
         }
 
         // perform check for all children iteratively and return border from children symbols
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             childElement.calculateMarginPositionAlongDirection(toBePlaced, direction);
         }
@@ -710,7 +710,7 @@ export class BoundingBox {
         }
 
         // perform check for all children iteratively and return border from children symbols
-        for (let idx: number = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.ChildElements.length; idx < len; ++idx) {
             const childElement: BoundingBox = this.ChildElements[idx];
             childElement.calculatePositionAlongDirection(toBePlaced, direction);
         }

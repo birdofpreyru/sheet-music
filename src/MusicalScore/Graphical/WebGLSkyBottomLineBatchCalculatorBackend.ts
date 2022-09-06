@@ -102,7 +102,7 @@ function createTexture(gl: WebGLRenderingContext, program: WebGLShader, textureI
 function updateMacroConstantsInShaderSource(source: string, constants: { [macroName: string]: number }): string {
     let result: string = source;
     for (const [macroName, macroValue] of Object.entries(constants)) {
-        const regex: RegExp = new RegExp(`#define ${macroName} .*`);
+        const regex = new RegExp(`#define ${macroName} .*`);
         result = result.replace(regex, `#define ${macroName} ${macroValue}`);
     }
     return result;
@@ -175,7 +175,7 @@ export class WebGLSkyBottomLineBatchCalculatorBackend extends SkyBottomLineBatch
         tableConfiguration: ISkyBottomLineBatchCalculatorBackendTableConfiguration
     ): SkyBottomLineCalculationResult[] {
         const gl: WebGLRenderingContext = this.gl;
-        const rgbaLength: number = 4;
+        const rgbaLength = 4;
         const { elementWidth, elementHeight, numColumns } = tableConfiguration;
 
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -187,7 +187,7 @@ export class WebGLSkyBottomLineBatchCalculatorBackend extends SkyBottomLineBatch
         gl.readPixels(0, 0, gl.canvas.width, gl.canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
         const result: SkyBottomLineCalculationResult[] = [];
-        for (let i: number = 0; i < measures.length; ++i) {
+        for (let i = 0; i < measures.length; ++i) {
             const measure: VexFlowMeasure = measures[i];
             const measureWidth: number = Math.floor(measure.getVFStave().getWidth());
             const measureArrayLength: number =  Math.max(Math.ceil(measure.PositionAndShape.Size.width * samplingUnit), 1);
@@ -200,7 +200,7 @@ export class WebGLSkyBottomLineBatchCalculatorBackend extends SkyBottomLineBatch
             const skyLine: number[] = new Array(Math.max(measureArrayLength, measureWidth)).fill(0);
             const bottomLine: number[] = new Array(Math.max(measureArrayLength, measureWidth)).fill(0);
 
-            for (let x: number = 0; x < measureWidth; ++x) {
+            for (let x = 0; x < measureWidth; ++x) {
                 const r: number = pixels[x * rgbaLength + xOffset + yOffset];
                 const g: number = pixels[x * rgbaLength + xOffset + yOffset + 1];
                 const b: number = pixels[x * rgbaLength + xOffset + yOffset + 2];
@@ -213,7 +213,7 @@ export class WebGLSkyBottomLineBatchCalculatorBackend extends SkyBottomLineBatch
             const lowestSkyLine: number = Math.max(...skyLine);
             const highestBottomLine: number = Math.min(...bottomLine);
 
-            for (let x: number = 0; x < measureWidth; ++x) {
+            for (let x = 0; x < measureWidth; ++x) {
                 skyLine[x] = skyLine[x] === 0 ? lowestSkyLine : skyLine[x];
                 bottomLine[x] = bottomLine[x] === elementHeight ? highestBottomLine : bottomLine[x];
             }

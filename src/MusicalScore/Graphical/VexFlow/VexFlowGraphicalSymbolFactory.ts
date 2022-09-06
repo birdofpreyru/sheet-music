@@ -59,7 +59,7 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
      * @param staff
      * @returns {VexFlowMeasure}
      */
-    public createGraphicalMeasure(sourceMeasure: SourceMeasure, staff: Staff, isTabMeasure: boolean = false): GraphicalMeasure {
+    public createGraphicalMeasure(sourceMeasure: SourceMeasure, staff: Staff, isTabMeasure = false): GraphicalMeasure {
         return new VexFlowMeasure(staff, sourceMeasure, undefined);
     }
 
@@ -187,7 +187,7 @@ export class VexFlowGraphicalSymbolFactory implements IGraphicalSymbolFactory {
                                 keyInstruction: KeyInstruction,
                                 transposeHalftones: number): void {
         const rules: EngravingRules = graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules;
-        let xShift: number = 0;
+        let xShift = 0;
         const chordSymbolSpacing: number = rules.ChordSymbolXSpacing;
         for (const chordSymbolContainer of sourceStaffEntry.ChordContainers) {
             const graphicalChordSymbolContainer: GraphicalChordSymbolContainer =

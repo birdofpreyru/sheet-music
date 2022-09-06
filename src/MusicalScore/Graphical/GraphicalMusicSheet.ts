@@ -58,7 +58,7 @@ export class GraphicalMusicSheet {
     private minAllowedSystemWidth: number;
     //private systemImages: Dictionary<MusicSystem, SystemImageProperties> = new Dictionary<MusicSystem, SystemImageProperties>();
     private numberOfStaves: number;
-    private leadSheet: boolean = false;
+    private leadSheet = false;
 
     public get ParentMusicSheet(): MusicSheet {
         return this.musicSheet;
@@ -169,7 +169,7 @@ export class GraphicalMusicSheet {
      * @param graphicalMusicSheet
      */
     public static transformRelativeToAbsolutePosition(graphicalMusicSheet: GraphicalMusicSheet): void {
-        for (let i: number = 0; i < graphicalMusicSheet.MusicPages.length; i++) {
+        for (let i = 0; i < graphicalMusicSheet.MusicPages.length; i++) {
             const pageAbsolute: PointF2D = graphicalMusicSheet.MusicPages[i].setMusicPageAbsolutePosition(i, graphicalMusicSheet.ParentMusicSheet.Rules);
             const page: GraphicalMusicPage = graphicalMusicSheet.MusicPages[i];
             page.PositionAndShape.calculateAbsolutePositionsRecursive(pageAbsolute.x, pageAbsolute.y);
@@ -192,9 +192,9 @@ export class GraphicalMusicSheet {
     // }
 
     public EnforceRedrawOfMusicSystems(): void {
-        for (let idx: number = 0, len: number = this.musicPages.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.musicPages.length; idx < len; ++idx) {
             const graphicalMusicPage: GraphicalMusicPage = this.musicPages[idx];
-            for (let idx2: number = 0, len2: number = graphicalMusicPage.MusicSystems.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = graphicalMusicPage.MusicSystems.length; idx2 < len2; ++idx2) {
                 const musicSystem: MusicSystem = graphicalMusicPage.MusicSystems[idx2];
                 musicSystem.needsToBeRedrawn = true;
             }
@@ -202,7 +202,7 @@ export class GraphicalMusicSheet {
     }
 
     public getClickedObject<T>(positionOnMusicSheet: PointF2D): T {
-        for (let idx: number = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
             const graphicalMusicPage: GraphicalMusicPage = this.MusicPages[idx];
             return graphicalMusicPage.PositionAndShape.getClickedObjectOfType<T>(positionOnMusicSheet);
         }
@@ -234,7 +234,7 @@ export class GraphicalMusicSheet {
             if (!graphicalMeasure) {
                 continue;
             }
-            for (let idx: number = 0, len: number = graphicalMeasure.staffEntries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = graphicalMeasure.staffEntries.length; idx < len; ++idx) {
                 const graphicalStaffEntry: GraphicalStaffEntry = graphicalMeasure.staffEntries[idx];
                 if (graphicalStaffEntry.sourceStaffEntry === sourceStaffEntry) {
                     return graphicalStaffEntry;
@@ -269,7 +269,7 @@ export class GraphicalMusicSheet {
         const graphicalMeasures: GraphicalMeasure[] = [];
         const numberOfStaves: number = this.measureList[0].length;
         for (let i: number = start; i <= end; i++) {
-            for (let j: number = 0; j < numberOfStaves; j++) {
+            for (let j = 0; j < numberOfStaves; j++) {
                 if (this.measureList[i][j].isVisible()) {
                     graphicalMeasures.push(this.measureList[i][j]);
                     break;
@@ -283,7 +283,7 @@ export class GraphicalMusicSheet {
         const orderedMeasures: GraphicalMeasure[][] = [];
         let mList: GraphicalMeasure[] = [];
         orderedMeasures.push(mList);
-        for (let i: number = 0; i < measures.length; i++) {
+        for (let i = 0; i < measures.length; i++) {
             if (i === 0) {
                 mList.push(measures[0]);
             } else {
@@ -310,10 +310,10 @@ export class GraphicalMusicSheet {
         const activeClefs: ClefInstruction[] = [];
         const firstSourceMeasure: SourceMeasure = this.musicSheet.getFirstSourceMeasure();
         if (firstSourceMeasure) {
-            for (let i: number = 0; i < firstSourceMeasure.CompleteNumberOfStaves; i++) {
+            for (let i = 0; i < firstSourceMeasure.CompleteNumberOfStaves; i++) {
                 let clef: ClefInstruction = new ClefInstruction();
                 if (firstSourceMeasure.FirstInstructionsStaffEntries[i]) {
-                    for (let idx: number = 0, len: number = firstSourceMeasure.FirstInstructionsStaffEntries[i].Instructions.length; idx < len; ++idx) {
+                    for (let idx = 0, len: number = firstSourceMeasure.FirstInstructionsStaffEntries[i].Instructions.length; idx < len; ++idx) {
                         const abstractNotationInstruction: AbstractNotationInstruction = firstSourceMeasure.FirstInstructionsStaffEntries[i].Instructions[idx];
                         if (abstractNotationInstruction instanceof ClefInstruction) {
                             clef = <ClefInstruction>abstractNotationInstruction;
@@ -330,8 +330,8 @@ export class GraphicalMusicSheet {
     public GetMainKey(): KeyInstruction {
         const firstSourceMeasure: SourceMeasure = this.musicSheet.getFirstSourceMeasure();
         if (firstSourceMeasure) {
-            for (let i: number = 0; i < firstSourceMeasure.CompleteNumberOfStaves; i++) {
-                for (let idx: number = 0, len: number = firstSourceMeasure.FirstInstructionsStaffEntries[i].Instructions.length; idx < len; ++idx) {
+            for (let i = 0; i < firstSourceMeasure.CompleteNumberOfStaves; i++) {
+                for (let idx = 0, len: number = firstSourceMeasure.FirstInstructionsStaffEntries[i].Instructions.length; idx < len; ++idx) {
                     const abstractNotationInstruction: AbstractNotationInstruction = firstSourceMeasure.FirstInstructionsStaffEntries[i].Instructions[idx];
                     if (abstractNotationInstruction instanceof KeyInstruction) {
                         return <KeyInstruction>abstractNotationInstruction;
@@ -378,7 +378,7 @@ export class GraphicalMusicSheet {
      * @returns {any}
      * @constructor
      */
-    public GetVerticalContainerFromTimestamp(timestamp: Fraction, startIndex: number = 0): VerticalGraphicalStaffEntryContainer {
+    public GetVerticalContainerFromTimestamp(timestamp: Fraction, startIndex = 0): VerticalGraphicalStaffEntryContainer {
         const index: number = CollectionUtil.binarySearch(this.verticalGraphicalStaffEntryContainers,
                                                           new VerticalGraphicalStaffEntryContainer(0, timestamp),
                                                           VerticalGraphicalStaffEntryContainer.compareByTimestamp,
@@ -397,7 +397,7 @@ export class GraphicalMusicSheet {
      */
     public GetInterpolatedIndexInVerticalContainers(musicTimestamp: Fraction): number {
         const containers: VerticalGraphicalStaffEntryContainer[] = this.verticalGraphicalStaffEntryContainers;
-        let leftIndex: number = 0;
+        let leftIndex = 0;
         let rightIndex: number = containers.length - 1;
         let leftTS: Fraction = undefined;
         let rightTS: Fraction = undefined;
@@ -447,17 +447,17 @@ export class GraphicalMusicSheet {
     public getVisibleStavesIndicesFromSourceMeasure(visibleMeasures: GraphicalMeasure[]): number[] {
         const visibleInstruments: Instrument[] = [];
         const visibleStavesIndices: number[] = [];
-        for (let idx: number = 0, len: number = visibleMeasures.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = visibleMeasures.length; idx < len; ++idx) {
             const graphicalMeasure: GraphicalMeasure = visibleMeasures[idx];
             const instrument: Instrument = graphicalMeasure.ParentStaff.ParentInstrument;
             if (visibleInstruments.indexOf(instrument) === -1) {
                 visibleInstruments.push(instrument);
             }
         }
-        for (let idx: number = 0, len: number = visibleInstruments.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = visibleInstruments.length; idx < len; ++idx) {
             const instrument: Instrument = visibleInstruments[idx];
             const index: number = this.musicSheet.getGlobalStaffIndexOfFirstStaff(instrument);
-            for (let j: number = 0; j < instrument.Staves.length; j++) {
+            for (let j = 0; j < instrument.Staves.length; j++) {
                 visibleStavesIndices.push(index + j);
             }
         }
@@ -471,7 +471,7 @@ export class GraphicalMusicSheet {
      * @returns {any}
      */
     public getGraphicalMeasureFromSourceMeasureAndIndex(sourceMeasure: SourceMeasure, staffIndex: number): GraphicalMeasure {
-        for (let i: number = 0; i < this.measureList.length; i++) {
+        for (let i = 0; i < this.measureList.length; i++) {
             if (this.measureList[i][0]?.parentSourceMeasure === sourceMeasure) {
                 return this.measureList[i][staffIndex];
             }
@@ -479,7 +479,7 @@ export class GraphicalMusicSheet {
         return undefined;
     }
 
-    public getLastGraphicalMeasureFromIndex(staffIndex: number, lastRendered: boolean = true): GraphicalMeasure {
+    public getLastGraphicalMeasureFromIndex(staffIndex: number, lastRendered = true): GraphicalMeasure {
         let measureIndex: number = this.measureList.length - 1;
         if (lastRendered) {
             measureIndex = Math.min(measureIndex, this.musicSheet.Rules.MaxMeasureToDrawIndex);
@@ -491,7 +491,7 @@ export class GraphicalMusicSheet {
         measureIndex = 0;
         inListIndex = 0;
         for (; measureIndex < this.measureList.length; measureIndex++) {
-            for (let idx: number = 0, len: number = this.measureList[measureIndex].length; idx < len; ++idx) {
+            for (let idx = 0, len: number = this.measureList[measureIndex].length; idx < len; ++idx) {
                 const measure: GraphicalMeasure = this.measureList[measureIndex][idx];
                 if (measure === graphicalMeasure) {
                     return true;
@@ -512,7 +512,7 @@ export class GraphicalMusicSheet {
      */
     private GetNearestGraphicalObject<T extends GraphicalObject>(
         clickPosition: PointF2D, className: string = GraphicalObject.name,
-        startSearchArea: number = 5, maxSearchArea: number = 20, searchAreaIncrement: number = 5,
+        startSearchArea = 5, maxSearchArea = 20, searchAreaIncrement = 5,
         shouldBeIncludedTest: (objectToTest: T) => boolean = undefined): T {
         const foundEntries: T[] = [];
         //Loop until we find some, or our search area is out of bounds
@@ -526,7 +526,7 @@ export class GraphicalMusicSheet {
             region.AbsolutePosition = new PointF2D(clickPosition.x, clickPosition.y);
             region.calculateAbsolutePosition();
             //Loop through music pages
-            for (let idx: number = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
                 const graphicalMusicPage: GraphicalMusicPage = this.MusicPages[idx];
                 const entries: T[] = graphicalMusicPage.PositionAndShape.getObjectsInRegion<T>(region, false, className);
                 //If we have no entries on this page, skip to next (if exists)
@@ -534,7 +534,7 @@ export class GraphicalMusicSheet {
                     continue;
                 } else {
                     //Otherwise test all our entries if applicable, store on our found list
-                    for (let idx2: number = 0, len2: number = entries.length; idx2 < len2; ++idx2) {
+                    for (let idx2 = 0, len2: number = entries.length; idx2 < len2; ++idx2) {
                         if (!shouldBeIncludedTest) {
                             foundEntries.push(entries[idx2]);
                         } else if (shouldBeIncludedTest(entries[idx2])) {
@@ -548,7 +548,7 @@ export class GraphicalMusicSheet {
         }
         // Get closest entry
         let closest: T = undefined;
-        for (let idx: number = 0, len: number = foundEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = foundEntries.length; idx < len; ++idx) {
             const object: T = foundEntries[idx];
             if (closest === undefined) {
                 closest = object;
@@ -632,8 +632,8 @@ export class GraphicalMusicSheet {
     }
 
     public GetClickableLabel(clickPosition: PointF2D): GraphicalLabel {
-        const initialSearchAreaX: number = 4;
-        const initialSearchAreaY: number = 4;
+        const initialSearchAreaX = 4;
+        const initialSearchAreaY = 4;
         // Prepare search area
         const region: BoundingBox = new BoundingBox();
         region.BorderLeft = clickPosition.x - initialSearchAreaX;
@@ -641,13 +641,13 @@ export class GraphicalMusicSheet {
         region.BorderRight = clickPosition.x + initialSearchAreaX;
         region.BorderBottom = clickPosition.y + initialSearchAreaY;
         region.AbsolutePosition = new PointF2D(0, 0);
-        for (let idx: number = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
             const graphicalMusicPage: GraphicalMusicPage = this.MusicPages[idx];
             const entries: GraphicalLabel[] = graphicalMusicPage.PositionAndShape.getObjectsInRegion<GraphicalLabel>(region);
             if (entries.length !== 1) {
                 continue;
             } else {
-                for (let idx2: number = 0, len2: number = entries.length; idx2 < len2; ++idx2) {
+                for (let idx2 = 0, len2: number = entries.length; idx2 < len2; ++idx2) {
                     const clickedLabel: GraphicalLabel = entries[idx2];
                     return clickedLabel;
                 }
@@ -657,7 +657,7 @@ export class GraphicalMusicSheet {
     }
 
     public GetNearestStaffEntry(clickPosition: PointF2D): GraphicalStaffEntry {
-        const initialSearchArea: number = 10;
+        const initialSearchArea = 10;
         const foundEntries: GraphicalStaffEntry[] = [];
         // Prepare search area
         const region: BoundingBox = new BoundingBox(undefined);
@@ -667,13 +667,13 @@ export class GraphicalMusicSheet {
         region.BorderBottom = clickPosition.y + initialSearchArea;
         region.AbsolutePosition = new PointF2D(0, 0);
         // Search for StaffEntries in region
-        for (let idx: number = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.MusicPages.length; idx < len; ++idx) {
             const graphicalMusicPage: GraphicalMusicPage = this.MusicPages[idx];
             const entries: GraphicalStaffEntry[] = graphicalMusicPage.PositionAndShape.getObjectsInRegion<GraphicalStaffEntry>(region, false);
             if (!entries || entries.length === 0) {
                 continue;
             } else {
-                for (let idx2: number = 0, len2: number = entries.length; idx2 < len2; ++idx2) {
+                for (let idx2 = 0, len2: number = entries.length; idx2 < len2; ++idx2) {
                     const gse: GraphicalStaffEntry = entries[idx2];
                     foundEntries.push(gse);
                 }
@@ -681,7 +681,7 @@ export class GraphicalMusicSheet {
         }
         // Get closest entry
         let closest: GraphicalStaffEntry = undefined;
-        for (let idx: number = 0, len: number = foundEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = foundEntries.length; idx < len; ++idx) {
             const gse: GraphicalStaffEntry = foundEntries[idx];
             if (closest === undefined) {
                 closest = gse;
@@ -713,7 +713,7 @@ export class GraphicalMusicSheet {
     }
 
     public getClickedObjectOfType<T>(positionOnMusicSheet: PointF2D): T {
-        for (let idx: number = 0, len: number = this.musicPages.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.musicPages.length; idx < len; ++idx) {
             const page: GraphicalMusicPage = this.musicPages[idx];
             const o: Object = page.PositionAndShape.getClickedObjectOfType<T>(positionOnMusicSheet);
             if (o) {
@@ -767,7 +767,7 @@ export class GraphicalMusicSheet {
         const container: VerticalGraphicalStaffEntryContainer = this.VerticalGraphicalStaffEntryContainers[index];
         let staffEntry: GraphicalStaffEntry = undefined;
         try {
-            for (let idx: number = 0, len: number = container.StaffEntries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = container.StaffEntries.length; idx < len; ++idx) {
                 const entry: GraphicalStaffEntry = container.StaffEntries[idx];
                 if (!entry || !entry.sourceStaffEntry.ParentStaff.ParentInstrument.Visible) {
                     continue;
@@ -796,7 +796,7 @@ export class GraphicalMusicSheet {
     public GetPreviousVisibleContainerIndex(index: number): number {
         for (let i: number = index - 1; i >= 0; i--) {
             const entries: GraphicalStaffEntry[] = this.verticalGraphicalStaffEntryContainers[i].StaffEntries;
-            for (let idx: number = 0, len: number = entries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = entries.length; idx < len; ++idx) {
                 const entry: GraphicalStaffEntry = entries[idx];
                 if (entry && entry.sourceStaffEntry.ParentStaff.ParentInstrument.Visible) {
                     return i;
@@ -815,7 +815,7 @@ export class GraphicalMusicSheet {
     public GetNextVisibleContainerIndex(index: number): number {
         for (let i: number = index + 1; i < this.verticalGraphicalStaffEntryContainers.length; ++i) {
             const entries: GraphicalStaffEntry[] = this.verticalGraphicalStaffEntryContainers[i].StaffEntries;
-            for (let idx: number = 0, len: number = entries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = entries.length; idx < len; ++idx) {
                 const entry: GraphicalStaffEntry = entries[idx];
                 if (entry && entry.sourceStaffEntry.ParentStaff.ParentInstrument.Visible) {
                     return i;
@@ -949,8 +949,8 @@ export class GraphicalMusicSheet {
     }
 
     public GetNumberOfVisibleInstruments(): number {
-        let visibleInstrumentCount: number = 0;
-        for (let idx: number = 0, len: number = this.musicSheet.Instruments.length; idx < len; ++idx) {
+        let visibleInstrumentCount = 0;
+        for (let idx = 0, len: number = this.musicSheet.Instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.musicSheet.Instruments[idx];
             if (instrument.Visible === true) {
                 visibleInstrumentCount++;
@@ -960,8 +960,8 @@ export class GraphicalMusicSheet {
     }
 
     public GetNumberOfFollowedInstruments(): number {
-        let followedInstrumentCount: number = 0;
-        for (let idx: number = 0, len: number = this.musicSheet.Instruments.length; idx < len; ++idx) {
+        let followedInstrumentCount = 0;
+        for (let idx = 0, len: number = this.musicSheet.Instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.musicSheet.Instruments[idx];
             if (instrument.Following === true) {
                 followedInstrumentCount++;

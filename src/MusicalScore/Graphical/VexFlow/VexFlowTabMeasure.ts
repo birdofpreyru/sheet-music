@@ -38,7 +38,7 @@ export class VexFlowTabMeasure extends VexFlowMeasure {
     }
 
     public graphicalMeasureCreatedCalculations(): void {
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: VexFlowStaffEntry = (this.staffEntries[idx] as VexFlowStaffEntry);
 
             // create vex flow Notes:

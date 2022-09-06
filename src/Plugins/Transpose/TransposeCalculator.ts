@@ -12,13 +12,13 @@ export class TransposeCalculator implements ITransposeCalculator {
     public transposePitch(pitch: Pitch, currentKeyInstruction: KeyInstruction, halftones: number): Pitch {
 
         let transposedFundamentalNote: NoteEnum = NoteEnum.C;
-        let transposedOctave: number = 0;
+        let transposedOctave = 0;
         let transposedAccidental: AccidentalEnum = AccidentalEnum.NONE;
         const result: { halftone: number, overflow: number } = Pitch.CalculateTransposedHalfTone(pitch, halftones);
         let transposedHalfTone: number = result.halftone;
         let octaveChange: number = result.overflow;
 
-        for (let i: number = 0; i < TransposeCalculator.noteEnums.length; i++) {
+        for (let i = 0; i < TransposeCalculator.noteEnums.length; i++) {
             const currentValue: number = <number>TransposeCalculator.noteEnums[i];
             if (currentValue === transposedHalfTone) {
                 const noteIndex: number = i;
@@ -30,7 +30,7 @@ export class TransposeCalculator implements ITransposeCalculator {
                 break;
             }
         }
-        for (let i: number = 0; i < TransposeCalculator.noteEnums.length; i++) {
+        for (let i = 0; i < TransposeCalculator.noteEnums.length; i++) {
             const currentValue: number = <number>TransposeCalculator.noteEnums[i];
             if (currentValue > transposedHalfTone) {
                 let noteIndex: number = i;
@@ -60,8 +60,8 @@ export class TransposeCalculator implements ITransposeCalculator {
         return transposedPitch;
     }
     public transposeKey(keyInstruction: KeyInstruction, transpose: number): void {
-        let currentIndex: number = 0;
-        let previousKeyType: number = 0;
+        let currentIndex = 0;
+        let previousKeyType = 0;
         for (; currentIndex < TransposeCalculator.keyMapping.length; currentIndex++) {
             previousKeyType = TransposeCalculator.keyMapping[currentIndex];
             if (previousKeyType === keyInstruction.keyTypeOriginal) {

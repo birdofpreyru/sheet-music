@@ -12,7 +12,7 @@ export class VexflowStafflineNoteCalculator implements IStafflineNoteCalculator 
     private staffPitchListMapping: Dictionary<number, Array<Pitch>> = new Dictionary<number, Array<Pitch>>();
     //These render on the single line by default
     private baseLineNote: NoteEnum = NoteEnum.B;
-    private baseLineOctave: number = 1;
+    private baseLineOctave = 1;
 
     constructor(rules: EngravingRules) {
         this.rules = rules;
@@ -42,7 +42,7 @@ export class VexflowStafflineNoteCalculator implements IStafflineNoteCalculator 
         VexflowStafflineNoteCalculator.findOrInsert(currentPitchList, pitch);
     }
 
-    private static PitchIndexOf(array: Array<Pitch>, pitch: Pitch, start: number = 0): number {
+    private static PitchIndexOf(array: Array<Pitch>, pitch: Pitch, start = 0): number {
         if (start > array.length - 1) {
             return -1;
         }
@@ -57,7 +57,7 @@ export class VexflowStafflineNoteCalculator implements IStafflineNoteCalculator 
     }
 
     private static findOrInsert(array: Array<Pitch>, pitch: Pitch): number {
-        for (let i: number = 0; i < array.length; i++) {
+        for (let i = 0; i < array.length; i++) {
             const p2: Pitch = array[i];
             if (pitch.OperatorEquals(p2)) {
                 return i;

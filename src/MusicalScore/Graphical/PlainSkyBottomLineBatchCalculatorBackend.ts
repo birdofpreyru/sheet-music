@@ -41,11 +41,11 @@ export class PlainSkyBottomLineBatchCalculatorBackend extends SkyBottomLineBatch
         const canvasWidth: number = canvas.width;
         const context: CanvasRenderingContext2D = vexFlowContext as unknown as CanvasRenderingContext2D;
         const imageData: ImageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const rgbaLength: number = 4;
+        const rgbaLength = 4;
         const { elementWidth, elementHeight, numColumns } = tableConfiguration;
 
         const result: SkyBottomLineCalculationResult[] = [];
-        for (let i: number = 0; i < measures.length; ++i) {
+        for (let i = 0; i < measures.length; ++i) {
             const measure: VexFlowMeasure = measures[i];
             const measureWidth: number = Math.floor(measure.getVFStave().getWidth());
             const measureArrayLength: number =  Math.max(Math.ceil(measure.PositionAndShape.Size.width * samplingUnit), 1);
@@ -88,7 +88,7 @@ export class PlainSkyBottomLineBatchCalculatorBackend extends SkyBottomLineBatch
             const lowestSkyLine: number = Math.max(...skyLine);
             const highestBottomLine: number = Math.min(...bottomLine);
 
-            for (let x: number = 0; x < measureWidth; ++x) {
+            for (let x = 0; x < measureWidth; ++x) {
                 skyLine[x] = skyLine[x] === 0 ? lowestSkyLine : skyLine[x];
                 bottomLine[x] = bottomLine[x] === elementHeight ? highestBottomLine : bottomLine[x];
             }

@@ -98,7 +98,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(mxl).then(
-            (_: {}) => {
+            () => {
                 opensheetmusicdisplay.render();
                 done();
             },
@@ -107,11 +107,11 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     });
 
     it("load invalid MXL from string", (done: Done) => {
-        const mxl: string = "\x50\x4b\x03\x04";
+        const mxl = "\x50\x4b\x03\x04";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(mxl).then(
-            (_: {}) => {
+            () => {
                 done(new Error("Corrupted MXL appears to be loaded correctly"));
             },
             (exc: Error) => {
@@ -130,7 +130,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(xml).then(
-            (_: {}) => {
+            () => {
                 opensheetmusicdisplay.render();
                 done();
             },
@@ -143,7 +143,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(score).then(
-            (_: {}) => {
+            () => {
                 opensheetmusicdisplay.render();
                 done();
             },
@@ -156,25 +156,23 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         //   the test is unreliable, which makes it hard to test.
         //   also, it's better not to use OSMD to fetch one's score anyways.
         //   also, the timeout adds unnecessary time to the testing suite.
-        const score: string = "https://httpstat.us/408";
+        const score = "https://httpstat.us/408";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(score).then(
-            (_: {}) => {
+            () => {
                 done(new Error("Unexpected response from server"));
             },
-            (exc: Error) => {
-                done();
-            }
+            done,
         );
     });
 
     it("load MXL Document by URL", (done: Done) => {
-        const url: string = "base/test/data/Mozart_Clarinet_Quintet_Excerpt.mxl";
+        const url = "base/test/data/Mozart_Clarinet_Quintet_Excerpt.mxl";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(url).then(
-            (_: {}) => {
+            () => {
                 opensheetmusicdisplay.render();
                 done();
             },
@@ -183,11 +181,11 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     });
 
     it("load something invalid by URL", (done: Done) => {
-        const url: string = "https://www.google.com";
+        const url = "https://www.google.com";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(url).then(
-            (_: {}) => {
+            () => {
                 done(new Error("Invalid URL appears to be loaded correctly"));
             },
             (exc: Error) => {
@@ -201,11 +199,11 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     }).timeout(5000);
 
     it("load invalid URL", (done: Done) => {
-        const url: string = "https://www.afjkhfjkauu2ui3z2uiu.com";
+        const url = "https://www.afjkhfjkauu2ui3z2uiu.com";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(url).then(
-            (_: {}) => {
+            () => {
                 done(new Error("Invalid URL appears to be loaded correctly"));
             },
             (exc: Error) => {
@@ -219,11 +217,11 @@ describe("OpenSheetMusicDisplay Main Export", () => {
     }).timeout(5000);
 
     it("load invalid XML string", (done: Done) => {
-        const xml: string = "<?xml";
+        const xml = "<?xml";
         const div: HTMLElement = TestUtils.getDivElement(document);
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         opensheetmusicdisplay.load(xml).then(
-            (_: {}) => {
+            () => {
                 done(new Error("Corrupted XML appears to be loaded correctly"));
             },
             (exc: Error) => {
@@ -260,7 +258,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         const score: Document = TestUtils.getScore("MuzioClementi_SonatinaOpus36No1_Part1.xml");
         opensheetmusicdisplay.load(score).then(
-            (_: {}) => {
+            () => {
                 opensheetmusicdisplay.render();
                 chai.expect(div.offsetWidth).to.equal(500);
                 done();
@@ -275,7 +273,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
         const opensheetmusicdisplay: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         const score: Document = TestUtils.getScore("MuzioClementi_SonatinaOpus36No1_Part1.xml");
         opensheetmusicdisplay.load(score).then(
-            (_: {}) => {
+            () => {
                 opensheetmusicdisplay.render();
                 chai.expect(div.offsetWidth).to.equal(200);
                 done();
@@ -301,7 +299,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
             osmd.Sheet.Instruments[1].Visible = false;
             osmd.render();
             osmd.cursors[0].show();
-            for (let i: number = 0; i < 100; i++) {
+            for (let i = 0; i < 100; i++) {
                 osmd.cursors[0].next();
             }
             // After 100 steps in the visible score, cursor reached 3rd note from 17, a C
@@ -315,7 +313,7 @@ describe("OpenSheetMusicDisplay Main Export", () => {
             opensheetmusicdisplay = TestUtils.createOpenSheetMusicDisplay(div);
             const score: Document = TestUtils.getScore("MuzioClementi_SonatinaOpus36No1_Part1.xml");
             opensheetmusicdisplay.load(score).then(
-                (_: {}) => {
+                () => {
                     opensheetmusicdisplay.render();
                     opensheetmusicdisplay.cursors[0].show();
                     done();

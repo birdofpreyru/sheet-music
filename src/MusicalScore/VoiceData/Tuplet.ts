@@ -7,15 +7,15 @@ import { PlacementEnum } from "./Expressions/AbstractExpression";
  */
 export class Tuplet {
 
-    constructor(tupletLabelNumber: number, bracket: boolean = false) {
+    constructor(tupletLabelNumber: number, bracket = false) {
         this.tupletLabelNumber = tupletLabelNumber;
         this.bracket = bracket;
     }
 
     private tupletLabelNumber: number;
-    public PlacementFromXml: boolean = false;
+    public PlacementFromXml = false;
     public tupletLabelNumberPlacement: PlacementEnum;
-    public RenderTupletNumber: boolean = true;
+    public RenderTupletNumber = true;
     /** Notes contained in the tuplet, per VoiceEntry (list of VoiceEntries, which has a list of notes). */
     private notes: Note[][] = []; // TODO should probably be VoiceEntry[], not Note[][].
     private fractions: Fraction[] = [];
@@ -61,7 +61,7 @@ export class Tuplet {
      */
     public getNoteIndex(note: Note): number {
         for (let i: number = this.notes.length - 1; i >= 0; i--) {
-            for (let j: number = 0; j < this.notes[i].length; j++) {
+            for (let j = 0; j < this.notes[i].length; j++) {
                 if (note === this.notes[i][j]) {
                     return i;
                 }

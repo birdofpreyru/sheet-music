@@ -5,10 +5,10 @@
  * A class representing mathematical fractions, which have a numerator and a denominator.
  */
 export class Fraction {
-  private static maximumAllowedNumber: number = 46340; // sqrt(int.Max) --> signed int with 4 bytes (2^31)
-  private numerator: number = 0;
-  private denominator: number = 1;
-  private wholeValue: number = 0;
+  private static maximumAllowedNumber = 46340; // sqrt(int.Max) --> signed int with 4 bytes (2^31)
+  private numerator = 0;
+  private denominator = 1;
+  private wholeValue = 0;
   private realValue: number;
 
   /**
@@ -83,7 +83,7 @@ export class Fraction {
    * @param simplify - If simplify is true, then the fraction is simplified
    * to make both the numerator and denominator coprime, and less than maximumAllowedNumber.
    */
-  constructor(numerator: number = 0, denominator: number = 1, wholeValue: number = 0, simplify: boolean = true) {
+  constructor(numerator = 0, denominator = 1, wholeValue = 0, simplify = true) {
     this.numerator = numerator;
     this.denominator = denominator;
     this.wholeValue = wholeValue;
@@ -154,8 +154,8 @@ export class Fraction {
   }
 
   public calculateNumberOfNeededDots(): number {
-    let num: number = 1;
-    let product: number = 2;
+    let num = 1;
+    let product = 2;
     const expandedNumerator: number = this.GetExpandedNumerator();
     while (product < expandedNumerator) {
       num++;
@@ -323,7 +323,7 @@ export class Fraction {
     }
   }
 
-  public static FloatInaccuracyTolerance: number = 0.0001; // inaccuracy allowed when comparing Fraction.RealValues, because of floating point inaccuracy
+  public static FloatInaccuracyTolerance = 0.0001; // inaccuracy allowed when comparing Fraction.RealValues, because of floating point inaccuracy
 
   public isOnBeat(timeSignature: Fraction): boolean { // use sourceMeasure.ActiveTimeSignature as timeSignature
       const beatDistance: number = this.distanceFromBeat(timeSignature);

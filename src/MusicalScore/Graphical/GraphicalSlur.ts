@@ -168,7 +168,7 @@ export class GraphicalSlur extends GraphicalCurve {
             // calculate IntersectionPoint of the 2 Lines
                 // if same Slope, then Point.X between Start and End and Point.Y fixed
             const intersectionPoint: PointF2D = new PointF2D();
-            let sameSlope: boolean = false;
+            let sameSlope = false;
             if (Math.abs(Math.abs(startLineSlope) - Math.abs(endLineSlope)) < 0.0001) {
                 intersectionPoint.x = end2.x / 2;
                 intersectionPoint.y = 0;
@@ -187,8 +187,8 @@ export class GraphicalSlur extends GraphicalCurve {
             // idea is to compare the half heightWidthRatio of the bounding box of the skyline points with the slope (which is also a ratio: k/1)
             // if the slope is greater than the half heightWidthRatio (which will 99% be the case),
             // then add a y-offset to reduce the slope to the same value as the half heightWidthRatio of the bounding box
-            const startYOffset: number = 0;
-            const endYOffset: number = 0;
+            const startYOffset = 0;
+            const endYOffset = 0;
             /*if (Math.abs(heightWidthRatio) > 0.001) {
                 // 1. start side:
                 const startSlopeRatio: number = Math.abs(startLineSlope / (heightWidthRatio * 2));
@@ -340,7 +340,7 @@ export class GraphicalSlur extends GraphicalCurve {
             // calculate IntersectionPoint of the 2 Lines
             // if same Slope, then Point.X between Start and End and Point.Y fixed
             const intersectionPoint: PointF2D = new PointF2D();
-            let sameSlope: boolean = false;
+            let sameSlope = false;
             if (Math.abs(Math.abs(startLineSlope) - Math.abs(endLineSlope)) < 0.0001) {
                 intersectionPoint.x = end2.x / 2;
                 intersectionPoint.y = 0;
@@ -359,8 +359,8 @@ export class GraphicalSlur extends GraphicalCurve {
             // idea is to compare the half heightWidthRatio of the bounding box of the skyline points with the slope (which is also a ratio: k/1)
             // if the slope is greater than the half heightWidthRatio (which will 99% be the case),
             // then add a y-offset to reduce the slope to the same value as the half heightWidthRatio of the bounding box
-            const startYOffset: number = 0;
-            const endYOffset: number = 0;
+            const startYOffset = 0;
+            const endYOffset = 0;
             /*if (Math.abs(heightWidthRatio) > 0.001) {
                 // 1. start side:
                 const startSlopeRatio: number = Math.abs(startLineSlope / (heightWidthRatio * 2));
@@ -458,10 +458,10 @@ export class GraphicalSlur extends GraphicalCurve {
                                     staffLine: StaffLine,
                                     rules: EngravingRules,
                                     skyBottomLineCalculator: SkyBottomLineCalculator): {startX: number, startY: number, endX: number, endY: number} {
-        let startX: number = 0;
-        let startY: number = 0;
-        let endX: number = 0;
-        let endY: number = 0;
+        let startX = 0;
+        let startY = 0;
+        let endX = 0;
+        let endY = 0;
 
         if (slurStartNote) {
             // must be relative to StaffLine
@@ -624,7 +624,7 @@ export class GraphicalSlur extends GraphicalCurve {
 
         // if any StaffEntry belongs to a Measure with multiple Voices, than
         // if Slur's Start- or End-Note belongs to a LinkedVoice Below else Above
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
             if (graphicalStaffEntry.parentMeasure.hasMultipleVoices()) {
                 if (this.slur.StartNote.ParentVoiceEntry.ParentVoice instanceof LinkedVoice ||
@@ -636,7 +636,7 @@ export class GraphicalSlur extends GraphicalCurve {
         }
 
         // when lyrics are given place above:
-        for (let idx: number = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.staffEntries.length; idx < len; ++idx) {
             const graphicalStaffEntry: GraphicalStaffEntry = this.staffEntries[idx];
             if (graphicalStaffEntry.LyricsEntries.length > 0) {
                 this.placement = PlacementEnum.Above;
@@ -752,7 +752,7 @@ export class GraphicalSlur extends GraphicalCurve {
         const x: number = start.x;
         const y: number = start.y;
 
-        for (let i: number = 0; i < points.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             if (Math.abs(points[i].y - Number.MAX_VALUE) < 0.0001 || Math.abs(points[i].y - (-Number.MAX_VALUE)) < 0.0001) {
                 continue;
             }
@@ -778,7 +778,7 @@ export class GraphicalSlur extends GraphicalCurve {
         const x: number = end.x;
         const y: number = end.y;
 
-        for (let i: number = 0; i < points.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             if (Math.abs(points[i].y - Number.MAX_VALUE) < 0.0001 || Math.abs(points[i].y - (-Number.MAX_VALUE)) < 0.0001) {
                 continue;
             }
@@ -800,7 +800,7 @@ export class GraphicalSlur extends GraphicalCurve {
     private getPointListMaxY(points: PointF2D[]): number {
         let max: number = -Number.MAX_VALUE;
 
-        for (let idx: number = 0, len: number = points.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = points.length; idx < len; ++idx) {
             const point: PointF2D = points[idx];
             if (Math.abs(point.y - (-Number.MAX_VALUE)) < 0.0001 || Math.abs(point.y - Number.MAX_VALUE) < 0.0001) {
                 continue;
@@ -820,7 +820,7 @@ export class GraphicalSlur extends GraphicalCurve {
      */
     private calculateTranslatedAndRotatedPointListAbove(points: PointF2D[], startX: number, startY: number, rotationMatrix: Matrix2D): PointF2D[] {
         const transformedPoints: PointF2D[] = [];
-        for (let i: number = 0; i < points.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             if (Math.abs(points[i].y - Number.MAX_VALUE) < 0.0001 || Math.abs(points[i].y - (-Number.MAX_VALUE)) < 0.0001) {
                 continue;
             }
@@ -842,7 +842,7 @@ export class GraphicalSlur extends GraphicalCurve {
      */
     private calculateTranslatedAndRotatedPointListBelow(points: PointF2D[], startX: number, startY: number, rotationMatrix: Matrix2D): PointF2D[] {
         const transformedPoints: PointF2D[] = [];
-        for (let i: number = 0; i < points.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             if (Math.abs(points[i].y - Number.MAX_VALUE) < 0.0001 || Math.abs(points[i].y - (-Number.MAX_VALUE)) < 0.0001) {
                 continue;
             }
@@ -883,7 +883,7 @@ export class GraphicalSlur extends GraphicalCurve {
                                    startY: number, endY: number
     ): { startControlPoint: PointF2D, endControlPoint: PointF2D } {
         let heightFactor: number = this.rules.SlurHeightFactor;
-        let widthFlattenFactor: number = 1;
+        let widthFlattenFactor = 1;
         const cutoffAngle: number = this.rules.SlurHeightFlattenLongSlursCutoffAngle;
         const cutoffWidth: number = this.rules.SlurHeightFlattenLongSlursCutoffWidth;
         // console.log("width: " + endX);
@@ -948,7 +948,7 @@ export class GraphicalSlur extends GraphicalCurve {
     private calculateAngles(minAngle: number, startLineSlope: number, endLineSlope: number, maxAngle: number):
     {startAngle: number, endAngle: number} {
         // calculate Angles from the calculated Slopes, adding also a given angle
-        const angle: number = 20;
+        const angle = 20;
 
         let calculatedStartAngle: number = Math.atan(startLineSlope) / GraphicalSlur.degreesToRadiansFactor;
         if (startLineSlope > 0) {

@@ -43,10 +43,10 @@ describe("GeneratePNGImages", () => {
                 new OpenSheetMusicDisplay(div, { autoResize: false, backend: "canvas"});
             openSheetMusicDisplay.load(score);
 
-            const testDir: string = "../data/images";
+            const testDir = "../data/images";
             //fs.mkdirSync(testDir, { recursive: true });
 
-            const fileName: string = `${testDir}/${sampleFilename}.png`;
+            const fileName = `${testDir}/${sampleFilename}.png`;
             console.log("fileName: " + fileName);
 
             console.log("before buffer");

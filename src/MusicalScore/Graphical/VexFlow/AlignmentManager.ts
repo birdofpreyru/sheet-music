@@ -19,7 +19,7 @@ export class AlignmentManager {
         // Find close expressions along the staffline. Group them into tuples
         const groups: AbstractGraphicalExpression[][] = [];
         let tmpList: AbstractGraphicalExpression[] = new Array<AbstractGraphicalExpression>();
-        for (let aeIdx: number = 0; aeIdx < this.parentStaffline.AbstractExpressions.length - 1; aeIdx++) {
+        for (let aeIdx = 0; aeIdx < this.parentStaffline.AbstractExpressions.length - 1; aeIdx++) {
             const currentExpression: AbstractGraphicalExpression = this.parentStaffline.AbstractExpressions[aeIdx];
             const nextExpression: AbstractGraphicalExpression = this.parentStaffline.AbstractExpressions[aeIdx + 1];
 
@@ -69,7 +69,7 @@ export class AlignmentManager {
                 //     }
                 // }
 
-                for (let exprIdx: number = 0; exprIdx < aes.length; exprIdx++) {
+                for (let exprIdx = 0; exprIdx < aes.length; exprIdx++) {
                     const expr: AbstractGraphicalExpression = aes[exprIdx];
                     const centerOffset: number = centerYs[exprIdx] - yIdeal;
                     // TODO centerOffset is way too big sometimes, like 7.0 in An die Ferne Geliebte (measure 10, dim.)

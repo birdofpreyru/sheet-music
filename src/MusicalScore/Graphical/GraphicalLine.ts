@@ -3,7 +3,7 @@ import {OutlineAndFillStyleEnum} from "./DrawingEnums";
 import {PointF2D} from "../../Common/DataObjects/PointF2D";
 
 export class GraphicalLine {
-    constructor(start: PointF2D, end: PointF2D, width: number = 0,
+    constructor(start: PointF2D, end: PointF2D, width = 0,
         styleEnum: OutlineAndFillStyleEnum = OutlineAndFillStyleEnum.BaseWritingColor,
         colorHex: string = undefined) {
         this.start = start;

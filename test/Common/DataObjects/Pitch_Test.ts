@@ -63,7 +63,7 @@ describe("Pitch Unit Tests:", () => {
     });
 
     describe("calculate Pitch from Frequency", () => {
-        const octave: number = 1;
+        const octave = 1;
         const accidentals: number[] = [AccidentalEnum.DOUBLEFLAT,
             AccidentalEnum.FLAT,
             AccidentalEnum.NONE,
@@ -74,8 +74,8 @@ describe("Pitch Unit Tests:", () => {
         let pitch: Pitch;
         let calcedPitch: Pitch;
 
-        for (let i: number = 0; i < Pitch.pitchEnumValues.length; i++) {
-            for (let j: number = 0; j < accidentals.length; j++) {
+        for (let i = 0; i < Pitch.pitchEnumValues.length; i++) {
+            for (let j = 0; j < accidentals.length; j++) {
                 pitch = new Pitch(Pitch.pitchEnumValues[i], octave, accidentals[j]);
                 calcedPitch = Pitch.fromFrequency(pitch.Frequency);
 
@@ -91,7 +91,7 @@ describe("Pitch Unit Tests:", () => {
     });
 
     describe("get Pitch from fractional key", () => {
-        const octave: number = 5;
+        const octave = 5;
         const accidentals: number[] = [AccidentalEnum.DOUBLEFLAT,
             AccidentalEnum.FLAT,
             AccidentalEnum.NONE,
@@ -102,8 +102,8 @@ describe("Pitch Unit Tests:", () => {
         let pitch: Pitch;
         let calcedPitch: Pitch;
 
-        for (let i: number = 0; i < Pitch.pitchEnumValues.length; i++) {
-            for (let j: number = 0; j < accidentals.length; j++) {
+        for (let i = 0; i < Pitch.pitchEnumValues.length; i++) {
+            for (let j = 0; j < accidentals.length; j++) {
                 pitch = new Pitch(Pitch.pitchEnumValues[i], octave, accidentals[j]);
                 const halftone: number = pitch.getHalfTone();
                 calcedPitch = Pitch.fromHalftone(halftone);

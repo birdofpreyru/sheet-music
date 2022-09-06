@@ -5,10 +5,10 @@ import {PointF2D} from "./PointF2D";
  * Represent a rectangle on a plane
  */
 export class RectangleF2D {
-    public x: number = 0;
-    public y: number = 0;
-    public width: number = 0;
-    public height: number = 0;
+    public x = 0;
+    public y = 0;
+    public width = 0;
+    public height = 0;
 
     /**
      *

@@ -32,7 +32,7 @@ export class RepetitionCalculator {
     this.repetitionInstructions = repetitionInstructions;
     // console.log(repetitionInstructions);
     const sourceMeasures: SourceMeasure[] = this.musicSheet.SourceMeasures;
-    for (let idx: number = 0, len: number = this.repetitionInstructions.length; idx < len; ++idx) {
+    for (let idx = 0, len: number = this.repetitionInstructions.length; idx < len; ++idx) {
       const instruction: RepetitionInstruction = this.repetitionInstructions[idx];
       this.currentMeasureIndex = instruction.measureIndex;
       this.currentMeasure = sourceMeasures[this.currentMeasureIndex];
@@ -41,7 +41,7 @@ export class RepetitionCalculator {
 
     // if there are more than one instruction at measure begin or end,
     // sort them according to the nesting of the repetitions:
-    for (let idx: number = 0, len: number = this.musicSheet.SourceMeasures.length; idx < len; ++idx) {
+    for (let idx = 0, len: number = this.musicSheet.SourceMeasures.length; idx < len; ++idx) {
       const measure: SourceMeasure = this.musicSheet.SourceMeasures[idx];
       if (measure.FirstRepetitionInstructions.length > 1) {
         measure.FirstRepetitionInstructions.sort(RepetitionInstructionComparer.Compare);
@@ -165,7 +165,7 @@ export class RepetitionCalculator {
           this.currentMeasure.FirstRepetitionInstructions.push(currentRepetitionInstruction);
         } else {
           /* ending end */
-          for (let idx: number = 0, len: number = currentRepetitionInstruction.endingIndices.length; idx < len; ++idx) {
+          for (let idx = 0, len: number = currentRepetitionInstruction.endingIndices.length; idx < len; ++idx) {
             this.currentMeasure.LastRepetitionInstructions.push(currentRepetitionInstruction);
             const p: RepetitionEndingPart = rep.EndingIndexDict[currentRepetitionInstruction.endingIndices[idx]];
 

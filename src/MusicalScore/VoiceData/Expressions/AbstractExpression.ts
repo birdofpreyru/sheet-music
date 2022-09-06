@@ -9,7 +9,7 @@ export class AbstractExpression {
     }
 
     protected static isStringInStringList(stringList: Array<string>, inputString: string): boolean {
-        for (let idx: number = 0, len: number = stringList.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = stringList.length; idx < len; ++idx) {
             const s: string = stringList[idx];
             if (inputString.toLowerCase() === s.toLowerCase().trim()) {
                 return true;

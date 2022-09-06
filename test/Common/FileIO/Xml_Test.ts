@@ -4,7 +4,7 @@ import {TestUtils} from "../../Util/TestUtils";
 import {OpenSheetMusicDisplay} from "../../../src/OpenSheetMusicDisplay/OpenSheetMusicDisplay";
 
 // Test XML simple document
-const xmlTestData: string = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+const xmlTestData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
 <!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 2.0 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\">\
 <score-partwise>  <identification>    <encoding>      <software>Example Software name</software>      \
 <encoding-date>2016-04-04</encoding-date>      </encoding>    </identification>   <credit page=\"1\"> \

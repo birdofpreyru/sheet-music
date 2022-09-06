@@ -42,12 +42,12 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
         this.MusicPartManager = new MusicPartManager(this);
         this.hasBPMInfo = false;
     }
-    public static defaultTitle: string = "[no title given]";
+    public static defaultTitle = "[no title given]";
 
     public userStartTempoInBPM: number;
     public pageWidth: number;
 
-    private idString: string = "random idString, not initialized";
+    private idString = "random idString, not initialized";
     private sourceMeasures: SourceMeasure[] = [];
     private repetitions: Repetition[] = [];
     private dynListStaves: DynamicsContainer[][] = [];
@@ -69,10 +69,10 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
     private staves: Staff[] = [];
     private selectionStart: Fraction;
     private selectionEnd: Fraction;
-    private transpose: number = 0;
-    private defaultStartTempoInBpm: number = 0;
-    private drawErroneousMeasures: boolean = false;
-    private hasBeenOpenedForTheFirstTime: boolean = false;
+    private transpose = 0;
+    private defaultStartTempoInBpm = 0;
+    private drawErroneousMeasures = false;
+    private hasBeenOpenedForTheFirstTime = false;
     private currentEnrolledPosition: Fraction = new Fraction(0, 1);
     // (*) private musicSheetParameterObject: MusicSheetParameterObject = undefined;
     private rules: EngravingRules;
@@ -269,7 +269,7 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
         measure.measureListIndex = this.sourceMeasures.length - 1;
     }
     public checkForInstrumentWithNoVoice(): void {
-        for (let idx: number = 0, len: number = this.instruments.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.instruments[idx];
             if (instrument.Voices.length === 0) {
                 const voice: Voice = new Voice(instrument, 1);
@@ -287,10 +287,10 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
         return this.staves[staffIndexInMusicSheet];
     }
     public fillStaffList(): void {
-        let i: number = 0;
-        for (let idx: number = 0, len: number = this.instruments.length; idx < len; ++idx) {
+        let i = 0;
+        for (let idx = 0, len: number = this.instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.instruments[idx];
-            for (let idx2: number = 0, len2: number = instrument.Staves.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = instrument.Staves.length; idx2 < len2; ++idx2) {
                 const staff: Staff = instrument.Staves[idx2];
                 staff.idInMusicSheet = i;
                 this.staves.push(staff);
@@ -305,8 +305,8 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
         this.musicPartManager = value;
     }
     public getCompleteNumberOfStaves(): number {
-        let num: number = 0;
-        for (let idx: number = 0, len: number = this.instruments.length; idx < len; ++idx) {
+        let num = 0;
+        for (let idx = 0, len: number = this.instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.instruments[idx];
             num += instrument.Staves.length;
         }
@@ -352,9 +352,9 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
     public resetAllNoteStates(): void {
         const iterator: MusicPartManagerIterator = this.MusicPartManager.getIterator();
         while (!iterator.EndReached && iterator.CurrentVoiceEntries) {
-            for (let idx: number = 0, len: number = iterator.CurrentVoiceEntries.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = iterator.CurrentVoiceEntries.length; idx < len; ++idx) {
                 const voiceEntry: VoiceEntry = iterator.CurrentVoiceEntries[idx];
-                for (let idx2: number = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
+                for (let idx2 = 0, len2: number = voiceEntry.Notes.length; idx2 < len2; ++idx2) {
                     const note: Note = voiceEntry.Notes[idx2];
                     note.state = NoteState.Normal;
                 }
@@ -367,8 +367,8 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
     }
     public getGlobalStaffIndexOfFirstStaff(instrument: Instrument): number {
         const instrumentIndex: number = this.getMusicSheetInstrumentIndex(instrument);
-        let staffLineIndex: number = 0;
-        for (let i: number = 0; i < instrumentIndex; i++) {
+        let staffLineIndex = 0;
+        for (let i = 0; i < instrumentIndex; i++) {
             staffLineIndex += this.Instruments[i].Staves.length;
         }
         return staffLineIndex;
@@ -380,8 +380,8 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
      * @param value
      */
     public setRepetitionNewUserNumberOfRepetitions(index: number, value: number): void {
-        let repIndex: number = 0;
-        for (let i: number = 0; i < this.repetitions.length; i++) {
+        let repIndex = 0;
+        for (let i = 0; i < this.repetitions.length; i++) {
             if (this.repetitions[i] instanceof Repetition) { // FIXME
                 if (index === repIndex) {
                     this.repetitions[i].UserNumberOfRepetitions = value;
@@ -399,8 +399,8 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
      * @returns {any}
      */
     public getRepetitionByIndex(index: number): Repetition {
-        let repIndex: number = 0;
-        for (let i: number = 0; i < this.repetitions.length; i++) {
+        let repIndex = 0;
+        for (let i = 0; i < this.repetitions.length; i++) {
             if (this.repetitions[i] instanceof Repetition) {
                 if (index === repIndex) {
                     return <Repetition>this.repetitions[i];
@@ -540,9 +540,9 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
      * @returns {SourceMeasure}
      */
     public getSourceMeasureFromTimeStamp(timeStamp: Fraction): SourceMeasure {
-        for (let idx: number = 0, len: number = this.sourceMeasures.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.sourceMeasures.length; idx < len; ++idx) {
             const sm: SourceMeasure = this.sourceMeasures[idx];
-            for (let idx2: number = 0, len2: number = sm.VerticalSourceStaffEntryContainers.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = sm.VerticalSourceStaffEntryContainers.length; idx2 < len2; ++idx2) {
                 const vssec: VerticalSourceStaffEntryContainer = sm.VerticalSourceStaffEntryContainers[idx2];
                 if (timeStamp.Equals(vssec.getAbsoluteTimestamp())) {
                     return sm;
@@ -561,7 +561,7 @@ export class MusicSheet /*implements ISettableMusicSheet, IComparable<MusicSheet
 
     public getVisibleInstruments(): Instrument[] {
         const visInstruments: Instrument[] = [];
-        for (let idx: number = 0, len: number = this.Instruments.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.Instruments.length; idx < len; ++idx) {
             const instrument: Instrument = this.Instruments[idx];
             if (instrument.Voices.length > 0 && instrument.Voices[0].Visible) {
                 visInstruments.push(instrument);

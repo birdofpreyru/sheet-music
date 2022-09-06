@@ -26,7 +26,7 @@ export class GraphicalLyricWord {
     }
 
     public isFilled(): boolean {
-        for (let i: number = 0; i < this.graphicalLyricsEntries.length; i++) {
+        for (let i = 0; i < this.graphicalLyricsEntries.length; i++) {
             if (!this.graphicalLyricsEntries[i]) {
                 return false;
             }
@@ -36,7 +36,7 @@ export class GraphicalLyricWord {
 
     private initialize(): void {
         // FIXME: This is actually not needed in Javascript as we have dynamic memory allication?
-        for (let i: number = 0; i < this.lyricWord.Syllables.length; i++) {
+        for (let i = 0; i < this.lyricWord.Syllables.length; i++) {
             this.graphicalLyricsEntries.push(undefined);
         }
     }

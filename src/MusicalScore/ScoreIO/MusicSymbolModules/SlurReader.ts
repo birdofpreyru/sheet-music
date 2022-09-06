@@ -18,7 +18,7 @@ export class SlurReader {
                 for (const slurNode of slurNodes) {
                     if (slurNode.attributes().length > 0) {
                         const type: string = slurNode.attribute("type").value;
-                        let slurNumber: number = 1;
+                        let slurNumber = 1;
                         try {
                             const slurNumberAttribute: IXmlAttribute = slurNode.attribute("number");
                             if (slurNumberAttribute) {

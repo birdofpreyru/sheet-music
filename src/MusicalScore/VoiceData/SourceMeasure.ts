@@ -40,7 +40,7 @@ export class SourceMeasure {
         this.lastInstructionsStaffEntries = new Array(completeNumberOfStaves);
         this.rules = rules;
         this.TempoInBPM = 0;
-        for (let i: number = 0; i < completeNumberOfStaves; i++) {
+        for (let i = 0; i < completeNumberOfStaves; i++) {
             this.graphicalMeasureErrors.push(false);
             this.staffLinkedExpressions.push([]);
         }
@@ -56,10 +56,10 @@ export class SourceMeasure {
     public endingBarStyleXml: string;
     public endingBarStyleEnum: SystemLinesEnum;
     /** Whether the MusicXML says to print a new system (line break). See OSMDOptions.newSystemFromXML */
-    public printNewSystemXml: boolean = false;
+    public printNewSystemXml = false;
     /** Whether the MusicXML says to print a new page (page break). See OSMDOptions.newPageFromXML */
-    public printNewPageXml: boolean = false;
-    public IsSystemStartMeasure: boolean = false;
+    public printNewPageXml = false;
+    public IsSystemStartMeasure = false;
 
     private measureNumber: number;
     public MeasureNumberXML: number;
@@ -71,15 +71,15 @@ export class SourceMeasure {
     private completeNumberOfStaves: number;
     private duration: Fraction;
     private activeTimeSignature: Fraction;
-    public hasLyrics: boolean = false;
-    public hasMoodExpressions: boolean = false;
+    public hasLyrics = false;
+    public hasMoodExpressions = false;
     /** Whether the SourceMeasure only has rests, no other entries.
      *  Not the same as GraphicalMeasure.hasOnlyRests, because one SourceMeasure can have many GraphicalMeasures (staffs).
      */
-    public allRests: boolean = false;
-    public isReducedToMultiRest: boolean = false;
+    public allRests = false;
+    public isReducedToMultiRest = false;
     /** If this measure is a MultipleRestMeasure, this is the number of the measure in that sequence of measures. */
-    public multipleRestMeasureNumber: number = 0;
+    public multipleRestMeasureNumber = 0;
     private staffLinkedExpressions: MultiExpression[][] = [];
     private tempoExpressions: MultiTempoExpression[] = [];
     public rehearsalExpression: RehearsalExpression;
@@ -299,7 +299,7 @@ export class SourceMeasure {
      */
     public findOrCreateVoiceEntry(sse: SourceStaffEntry, voice: Voice): { createdVoiceEntry: boolean, voiceEntry: VoiceEntry } {
         let ve: VoiceEntry = undefined;
-        let createdNewVoiceEntry: boolean = false;
+        let createdNewVoiceEntry = false;
         for (const voiceEntry of sse.VoiceEntries) {
             if (voiceEntry.ParentVoice === voice) {
                 ve = voiceEntry;
@@ -335,7 +335,7 @@ export class SourceMeasure {
      * @returns {number}
      */
     public getVerticalContainerIndexByTimestamp(musicTimestamp: Fraction): number {
-        for (let idx: number = 0, len: number = this.VerticalSourceStaffEntryContainers.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.VerticalSourceStaffEntryContainers.length; idx < len; ++idx) {
             if (this.VerticalSourceStaffEntryContainers[idx].Timestamp.Equals(musicTimestamp)) {
                 return idx; // this.verticalSourceStaffEntryContainers.indexOf(verticalSourceStaffEntryContainer);
             }
@@ -349,7 +349,7 @@ export class SourceMeasure {
      * @returns {any}
      */
     public getVerticalContainerByTimestamp(musicTimestamp: Fraction): VerticalSourceStaffEntryContainer {
-        for (let idx: number = 0, len: number = this.VerticalSourceStaffEntryContainers.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.VerticalSourceStaffEntryContainers.length; idx < len; ++idx) {
             const verticalSourceStaffEntryContainer: VerticalSourceStaffEntryContainer = this.VerticalSourceStaffEntryContainers[idx];
             if (verticalSourceStaffEntryContainer.Timestamp.Equals(musicTimestamp)) {
                 return verticalSourceStaffEntryContainer;
@@ -364,8 +364,8 @@ export class SourceMeasure {
      * @param index
      */
     public checkForEmptyVerticalContainer(index: number): void {
-        let undefinedCounter: number = 0;
-        for (let i: number = 0; i < this.completeNumberOfStaves; i++) {
+        let undefinedCounter = 0;
+        for (let i = 0; i < this.completeNumberOfStaves; i++) {
             if (!this.verticalSourceStaffEntryContainers[index][i]) {
                 undefinedCounter++;
             }
@@ -386,10 +386,10 @@ export class SourceMeasure {
     public reverseCheck(musicSheet: MusicSheet, maxInstDuration: Fraction): Fraction {
         let maxDuration: Fraction = new Fraction(0, 1);
         const instrumentsDurations: Fraction[] = [];
-        for (let i: number = 0; i < musicSheet.Instruments.length; i++) {
+        for (let i = 0; i < musicSheet.Instruments.length; i++) {
             let instrumentDuration: Fraction = new Fraction(0, 1);
             const inSourceMeasureInstrumentIndex: number = musicSheet.getGlobalStaffIndexOfFirstStaff(musicSheet.Instruments[i]);
-            for (let j: number = 0; j < musicSheet.Instruments[i].Staves.length; j++) {
+            for (let j = 0; j < musicSheet.Instruments[i].Staves.length; j++) {
                 const lastStaffEntry: SourceStaffEntry = this.getLastSourceStaffEntryForInstrument(inSourceMeasureInstrumentIndex + j);
                 if (lastStaffEntry !== undefined && !lastStaffEntry.hasTie()) {
                     const verticalContainerIndex: number = this.verticalSourceStaffEntryContainers.indexOf(lastStaffEntry.VerticalContainerParent);
@@ -406,7 +406,7 @@ export class SourceMeasure {
             }
             instrumentsDurations.push(instrumentDuration);
         }
-        for (let idx: number = 0, len: number = instrumentsDurations.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = instrumentsDurations.length; idx < len; ++idx) {
             const instrumentsDuration: Fraction = instrumentsDurations[idx];
             if (maxDuration.lt(instrumentsDuration)) {
                 maxDuration = instrumentsDuration;
@@ -424,10 +424,10 @@ export class SourceMeasure {
      */
     public calculateInstrumentsDuration(musicSheet: MusicSheet, instrumentMaxTieNoteFractions: Fraction[]): Fraction[] {
         const instrumentsDurations: Fraction[] = [];
-        for (let i: number = 0; i < musicSheet.Instruments.length; i++) {
+        for (let i = 0; i < musicSheet.Instruments.length; i++) {
             let instrumentDuration: Fraction = new Fraction(0, 1);
             const inSourceMeasureInstrumentIndex: number = musicSheet.getGlobalStaffIndexOfFirstStaff(musicSheet.Instruments[i]);
-            for (let j: number = 0; j < musicSheet.Instruments[i].Staves.length; j++) {
+            for (let j = 0; j < musicSheet.Instruments[i].Staves.length; j++) {
                 const lastStaffEntry: SourceStaffEntry = this.getLastSourceStaffEntryForInstrument(inSourceMeasureInstrumentIndex + j);
                 if (lastStaffEntry !== undefined && lastStaffEntry.Timestamp) {
                     if (instrumentDuration.lt(Fraction.plus(lastStaffEntry.Timestamp, lastStaffEntry.calculateMaxNoteLength()))) {
@@ -459,7 +459,7 @@ export class SourceMeasure {
      * @returns {boolean} true iff some measure begin instructions have been found for at least one staff
      */
     public hasBeginInstructions(): boolean {
-        for (let staffIndex: number = 0, len: number = this.FirstInstructionsStaffEntries.length; staffIndex < len; staffIndex++) {
+        for (let staffIndex = 0, len: number = this.FirstInstructionsStaffEntries.length; staffIndex < len; staffIndex++) {
             const beginInstructionsStaffEntry: SourceStaffEntry = this.FirstInstructionsStaffEntries[staffIndex];
             if (beginInstructionsStaffEntry !== undefined && beginInstructionsStaffEntry.Instructions.length > 0) {
                 return true;
@@ -469,7 +469,7 @@ export class SourceMeasure {
     }
 
     public beginsWithLineRepetition(): boolean {
-        for (let idx: number = 0, len: number = this.FirstRepetitionInstructions.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.FirstRepetitionInstructions.length; idx < len; ++idx) {
             const instr: RepetitionInstruction = this.FirstRepetitionInstructions[idx];
             if (instr.type === RepetitionInstructionEnum.StartLine) {
                 return true;
@@ -486,7 +486,7 @@ export class SourceMeasure {
      * @returns {boolean}
      */
     public endsWithLineRepetition(): boolean {
-        for (let idx: number = 0, len: number = this.LastRepetitionInstructions.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.LastRepetitionInstructions.length; idx < len; ++idx) {
             const instruction: RepetitionInstruction = this.LastRepetitionInstructions[idx];
             if (instruction.type === RepetitionInstructionEnum.BackJumpLine) {
                 return true;
@@ -499,7 +499,7 @@ export class SourceMeasure {
             if (rep.FromWords) {
                 continue;
             }
-            for (let idx2: number = 0, len2: number = rep.BackwardJumpInstructions.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = rep.BackwardJumpInstructions.length; idx2 < len2; ++idx2) {
                 const backJumpInstruction: RepetitionInstruction = rep.BackwardJumpInstructions[idx2];
                 if (instruction === backJumpInstruction) {
                     return true;
@@ -514,7 +514,7 @@ export class SourceMeasure {
      * @returns {boolean}
      */
     public beginsWithWordRepetition(): boolean {
-        for (let idx: number = 0, len: number = this.FirstRepetitionInstructions.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.FirstRepetitionInstructions.length; idx < len; ++idx) {
             const instruction: RepetitionInstruction = this.FirstRepetitionInstructions[idx];
             if (instruction.parentRepetition !== undefined &&
                 instruction === instruction.parentRepetition.startMarker && instruction.parentRepetition.FromWords) {
@@ -529,7 +529,7 @@ export class SourceMeasure {
      * @returns {boolean}
      */
     public endsWithWordRepetition(): boolean {
-        for (let idx: number = 0, len: number = this.LastRepetitionInstructions.length; idx < len; ++idx) {
+        for (let idx = 0, len: number = this.LastRepetitionInstructions.length; idx < len; ++idx) {
             const instruction: RepetitionInstruction = this.LastRepetitionInstructions[idx];
             const rep: Repetition = instruction.parentRepetition;
             if (!rep) {
@@ -538,7 +538,7 @@ export class SourceMeasure {
             if (!rep.FromWords) {
                 continue;
             }
-            for (let idx2: number = 0, len2: number = rep.BackwardJumpInstructions.length; idx2 < len2; ++idx2) {
+            for (let idx2 = 0, len2: number = rep.BackwardJumpInstructions.length; idx2 < len2; ++idx2) {
                 const backJumpInstruction: RepetitionInstruction = rep.BackwardJumpInstructions[idx2];
                 if (instruction === backJumpInstruction) {
                     return true;
@@ -574,7 +574,7 @@ export class SourceMeasure {
     public getKeyInstruction(staffIndex: number): KeyInstruction {
         if (this.FirstInstructionsStaffEntries[staffIndex]) {
             const sourceStaffEntry: SourceStaffEntry = this.FirstInstructionsStaffEntries[staffIndex];
-            for (let idx: number = 0, len: number = sourceStaffEntry.Instructions.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = sourceStaffEntry.Instructions.length; idx < len; ++idx) {
                 const abstractNotationInstruction: AbstractNotationInstruction = sourceStaffEntry.Instructions[idx];
                 if (abstractNotationInstruction instanceof KeyInstruction) {
                     return <KeyInstruction>abstractNotationInstruction;
@@ -601,8 +601,8 @@ export class SourceMeasure {
     }
 
     public canBeReducedToMultiRest(): boolean {
-        let allRestsOrInvisible: boolean = true;
-        let visibleLyrics: boolean = false;
+        let allRestsOrInvisible = true;
+        let visibleLyrics = false;
         for (const container of this.verticalSourceStaffEntryContainers) {
             if (!container) {
                 continue;
@@ -644,7 +644,7 @@ export class SourceMeasure {
         }
         // check for clef instruction for next measure
         for (const lastStaffEntry of this.lastInstructionsStaffEntries) {
-            for (let idx: number = 0, len: number = lastStaffEntry?.Instructions.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = lastStaffEntry?.Instructions.length; idx < len; ++idx) {
                 const abstractNotationInstruction: AbstractNotationInstruction = lastStaffEntry.Instructions[idx];
                 if (abstractNotationInstruction instanceof ClefInstruction) {
                     return false;

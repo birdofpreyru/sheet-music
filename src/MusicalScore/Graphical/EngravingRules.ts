@@ -25,10 +25,10 @@ import { Note } from "../VoiceData/Note";
  */
 export class EngravingRules {
     /* Number of pixels in one unit. */
-    public static UnitToPx: number = 10.0;
+    public static UnitToPx = 10.0;
 
     /** A unit of distance. 1.0 is the distance between lines of a stave for OSMD, which is 10 pixels in Vexflow. */
-    public static unit: number = 1.0;
+    public static unit = 1.0;
     public SamplingUnit: number;
     public StaccatoShorteningFactor: number;
     /** Height (size) of the sheet title. */
@@ -346,7 +346,7 @@ export class EngravingRules {
 
     public NoteToGraphicalNoteMap: Dictionary<number, GraphicalNote>;
     // this is basically a WeakMap, except we save the id in the Note instead of using a WeakMap.
-    public NoteToGraphicalNoteMapObjectCount: number = 0;
+    public NoteToGraphicalNoteMapObjectCount = 0;
 
     public static FixStafflineBoundingBox: boolean; // TODO temporary workaround
 
@@ -741,10 +741,10 @@ export class EngravingRules {
         }
     }
 
-    public setPreferredSkyBottomLineBackendAutomatically(numberOfGraphicalMeasures: number = -1): void {
+    public setPreferredSkyBottomLineBackendAutomatically(numberOfGraphicalMeasures = -1): void {
         const vendor: string = globalThis.navigator?.vendor ?? "";
         const userAgent: string = globalThis.navigator?.userAgent ?? "";
-        let alwaysUsePlain: boolean = false;
+        let alwaysUsePlain = false;
         if (this.DisableWebGLInSafariAndIOS && (/apple/i).test(vendor)) { // doesn't apply to Chrome on MacOS
             alwaysUsePlain = true;
         } else if (this.DisableWebGLInFirefox && userAgent.includes("Firefox")) {
@@ -936,7 +936,7 @@ export class EngravingRules {
         this.OneMinusTPower3 = new Array(this.BezierCurveStepSize);
         this.FactorOne = new Array(this.BezierCurveStepSize);
         this.FactorTwo = new Array(this.BezierCurveStepSize);
-        for (let i: number = 0; i < this.BezierCurveStepSize; i++) {
+        for (let i = 0; i < this.BezierCurveStepSize; i++) {
             const t: number = i / this.BezierCurveStepSize;
             this.TPower3[i] = Math.pow(t, 3);
             this.OneMinusTPower3[i] = Math.pow((1 - t), 3);
@@ -948,7 +948,7 @@ export class EngravingRules {
 
 // TODO maybe this should be moved to OSMDOptions. Also see OpenSheetMusicDisplay.PageFormatStandards
 export class PageFormat {
-    constructor(width: number, height: number, idString: string = "noIdStringGiven") {
+    constructor(width: number, height: number, idString = "noIdStringGiven") {
         this.width = width;
         this.height = height;
         this.idString = idString;

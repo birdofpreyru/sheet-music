@@ -8,7 +8,7 @@ import {Pitch} from "../../../Common/DataObjects/Pitch";
  * A [[KeyInstruction]] is a key signature denoting which notes are to be sharpened or flattened.
  */
 export class KeyInstruction extends AbstractNotationInstruction {
-    constructor(sourceStaffEntry: SourceStaffEntry = undefined, key: number = 0, mode: KeyEnum = KeyEnum.major) {
+    constructor(sourceStaffEntry: SourceStaffEntry = undefined, key = 0, mode: KeyEnum = KeyEnum.major) {
         super(sourceStaffEntry);
         this.Key = key;
         this.keyTypeOriginal = key;
@@ -24,7 +24,7 @@ export class KeyInstruction extends AbstractNotationInstruction {
     private mode: KeyEnum;
     private alteratedNotes: NoteEnum[];
     /** The halftones this instruction was transposed by, compared to the original. */
-    public isTransposedBy: number = 0;
+    public isTransposedBy = 0;
 
     public static copy(keyInstruction: KeyInstruction): KeyInstruction {
         const newKeyInstruction: KeyInstruction = new KeyInstruction(keyInstruction.parent, keyInstruction.Key, keyInstruction.Mode);
@@ -35,7 +35,7 @@ export class KeyInstruction extends AbstractNotationInstruction {
 
     public static getAllPossibleMajorKeyInstructions(): KeyInstruction[] {
         const keyInstructionList: KeyInstruction[] = [];
-        for (let keyType: number = -7; keyType < 7; keyType++) {
+        for (let keyType = -7; keyType < 7; keyType++) {
             const currentKeyInstruction: KeyInstruction = new KeyInstruction(undefined, keyType, KeyEnum.major);
             keyInstructionList.push(currentKeyInstruction);
         }
@@ -66,11 +66,11 @@ export class KeyInstruction extends AbstractNotationInstruction {
     private calcAlteratedNotes(): NoteEnum[] {
         const noteList: NoteEnum[] = [];
         if (this.keyType > 0) {
-            for (let i: number = 0; i < this.keyType; i++) {
+            for (let i = 0; i < this.keyType; i++) {
                 noteList.push(KeyInstruction.sharpPositionList[i]);
             }
         } else if (this.keyType < 0) {
-            for (let i: number = 0; i < -this.keyType; i++) {
+            for (let i = 0; i < -this.keyType; i++) {
                 noteList.push(KeyInstruction.flatPositionList[i]);
             }
         }
@@ -99,15 +99,8 @@ export class KeyInstruction extends AbstractNotationInstruction {
         return "Key: " + this.keyType + "" + this.mode;
     }
 
-    public OperatorEquals(key2: KeyInstruction): boolean {
-        const key1: KeyInstruction = this;
-        if (key1 === key2) {
-            return true;
-        }
-        if (!key1 || !key2) {
-            return false;
-        }
-        return (key1.Key === key2.Key && key1.Mode === key2.Mode);
+    public OperatorEquals(key: KeyInstruction): boolean {
+      return key && key.Key === this.Key && key.Mode === this.Mode;
     }
 
     public OperatorNotEqual(key2: KeyInstruction): boolean {

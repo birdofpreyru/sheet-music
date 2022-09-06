@@ -56,7 +56,7 @@ export class VexFlowMusicSystem extends MusicSystem {
     protected createSystemLine(xPosition: number, lineWidth: number, lineType: SystemLinesEnum, linePosition: SystemLinePosition,
                                musicSystem: MusicSystem, topMeasure: GraphicalMeasure, bottomMeasure: GraphicalMeasure = undefined): SystemLine {
         const vfTopMeasure: VexFlowMeasure = topMeasure as VexFlowMeasure;
-        let renderInitialLine: boolean = false;
+        let renderInitialLine = false;
 
         if (bottomMeasure) {
             renderInitialLine = true;

@@ -146,7 +146,7 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         this.ctx.restore();
         return node;
     }
-    public renderRectangle(rectangle: RectangleF2D, styleId: number, colorHex: string, alpha: number = 1): Node {
+    public renderRectangle(rectangle: RectangleF2D, styleId: number, colorHex: string, alpha = 1): Node {
         this.ctx.save();
         const node: Node = this.ctx.openGroup("rect");
         if (colorHex) {
@@ -162,7 +162,7 @@ export class SvgVexFlowBackend extends VexFlowBackend {
         return node;
     }
 
-    public renderLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number = 2): Node {
+    public renderLine(start: PointF2D, stop: PointF2D, color = "#FF0000FF", lineWidth = 2): Node {
         this.ctx.save();
         const node: Node = this.ctx.openGroup("line");
         this.ctx.beginPath();

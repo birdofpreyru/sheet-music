@@ -5,9 +5,9 @@ export class Matrix2D {
 
     constructor() {
         this.matrix = [];
-        for (let i: number = 0; i < 2; i++) {
+        for (let i = 0; i < 2; i++) {
             this.matrix[i] = [];
-            for (let j: number = 0; j < 2; j++) {
+            for (let j = 0; j < 2; j++) {
                 this.matrix[i][j] = 0;
             }
         }
@@ -25,8 +25,8 @@ export class Matrix2D {
     }
 
     public scalarMultiplication(scalar: number): void {
-        for (let i: number = 0; i < 2; i++) {
-            for (let j: number = 0; j < 2; j++) {
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
                 this.matrix[i][j] *= scalar;
             }
         }
@@ -34,8 +34,8 @@ export class Matrix2D {
 
     public getTransposeMatrix(): Matrix2D {
         const transpose: Matrix2D = new Matrix2D();
-        for (let i: number = 0; i < 2; i++) {
-            for (let j: number = 0; j < 2; j++) {
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
                 transpose.matrix[i][j] = this.matrix[j][i];
             }
         }

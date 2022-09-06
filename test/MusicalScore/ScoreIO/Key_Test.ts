@@ -307,7 +307,7 @@ describe("InstrumentReader for element 'time'", () => {
   });
 });
 
-function getMusicSheetWithKey(fifths: number = undefined, mode: string = undefined, timeSymbol: string = ""): MusicSheet {
+function getMusicSheetWithKey(fifths: number = undefined, mode: string = undefined, timeSymbol = ""): MusicSheet {
   const doc: Document = parser.parseFromString(getMusicXmlWithKey(fifths, mode, timeSymbol), "text/xml");
   chai.expect(doc).to.not.be.undefined;
   const score: IXmlElement = new IXmlElement(doc.getElementsByTagName("score-partwise")[0]);
@@ -315,7 +315,7 @@ function getMusicSheetWithKey(fifths: number = undefined, mode: string = undefin
   return reader.createMusicSheet(score, "template.xml");
 }
 
-function getMusicXmlWithKey(fifths: number = undefined, mode: string = undefined, timeSymbol: string = ""): string {
+function getMusicXmlWithKey(fifths: number = undefined, mode: string = undefined, timeSymbol = ""): string {
   const modeElement: string = mode ? `<mode>${mode}</mode>` : "";
   const fifthsElement: string = fifths ? `<fifths>${fifths}</fifths>` : "";
   const timeSymbolAttribute: string = timeSymbol ? `symbol="${timeSymbol}"` : "";

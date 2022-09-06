@@ -24,7 +24,7 @@ describe("MXL Tests", () => {
           chai.expect(score.name).to.equal("score-partwise");
           done();
         },
-        (exc: any) => { throw exc; }
+        (exc: Error) => { throw exc; }
       ).then(undefined, done);
     });
   }
@@ -45,7 +45,7 @@ describe("MXL Tests", () => {
         chai.expect(score.name).to.equal("score-partwise");
         done(new Error("Empty zip file was loaded correctly. How is that even possible?"));
       },
-      (exc: any) => { done(); }
+      done,
     );
   });
 });

@@ -39,19 +39,13 @@ export class RhythmInstruction extends AbstractNotationInstruction {
     }
 
     public OperatorEquals(rhythm2: RhythmInstruction): boolean {
-        const rhythm1: RhythmInstruction = this;
-        if (rhythm1 === rhythm2) {
-            return true;
-        }
-        if (!rhythm1 || !rhythm2) {
-            return false;
-        }
-        return (rhythm1.numerator === rhythm2.numerator && rhythm1.denominator === rhythm2.denominator);
+      return rhythm2
+        && this.numerator === rhythm2.numerator
+        && this.denominator === rhythm2.denominator;
     }
 
     public OperatorNotEqual(rhythm2: RhythmInstruction): boolean {
-        const rhythm1: RhythmInstruction = this;
-        return !(rhythm1 === rhythm2);
+      return rhythm2 !== this;
     }
 
     public ToString(): string {

@@ -6,7 +6,7 @@ import {PartListEntry} from "./PartListEntry";
 export class MappingSourceMusicPart /* implements IComparable, IComparable<MappingSourceMusicPart>*/ {
     constructor(
         sourceMusicPart: SourceMusicPart, startTimestamp: Fraction, parentPartListEntry?: Repetition,
-        repetitionRun: number = -1, isEnding: boolean = false
+        repetitionRun = -1, isEnding = false
     ) {
         this.sourceMusicPart = sourceMusicPart;
         this.parentPartListEntry = parentPartListEntry;
@@ -20,7 +20,7 @@ export class MappingSourceMusicPart /* implements IComparable, IComparable<Mappi
     private parentRepetition: Repetition;
     private parentPartListEntry: PartListEntry;
     private startTimestamp: Fraction;
-    private repetitionRun: number = -1;
+    private repetitionRun = -1;
     private isEnding: boolean;
 
     public get IsRepetition(): boolean {

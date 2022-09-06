@@ -28,7 +28,7 @@ export class VexFlowStaffEntry extends GraphicalStaffEntry {
 
         // sets the vexflow x positions back into the bounding boxes of the staff entries in the osmd object model.
         // The positions are needed for cursor placement and mouse/tap interactions
-        let lastBorderLeft: number = 0;
+        let lastBorderLeft = 0;
         for (const gve of this.graphicalVoiceEntries as VexFlowVoiceEntry[]) {
             if (gve.vfStaveNote) {
                 gve.vfStaveNote.setStave(stave);
@@ -106,9 +106,9 @@ export class VexFlowStaffEntry extends GraphicalStaffEntry {
      */
     private calculateModifierXOffsets(staffLines: number[], collisionDistance: number): number[] {
         const offsets: number[] = [];
-        for (let i: number = 0; i < staffLines.length; i++) {
-            let offset: number = 0;
-            let collisionFound: boolean = true;
+        for (let i = 0; i < staffLines.length; i++) {
+            let offset = 0;
+            let collisionFound = true;
             while (collisionFound) {
                 for (let j: number = i; j >= 0; j--) {
                     const lineDiff: number = Math.abs(staffLines[i] - staffLines[j]);

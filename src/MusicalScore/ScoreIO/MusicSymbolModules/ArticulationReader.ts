@@ -67,7 +67,7 @@ export class ArticulationReader {
   public addArticulationExpression(node: IXmlElement, currentVoiceEntry: VoiceEntry): void {
     if (node !== undefined && node.elements().length > 0) {
       const childNodes: IXmlElement[] = node.elements();
-      for (let idx: number = 0, len: number = childNodes.length; idx < len; ++idx) {
+      for (let idx = 0, len: number = childNodes.length; idx < len; ++idx) {
         const childNode: IXmlElement = childNodes[idx];
         let name: string = childNode.name;
         try {
@@ -138,7 +138,7 @@ export class ArticulationReader {
             }
           }
         } catch (ex) {
-          const errorMsg: string = "Invalid note articulation.";
+          const errorMsg = "Invalid note articulation.";
           log.debug("addArticulationExpression", errorMsg, ex);
           return;
         }
@@ -301,7 +301,7 @@ export class ArticulationReader {
           let placement: PlacementEnum = PlacementEnum.Below;
           let accidental: AccidentalEnum = AccidentalEnum.NONE;
           const accidentalsListArr: IXmlElement[] = accidentalsList;
-          for (let idx: number = 0, len: number = accidentalsListArr.length; idx < len; ++idx) {
+          for (let idx = 0, len: number = accidentalsListArr.length; idx < len; ++idx) {
             const accidentalNode: IXmlElement = accidentalsListArr[idx];
             let text: string = accidentalNode.value;
             accidental = this.getAccEnumFromString(text);

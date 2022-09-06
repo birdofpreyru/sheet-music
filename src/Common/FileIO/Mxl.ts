@@ -17,10 +17,8 @@ export class MXLHelper {
         // asynchronously load zip file and process it - with Promises
         const zipLoadedAsync: Promise<JSZip> = zip.loadAsync(data);
         const text: Promise<string> = zipLoadedAsync.then(
-            (_: JSZip) => {
-                return zip.file("META-INF/container.xml").async("text");
-            },
-            (err: any) => {
+            () => zip.file("META-INF/container.xml").async("text"),
+            (err: Error) => {
                 throw err;
             }
         );
@@ -31,7 +29,7 @@ export class MXLHelper {
                 const rootFile: string = doc.getElementsByTagName("rootfile")[0].getAttribute("full-path");
                 return zip.file(rootFile).async("text");
             },
-            (err: any) => {
+            (err: Error) => {
                 throw err;
             }
         ).then(
@@ -41,14 +39,14 @@ export class MXLHelper {
                 const doc: IXmlElement = new IXmlElement(xml.documentElement);
                 return Promise.resolve(doc);
             },
-            (err: any) => {
+            (err: Error) => {
                 throw err;
             }
         ).then(
             (content: IXmlElement) => {
                 return content;
             },
-            (err: any) => {
+            (err: Error) => {
                 throw new Error("extractSheetFromMxl: " + err.message);
             }
         );
@@ -58,10 +56,8 @@ export class MXLHelper {
         const zip: JSZip = new JSZip();
         // asynchronously load zip file and process it - with Promises
         return zip.loadAsync(data).then(
-            (_: any) => {
-                return zip.file("META-INF/container.xml").async("text");
-            },
-            (err: any) => {
+            () => zip.file("META-INF/container.xml").async("text"),
+            (err: Error) => {
                 // log jszip error. for some reason this isn't done in OSMD where this method is used.
                 log.error(err);
                 throw err;
@@ -73,7 +69,7 @@ export class MXLHelper {
                 const rootFile: string = doc.getElementsByTagName("rootfile")[0].getAttribute("full-path");
                 return zip.file(rootFile).async("text");
             },
-            (err: any) => {
+            (err: Error) => {
                 throw err;
             }
         );

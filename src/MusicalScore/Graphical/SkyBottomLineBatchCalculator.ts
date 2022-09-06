@@ -74,7 +74,7 @@ export class SkyBottomLineBatchCalculator {
     public calculateLines(): void {
         for (const [, { backend, entries }] of this.batches) {
             const results: SkyBottomLineCalculationResult[] = backend.calculateLines();
-            let start: number = 0;
+            let start = 0;
             for (const { skyBottomLineCalculator, measures } of entries) {
                 const end: number = start + measures.length;
                 skyBottomLineCalculator.updateLines(results.slice(start, end));

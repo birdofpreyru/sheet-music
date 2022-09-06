@@ -42,7 +42,7 @@ export class Pitch {
     ];
 
     private static halftoneFactor: number = 12 / (Math.LN2 / Math.LN10);
-    private static octXmlDiff: number = 3;
+    private static octXmlDiff = 3;
 
     // private _sourceOctave: number;
     // private _sourceFundamentalNote: NoteEnum;
@@ -86,7 +86,7 @@ export class Pitch {
         }
         const enums: NoteEnum[] = Pitch.pitchEnumValues;
         const originalIndex: number = enums.indexOf(noteEnum);
-        let octaveShift: number = 0;
+        let octaveShift = 0;
         let newIndex: number = (originalIndex + lines) % enums.length; // modulo only handles positive overflow
         if (originalIndex + lines > enums.length - 1) {
             octaveShift = 1;
@@ -111,7 +111,7 @@ export class Pitch {
     }
 
     public static WrapAroundCheck(value: number, limit: number): { halftone: number, overflow: number } {
-        let overflow: number = 0;
+        let overflow = 0;
 
         while (value < 0) {
             value += limit;
@@ -129,7 +129,7 @@ export class Pitch {
     //public static calcFrequency(fractionalKey: number): number;
 
     public static calcFrequency(obj: Pitch|number): number {
-        let octaveSteps: number = 0;
+        let octaveSteps = 0;
         let halfToneSteps: number;
         if (obj instanceof Pitch) {
             // obj is a pitch
@@ -428,38 +428,30 @@ export class Pitch {
         ", Note: " + this.fundamentalNote + ", octave: " + this.octave.toString();
     }
 
-    public OperatorEquals(p2: Pitch): boolean {
-        const p1: Pitch = this;
-        // if (ReferenceEquals(p1, p2)) {
-        //     return true;
-        // }
-        if (!p1 || !p2) {
-            return false;
-        }
-        return (p1.FundamentalNote === p2.FundamentalNote && p1.Octave === p2.Octave && p1.Accidental === p2.Accidental);
+    public OperatorEquals(p: Pitch): boolean {
+        return p && p.FundamentalNote === this.FundamentalNote
+          && p.Octave === this.Octave
+          && p.Accidental === this.Accidental;
     }
 
-    public OperatorNotEqual(p2: Pitch): boolean {
-        const p1: Pitch = this;
-        return !(p1 === p2);
+    public OperatorNotEqual(p: Pitch): boolean {
+      return p !== this;
     }
 
     //These don't take into account accidentals! which isn't needed for our current purpose
-    public OperatorFundamentalGreaterThan(p2: Pitch): boolean {
-        const p1: Pitch = this;
-        if (p1.Octave === p2.Octave) {
-            return p1.FundamentalNote > p2.FundamentalNote;
+    public OperatorFundamentalGreaterThan(p: Pitch): boolean {
+        if (this.Octave === p.Octave) {
+            return this.FundamentalNote > p.FundamentalNote;
         } else {
-            return p1.Octave > p2.Octave;
+            return this.Octave > p.Octave;
         }
     }
 
-    public OperatorFundamentalLessThan(p2: Pitch): boolean {
-        const p1: Pitch = this;
-        if (p1.Octave === p2.Octave) {
-            return p1.FundamentalNote < p2.FundamentalNote;
+    public OperatorFundamentalLessThan(p: Pitch): boolean {
+        if (this.Octave === p.Octave) {
+            return this.FundamentalNote < p.FundamentalNote;
         } else {
-            return p1.Octave < p2.Octave;
+            return this.Octave < p.Octave;
         }
     }
 

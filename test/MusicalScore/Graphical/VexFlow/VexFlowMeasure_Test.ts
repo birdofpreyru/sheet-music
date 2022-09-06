@@ -15,7 +15,7 @@ import {EngravingRules} from "../../../../src/MusicalScore/Graphical/EngravingRu
 describe("VexFlow Measure", () => {
 
    it("Can create GraphicalMusicSheet", (done: Done) => {
-      const path: string = "MuzioClementi_SonatinaOpus36No1_Part1.xml";
+      const path = "MuzioClementi_SonatinaOpus36No1_Part1.xml";
       const score: Document = TestUtils.getScore(path);
       chai.expect(score).to.not.be.undefined;
       const partwise: Element = TestUtils.getPartWiseElement(score);

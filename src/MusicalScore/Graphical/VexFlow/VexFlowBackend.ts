@@ -63,7 +63,7 @@ export abstract class VexFlowBackend {
     const htmlElementToRemove: HTMLElement = this.getRenderElement();
 
     // only remove child if the container has this child, otherwise it will throw an error.
-    for (let i: number = 0; i < container.children.length; i++) {
+    for (let i = 0; i < container.children.length; i++) {
       if (container.children.item(i) === htmlElementToRemove) {
         container.removeChild(htmlElementToRemove);
         break;

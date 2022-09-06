@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.5.3-release"; // getter: this.Version
+    protected version = "1.5.3-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -64,10 +64,10 @@ export class OpenSheetMusicDisplay {
     public get cursor(): Cursor { // lowercase for backwards compatibility since cursor -> cursors change
         return this.cursors[0];
     }
-    public zoom: number = 1.0;
-    protected zoomUpdated: boolean = false;
+    public zoom = 1.0;
+    protected zoomUpdated = false;
     /** Timeout in milliseconds used in osmd.load(string) when string is a URL. */
-    public loadUrlTimeout: number = 5000;
+    public loadUrlTimeout = 5000;
 
     protected container: HTMLElement;
     protected backendType: BackendType;
@@ -83,7 +83,7 @@ export class OpenSheetMusicDisplay {
     protected autoResizeEnabled: boolean;
     protected resizeHandlerAttached: boolean;
     protected followCursor: boolean;
-    protected OnXMLRead: Function;
+    protected OnXMLRead: (xml: string) => string;
 
     /**
      * Load a MusicXML file
@@ -99,10 +99,10 @@ export class OpenSheetMusicDisplay {
     public load(
       content: string | Document,
       options: {
-        preProcessHook?: Function;
+        preProcessHook?: (doc: Document) => Promise<void> | void;
         tempTitle?: string;
       } = {},
-    ): Promise<{}> {
+    ): Promise<void> {
         const {tempTitle = "Untitled Score"} = options;
 
         // Warning! This function is asynchronous! No error handling is done here.
@@ -110,15 +110,14 @@ export class OpenSheetMusicDisplay {
         //console.log("typeof content: " + typeof content);
         if (typeof content === "string") {
             const str: string = <string>content;
-            const self: OpenSheetMusicDisplay = this;
             if (str.startsWith("\x50\x4b\x03\x04")) {
                 log.debug("[OSMD] This is a zip file, unpack it first: " + str);
                 // This is a zip file, unpack it first
                 return MXLHelper.MXLtoXMLstring(str).then(
                     (x: string) => {
-                        return self.load(x, options);
+                        return this.load(x, options);
                     },
-                    (err: any) => {
+                    (err: Error) => {
                         log.debug(err);
                         throw new Error("OpenSheetMusicDisplay: Invalid MXL file");
                     }
@@ -128,7 +127,7 @@ export class OpenSheetMusicDisplay {
             if (str.startsWith("\uf7ef\uf7bb\uf7bf")) {
                 log.debug("[OSMD] UTF with BOM detected, truncate first three bytes and pass along: " + str);
                 // UTF with BOM detected, truncate first three bytes and pass along
-                return self.load(str.slice(3), options);
+                return this.load(str.slice(3), options);
             }
             let trimmedStr: string = str;
             if (/^\s/.test(trimmedStr)) { // only trim if we need to. (end of string is irrelevant)
@@ -145,7 +144,7 @@ export class OpenSheetMusicDisplay {
                 // Assume now "str" is a URL
                 // Retrieve the file at the given URL
                 return AJAX.ajax(trimmedStr, this.loadUrlTimeout).then(
-                    (s: string) => { return self.load(s, options); },
+                    (s: string) => { return this.load(s, options); },
                     (exc: Error) => { throw exc; }
                 );
             } else {
@@ -153,7 +152,7 @@ export class OpenSheetMusicDisplay {
             }
         }
 
-        if (!content || !(<any>content).nodeName) {
+        if (!content || (content instanceof Document && !content.nodeName)) {
             return Promise.reject(new Error("OpenSheetMusicDisplay: The document which was provided is invalid"));
         }
         const xmlDocument: Document = (<Document>content);
@@ -161,12 +160,12 @@ export class OpenSheetMusicDisplay {
         /* Note: remaining part of the logic, which should follow after
          * the pre-process hook, if given. Because the codebase uses ES5,
          * this is done in such ugly way for now. */
-        const finalize: Function = () => {
+        const finalize = () => {
           const xmlDocumentNodes: NodeList = xmlDocument.childNodes;
           log.debug("[OSMD] load(), Document url: " + xmlDocument.URL);
 
           let scorePartwiseElement: Element;
-          for (let i: number = 0, length: number = xmlDocumentNodes.length; i < length; i += 1) {
+          for (let i = 0, length: number = xmlDocumentNodes.length; i < length; i += 1) {
               const node: Node = xmlDocumentNodes[i];
               if (node.nodeType === Node.ELEMENT_NODE && node.nodeName.toLowerCase() === "score-partwise") {
                   scorePartwiseElement = <Element>node;
@@ -189,13 +188,13 @@ export class OpenSheetMusicDisplay {
           this.needBackendUpdate = true;
           this.updateGraphic();
 
-          return Promise.resolve({});
+          return Promise.resolve();
         };
 
         if (options.preProcessHook) {
-          const x: Promise<{}> = options.preProcessHook(xmlDocument);
-          if (x.then) {
-            return x.then(() => finalize());
+          const x = options.preProcessHook(xmlDocument);
+          if (x instanceof Promise) {
+            return x.then(finalize);
           }
         }
         return finalize();
@@ -260,10 +259,11 @@ export class OpenSheetMusicDisplay {
         // needBackendUpdate is well intentioned, but we need to cover all cases.
         //   backends also need an update when this.zoom was set from outside, which unfortunately doesn't have a setter method to set this in.
         //   so just for compatibility, we need to assume users set osmd.zoom, so we'd need to check whether it was changed compared to last time.
-        if (true || this.needBackendUpdate) {
+
+        // if (true || this.needBackendUpdate) {
             this.createOrRefreshRenderBackend();
             this.needBackendUpdate = false;
-        }
+        // }
 
         this.drawer.setZoom(this.zoom);
         // Finally, draw
@@ -312,7 +312,7 @@ export class OpenSheetMusicDisplay {
         }
         // TODO width may need to be coordinated with render() where width is also used
         let height: number;
-        const canvasDimensionsLimit: number = 32767; // browser limitation. Chrome/Firefox (16 bit, 32768 causes an error).
+        const canvasDimensionsLimit = 32767; // browser limitation. Chrome/Firefox (16 bit, 32768 causes an error).
         // Could be calculated by canvas-size module.
         // see #678 on Github and here: https://stackoverflow.com/a/11585939/10295942
 
@@ -322,7 +322,7 @@ export class OpenSheetMusicDisplay {
                 break; // don't add the bounding boxes of pages that aren't drawn to the container height etc
             }
             const backend: VexFlowBackend = this.createBackend(this.backendType, page);
-            const sizeWarningPartTwo: string = " exceeds CanvasBackend limit of 32767. Cutting off score.";
+            const sizeWarningPartTwo = " exceeds CanvasBackend limit of 32767. Cutting off score.";
             if (backend.getOSMDBackendType() === BackendType.Canvas && width > canvasDimensionsLimit) {
                 log.warn("[OSMD] Warning: width of " + width + sizeWarningPartTwo);
                 width = canvasDimensionsLimit;
@@ -355,7 +355,7 @@ export class OpenSheetMusicDisplay {
 
     // for now SVG only, see generateImages_browserless (PNG/SVG)
     public exportSVG(): void {
-        for (const backend of this.drawer?.Backends) {
+        for (const backend of this.drawer?.Backends || []) {
             if (backend instanceof SvgVexFlowBackend) {
                 (backend as SvgVexFlowBackend).export();
             }
@@ -393,7 +393,7 @@ export class OpenSheetMusicDisplay {
       if (container) {
         if (typeof container === "string") {
           this.container = document.getElementById(<string>container);
-        } else if (container && "appendChild" in <any>container) {
+        } else if (container && "appendChild" in container) {
           this.container = <HTMLElement>container;
         }
       }
@@ -447,7 +447,7 @@ export class OpenSheetMusicDisplay {
         }
         if (options.drawingParameters) {
             this.drawingParameters.DrawingParametersEnum =
-                (<any>DrawingParametersEnum)[options.drawingParameters.toLowerCase()];
+                (DrawingParametersEnum)[options.drawingParameters.toLowerCase()];
                 // see DrawingParameters.ts: set DrawingParametersEnum, and DrawingParameters.ts:setForCompactTightMode()
         }
 
@@ -696,7 +696,7 @@ export class OpenSheetMusicDisplay {
             }
             // validate strings input
             for (const colorString of options.coloringSetCustom) {
-                const regExp: RegExp = /^\#[0-9a-fA-F]{6}$/;
+                const regExp = /^#[0-9a-fA-F]{6}$/;
                 if (!regExp.test(colorString)) {
                     throw new Error(
                         "One of the color strings in options.coloringSetCustom was not a valid HTML Hex color:\n" + colorString);
@@ -706,12 +706,12 @@ export class OpenSheetMusicDisplay {
         } else if (options.coloringMode === ColoringModes.AutoColoring) {
             colorSetString = [];
             const keys: string[] = Object.keys(AutoColorSet);
-            for (let i: number = 0; i < keys.length; i++) {
+            for (let i = 0; i < keys.length; i++) {
                 colorSetString.push(AutoColorSet[keys[i]]);
             }
         } // for both cases:
         const coloringSetCurrent: Dictionary<NoteEnum | number, string> = new Dictionary<NoteEnum | number, string>();
-        for (let i: number = 0; i < noteIndices.length; i++) {
+        for (let i = 0; i < noteIndices.length; i++) {
             coloringSetCurrent.setValue(noteIndices[i], colorSetString[i]);
         }
         coloringSetCurrent.setValue(-1, colorSetString[7]);
@@ -775,8 +775,6 @@ export class OpenSheetMusicDisplay {
      * Attach the appropriate handler to the window.onResize event
      */
     protected autoResize(): void {
-
-        const self: OpenSheetMusicDisplay = this;
         this.handleResize(
             () => {
                 // empty
@@ -791,14 +789,14 @@ export class OpenSheetMusicDisplay {
                 //    document.body.offsetWidth,
                 //    document.documentElement.offsetWidth
                 //);
-                //self.container.style.width = width + "px";
+                // this.container.style.width = width + "px";
 
                 // recalculate beams, are otherwise not updated and can detach from stems, see #724
                 if (this.graphic?.GetCalculator instanceof VexFlowMusicSheetCalculator) { // null and type check
                     (this.graphic.GetCalculator as VexFlowMusicSheetCalculator).beamsNeedUpdate = true;
                 }
-                if (self.IsReadyToRender()) {
-                    self.render();
+                if (this.IsReadyToRender()) {
+                    this.render();
                 }
             }
         );
@@ -812,11 +810,10 @@ export class OpenSheetMusicDisplay {
     protected handleResize(startCallback: () => void, endCallback: () => void): void {
         let rtime: number;
         let timeout: ReturnType<typeof setTimeout> = undefined;
-        const delta: number = 200;
-        const self: OpenSheetMusicDisplay = this;
+        const delta = 200;
 
-        function resizeStart(): void {
-            if (!self.AutoResizeEnabled) {
+        const resizeStart = () => {
+            if (!this.AutoResizeEnabled) {
                 return;
             }
             rtime = (new Date()).getTime();
@@ -825,7 +822,7 @@ export class OpenSheetMusicDisplay {
                 rtime = (new Date()).getTime();
                 timeout = setTimeout(resizeEnd, delta);
             }
-        }
+        };
 
         function resizeEnd(): void {
             timeout = undefined;
@@ -837,15 +834,8 @@ export class OpenSheetMusicDisplay {
             }
         }
 
-        /* eslint-disable @typescript-eslint/dot-notation */
         if (global["IS_CLIENT_SIDE"]) {
-        /* eslint-enable @typescript-eslint/dot-notation */
-          if ((<any>window).attachEvent) {
-              // Support IE<9
-              (<any>window).attachEvent("onresize", resizeStart);
-          } else {
-              window.addEventListener("resize", resizeStart);
-          }
+          window.addEventListener("resize", resizeStart);
           this.resizeHandlerAttached = true;
         }
 
@@ -859,7 +849,7 @@ export class OpenSheetMusicDisplay {
     public enableOrDisableCursors(enable: boolean): void {
         this.drawingParameters.drawCursors = enable;
         if (enable) {
-            for (let i: number = 0; i < this.cursorsOptions.length; i++){
+            for (let i = 0; i < this.cursorsOptions.length; i++){
                 // save previous cursor state
                 const hidden: boolean = this.cursors[i]?.Hidden;
                 const previousIterator: MusicPartManagerIterator = this.cursors[i]?.Iterator;
@@ -945,7 +935,12 @@ export class OpenSheetMusicDisplay {
         pageFormatString = pageFormatString.replace("Landscape", "L");
         pageFormatString = pageFormatString.replace("Portrait", "P");
         //console.log("change format to: " + formatId);
-        if (OpenSheetMusicDisplay.PageFormatStandards.hasOwnProperty(pageFormatString)) {
+        if (
+          Object.prototype.hasOwnProperty.call(
+            OpenSheetMusicDisplay.PageFormatStandards,
+            pageFormatString,
+          )
+        ) {
             pageFormat = OpenSheetMusicDisplay.PageFormatStandards[pageFormatString];
             return pageFormat;
         }
@@ -996,7 +991,7 @@ export class OpenSheetMusicDisplay {
     public get DrawBoundingBox(): string {
         return this.drawBoundingBox;
     }
-    public setDrawBoundingBox(value: string, render: boolean = false): void {
+    public setDrawBoundingBox(value: string, render = false): void {
         this.drawBoundingBox = value;
         if (this.drawer) {
             this.drawer.drawableBoundingBoxElement = value; // drawer is sometimes created anew, losing this value, so it's saved in OSMD now.

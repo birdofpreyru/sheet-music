@@ -46,10 +46,10 @@ export abstract class MusicSheetDrawer {
     public drawingParameters: DrawingParameters;
     public splitScreenLineColor: number;
     public midiPlaybackAvailable: boolean;
-    public drawableBoundingBoxElement: string = "None"; // process.env.DRAW_BOUNDING_BOX_ELEMENT;
+    public drawableBoundingBoxElement = "None"; // process.env.DRAW_BOUNDING_BOX_ELEMENT;
 
-    public skyLineVisible: boolean = false;
-    public bottomLineVisible: boolean = false;
+    public skyLineVisible = false;
+    public bottomLineVisible = false;
 
     protected rules: EngravingRules;
     protected graphicalMusicSheet: GraphicalMusicSheet;
@@ -95,7 +95,7 @@ export abstract class MusicSheetDrawer {
         }
         // Draw the pages
         const pagesToDraw: number = Math.min(this.graphicalMusicSheet.MusicPages.length, this.rules.MaxPageToDrawNumber);
-        for (let i: number = 0; i < pagesToDraw; i ++) {
+        for (let i = 0; i < pagesToDraw; i ++) {
             const page: GraphicalMusicPage = this.graphicalMusicSheet.MusicPages[i];
             this.drawPage(page);
         }
@@ -227,7 +227,7 @@ export abstract class MusicSheetDrawer {
         // empty
     }
 
-    protected renderRectangle(rectangle: RectangleF2D, layer: number, styleId: number, colorHex: string = undefined, alpha: number = 1): Node {
+    protected renderRectangle(rectangle: RectangleF2D, layer: number, styleId: number, colorHex: string = undefined, alpha = 1): Node {
         throw new Error("not implemented");
     }
 
@@ -429,7 +429,7 @@ export abstract class MusicSheetDrawer {
         // implemented by subclass (VexFlowMusicSheetDrawer)
     }
 
-    protected drawGraphicalLine(graphicalLine: GraphicalLine, lineWidth: number, colorOrStyle: string = "black"): Node {
+    protected drawGraphicalLine(graphicalLine: GraphicalLine, lineWidth: number, colorOrStyle = "black"): Node {
         /* TODO similar checks as in drawLabel
         if (!this.isVisible(new BoundingBox(graphicalLine.Start,)) {
             return;
@@ -438,7 +438,7 @@ export abstract class MusicSheetDrawer {
         return this.drawLine(graphicalLine.Start, graphicalLine.End, colorOrStyle, lineWidth);
     }
 
-    protected drawLine(start: PointF2D, stop: PointF2D, color: string = "#FF0000FF", lineWidth: number): Node {
+    protected drawLine(start: PointF2D, stop: PointF2D, color = "#FF0000FF", lineWidth: number): Node {
         // implemented by subclass (VexFlowMusicSheetDrawer)
         return undefined;
     }
@@ -463,7 +463,7 @@ export abstract class MusicSheetDrawer {
     protected drawStaffLines(staffLine: StaffLine): void {
         if (staffLine.StaffLines) {
             const position: PointF2D = staffLine.PositionAndShape.AbsolutePosition;
-            for (let i: number = 0; i < 5; i++) {
+            for (let i = 0; i < 5; i++) {
                 this.drawLineAsHorizontalRectangleWithOffset(staffLine.StaffLines[i], position, <number>GraphicalLayers.Notes);
             }
         }
@@ -495,7 +495,7 @@ export abstract class MusicSheetDrawer {
     }
 
     protected drawSymbol(symbol: MusicSymbol, symbolStyle: MusicSymbolDrawingStyle, position: PointF2D,
-                         scalingFactor: number = 1, layer: number = <number>GraphicalLayers.Notes): void {
+                         scalingFactor = 1, layer: number = <number>GraphicalLayers.Notes): void {
         //empty
     }
 
@@ -535,9 +535,9 @@ export abstract class MusicSheetDrawer {
      * @param layer Layer to draw to
      * @param type Type of element to show bounding boxes for as string.
      */
-    private drawBoundingBoxes(startBox: BoundingBox, layer: number = 0, type: string = "all"): void {
+    private drawBoundingBoxes(startBox: BoundingBox, layer = 0, type = "all"): void {
         const dataObjectString: string = (startBox.DataObject.constructor as any).name; // only works with non-minified build or sourcemap
-        let typeMatch: boolean = false;
+        let typeMatch = false;
         if (type === "all") {
             typeMatch = true;
         } else {
@@ -569,7 +569,7 @@ export abstract class MusicSheetDrawer {
     }
 
     public drawBoundingBox(bbox: BoundingBox,
-        color: string = undefined, drawCross: boolean = false, labelText: string = undefined, layer: number = 0
+        color: string = undefined, drawCross = false, labelText: string = undefined, layer = 0
     ): Node {
         let tmpRect: RectangleF2D = new RectangleF2D(bbox.AbsolutePosition.x + bbox.BorderMarginLeft,
             bbox.AbsolutePosition.y + bbox.BorderMarginTop,

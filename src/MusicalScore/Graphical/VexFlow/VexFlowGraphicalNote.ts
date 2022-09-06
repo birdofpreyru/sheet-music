@@ -134,7 +134,7 @@ export class VexFlowGraphicalNote extends GraphicalNote {
     /** Gets the SVG path elements of the beams starting on this note. */
     public getBeamSVGs(): HTMLElement[] {
         const beamSVGs: HTMLElement[] = [];
-        for (let i: number = 0;; i++) {
+        for (let i = 0;; i++) {
             const newSVG: HTMLElement = document.getElementById(`vf-${this.getSVGId()}-beam${i}`);
             if (!newSVG) {
                 break;

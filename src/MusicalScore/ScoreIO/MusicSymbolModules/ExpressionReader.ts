@@ -142,8 +142,8 @@ export class ExpressionReader {
     }
     public read(directionNode: IXmlElement, currentMeasure: SourceMeasure,
                 inSourceMeasureCurrentFraction: Fraction, inSourceMeasurePreviousFraction: Fraction = undefined): void {
-        let isTempoInstruction: boolean = false;
-        let isDynamicInstruction: boolean = false;
+        let isTempoInstruction = false;
+        let isDynamicInstruction = false;
         const n: IXmlElement = directionNode.element("sound");
         if (n) {
             const tempoAttr: IXmlAttribute = n.attribute("tempo");
@@ -258,7 +258,7 @@ export class ExpressionReader {
         }
     }
     public addOctaveShift(directionNode: IXmlElement, currentMeasure: SourceMeasure, endTimestamp: Fraction): void {
-        let octaveStaffNumber: number = 1;
+        let octaveStaffNumber = 1;
         const staffNode: IXmlElement = directionNode.element("staff");
         if (staffNode) {
             try {
@@ -283,7 +283,7 @@ export class ExpressionReader {
                     const numberXml: number = this.readNumber(octaveShiftNode);
                     if (octaveShiftNode.attribute("size")) {
                         const size: number = parseInt(octaveShiftNode.attribute("size").value, 10);
-                        let octave: number = 0;
+                        let octave = 0;
                         if (size === 8) {
                             octave = 1;
                         } else if (size === 15) {
@@ -439,7 +439,7 @@ export class ExpressionReader {
         }
     }
     private readNumber(node: IXmlElement): number {
-        let numberXml: number = 1; // default value
+        let numberXml = 1; // default value
         const numberStringXml: string = node.attribute("number")?.value;
         if (numberStringXml) {
             numberXml = Number.parseInt(numberStringXml, 10);
@@ -598,7 +598,7 @@ export class ExpressionReader {
             ContinuousTempoExpression.isInputStringContinuousTempo(stringTrimmed)) {
             // first check if there is already a tempo expression with the same function
             if (currentMeasure.TempoExpressions.length > 0) {
-                for (let idx: number = 0, len: number = currentMeasure.TempoExpressions.length; idx < len; ++idx) {
+                for (let idx = 0, len: number = currentMeasure.TempoExpressions.length; idx < len; ++idx) {
                     const multiTempoExpression: MultiTempoExpression = currentMeasure.TempoExpressions[idx];
                     if (multiTempoExpression.Timestamp === this.directionTimestamp &&
                         multiTempoExpression.InstantaneousTempo !== undefined &&
@@ -680,7 +680,7 @@ export class ExpressionReader {
         const unknownMultiExpression: MultiExpression = this.createNewMultiExpressionIfNeeded(currentMeasure, -1);
         // check here first if there might be a tempo expression doublette:
         if (currentMeasure.TempoExpressions.length > 0) {
-            for (let idx: number = 0, len: number = currentMeasure.TempoExpressions.length; idx < len; ++idx) {
+            for (let idx = 0, len: number = currentMeasure.TempoExpressions.length; idx < len; ++idx) {
                 const multiTempoExpression: MultiTempoExpression = currentMeasure.TempoExpressions[idx];
                 if (multiTempoExpression.Timestamp === this.directionTimestamp &&
                     multiTempoExpression.InstantaneousTempo !== undefined &&

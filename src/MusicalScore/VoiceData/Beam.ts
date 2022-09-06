@@ -8,9 +8,9 @@ export class Beam {
     private notes: Note[] = [];
     private extendedNoteList: Note[] = [];
     public BeamNumber: number;
-    public BeamNumberOffsetToXML: number = 0;
+    public BeamNumberOffsetToXML = 0;
 
-    constructor(beamNumber: number = 1, beamNumberOffsetToXML: number = 0) {
+    constructor(beamNumber = 1, beamNumberOffsetToXML = 0) {
         this.BeamNumber = beamNumber;
         this.BeamNumberOffsetToXML = beamNumberOffsetToXML;
     }

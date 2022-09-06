@@ -29,13 +29,13 @@ export class RepetitionInstructionReader {
   }
 
   public handleLineRepetitionInstructions(barlineNode: IXmlElement): boolean {
-    let pieceEndingDetected: boolean = false;
+    let pieceEndingDetected = false;
     if (barlineNode.elements().length > 0) {
-      let location: string = "";
-      let hasRepeat: boolean = false;
-      let direction: string = "";
-      let type: string = "";
-      let style: string = "";
+      let location = "";
+      let hasRepeat = false;
+      let direction = "";
+      let type = "";
+      let style = "";
       const endingIndices: number[] = [];
 
       // read barline style
@@ -53,7 +53,7 @@ export class RepetitionInstructionReader {
       const barlineNodeElements: IXmlElement[] = barlineNode.elements();
 
       // read repeat- or ending line information
-      for (let idx: number = 0, len: number = barlineNodeElements.length; idx < len; ++idx) {
+      for (let idx = 0, len: number = barlineNodeElements.length; idx < len; ++idx) {
         const childNode: IXmlElement = barlineNodeElements[idx];
         if ("repeat" === childNode.name && childNode.hasAttributes) {
           hasRepeat = true;
@@ -66,7 +66,7 @@ export class RepetitionInstructionReader {
           // Parse the given ending indices:
           // handle cases like: "1, 2" or "1 + 2" or even "1 - 3, 6"
           const separatedEndingIndices: string[] = num.split(/[,+]/);
-          for (let idx2: number = 0, len2: number = separatedEndingIndices.length; idx2 < len2; ++idx2) {
+          for (let idx2 = 0, len2: number = separatedEndingIndices.length; idx2 < len2; ++idx2) {
             const separatedEndingIndex: string = separatedEndingIndices[idx2];
             const indices: string[] = separatedEndingIndex.match("[0-9]");
 
@@ -78,7 +78,7 @@ export class RepetitionInstructionReader {
                 endingIndices.push(index);
               }
             } else {
-              for (let idx3: number = 0, len3: number = indices.length; idx3 < len3; ++idx3) {
+              for (let idx3 = 0, len3: number = indices.length; idx3 < len3; ++idx3) {
                 const index: string = indices[idx3];
                 endingIndices.push(parseInt(index, 10));
               }
@@ -123,7 +123,7 @@ export class RepetitionInstructionReader {
     const wordsNode: IXmlElement = directionTypeNode.element("words");
     const measureIndex: number = this.currentMeasureIndex;
     if (wordsNode) {
-      const dsRegEx: string = "d\\s?\\.s\\."; // Input for new RegExp(). TS eliminates the first \
+      const dsRegEx = "d\\s?\\.s\\."; // Input for new RegExp(). TS eliminates the first \
       // must Trim string and ToLower before compare
       const innerText: string = wordsNode.value.trim().toLowerCase();
       if (StringUtil.StringContainsSeparatedWord(innerText, dsRegEx + " al fine", true)) {
@@ -138,7 +138,7 @@ export class RepetitionInstructionReader {
         this.addInstruction(this.repetitionInstructions, newInstruction);
         return true;
       }
-      const dcRegEx: string = "d\\.\\s?c\\.";
+      const dcRegEx = "d\\.\\s?c\\.";
       if (StringUtil.StringContainsSeparatedWord(innerText, dcRegEx + " al coda", true)) {
         // if (relativeMeasurePosition < 0.5) {
         //   measureIndex--;
@@ -238,12 +238,12 @@ export class RepetitionInstructionReader {
   }
 
   public removeRedundantInstructions(): void {
-    let segnoCount: number = 0;
-    let codaCount: number = 0;
+    let segnoCount = 0;
+    let codaCount = 0;
     //const fineCount: number = 0;
-    let toCodaCount: number = 0;
-    let dalSegnaCount: number = 0;
-    for (let index: number = 0; index < this.repetitionInstructions.length; index++) {
+    let toCodaCount = 0;
+    let dalSegnaCount = 0;
+    for (let index = 0; index < this.repetitionInstructions.length; index++) {
       const instruction: RepetitionInstruction = this.repetitionInstructions[index];
       switch (instruction.type) {
         case RepetitionInstructionEnum.Coda:
@@ -260,8 +260,8 @@ export class RepetitionInstructionReader {
           break;
         case RepetitionInstructionEnum.Segno:
           if (segnoCount - dalSegnaCount > 0) { // two segnos in a row
-            let foundInstruction: boolean = false;
-            for (let idx: number = 0, len: number = this.repetitionInstructions.length; idx < len; ++idx) {
+            let foundInstruction = false;
+            for (let idx = 0, len: number = this.repetitionInstructions.length; idx < len; ++idx) {
               const instr: RepetitionInstruction = this.repetitionInstructions[idx];
               if (instruction.measureIndex - instr.measureIndex === 1) {
                 switch (instr.type) {
@@ -356,8 +356,8 @@ export class RepetitionInstructionReader {
   }
 
   private addInstruction(currentRepetitionInstructions: RepetitionInstruction[], newInstruction: RepetitionInstruction): void {
-    let addInstruction: boolean = true;
-    for (let idx: number = 0, len: number = currentRepetitionInstructions.length; idx < len; ++idx) {
+    let addInstruction = true;
+    for (let idx = 0, len: number = currentRepetitionInstructions.length; idx < len; ++idx) {
       const repetitionInstruction: RepetitionInstruction = currentRepetitionInstructions[idx];
       if (newInstruction.equals(repetitionInstruction)) {
         addInstruction = false;

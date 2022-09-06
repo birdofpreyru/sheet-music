@@ -12,9 +12,9 @@ import { EngravingRules } from "../EngravingRules";
 export class VexFlowInstrumentBracket extends GraphicalObject {
 
     public vexflowConnector: VF.StaveConnector;
-    public Visible: boolean = true;
+    public Visible = true;
 
-    constructor(firstVexFlowStaffLine: VexFlowStaffLine, lastVexFlowStaffLine: VexFlowStaffLine, depth: number = 0) {
+    constructor(firstVexFlowStaffLine: VexFlowStaffLine, lastVexFlowStaffLine: VexFlowStaffLine, depth = 0) {
         super();
         this.PositionAndShape = new BoundingBox(this, firstVexFlowStaffLine.ParentMusicSystem.PositionAndShape);
         const firstVexMeasure: VexFlowMeasure = firstVexFlowStaffLine.Measures[0] as VexFlowMeasure;
