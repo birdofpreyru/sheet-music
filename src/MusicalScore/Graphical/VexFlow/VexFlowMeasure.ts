@@ -38,6 +38,11 @@ import { GraphicalLyricEntry } from "..";
 
 // type StemmableNote = VF.StemmableNote;
 
+type StaveModifierPlus = VF.StaveModifier & {
+  originalFillStyle: string;
+  originalStrokeStyle: string;
+};
+
 export class VexFlowMeasure extends GraphicalMeasure {
     constructor(staff: Staff, sourceMeasure?: SourceMeasure, staffLine?: StaffLine) {
         super(staff, sourceMeasure, staffLine);
@@ -111,7 +116,9 @@ export class VexFlowMeasure extends GraphicalMeasure {
             space_above_staff_ln: 0,
             space_below_staff_ln: 0
         });
-        (this.stave as any).MeasureNumber = this.MeasureNumber; // for debug info. vexflow automatically uses stave.measure for rendering measure numbers
+        (this.stave as VF.Stave & {
+          MeasureNumber: number;
+        }).MeasureNumber = this.MeasureNumber; // for debug info. vexflow automatically uses stave.measure for rendering measure numbers
         // also see VexFlowMusicSheetDrawer.drawSheet() for some other vexflow default value settings (like default font scale)
 
         if (this.ParentStaff) {
@@ -260,7 +267,11 @@ export class VexFlowMeasure extends GraphicalMeasure {
      * @param previousKey the old cancelled key. Needed to show which accidentals are not valid any more.
      * @param currentClef the valid clef. Needed to put the accidentals on the right y-positions.
      */
-    public addKeyAtBegin(currentKey: KeyInstruction, previousKey: KeyInstruction, currentClef: ClefInstruction): void {
+    public addKeyAtBegin(
+      currentKey: KeyInstruction,
+      previousKey: KeyInstruction,
+      // currentClef: ClefInstruction,
+    ): void {
         if (!this.rules.RenderKeySignatures) {
             return;
         }
@@ -305,20 +316,24 @@ export class VexFlowMeasure extends GraphicalMeasure {
             if (!visible) {
                 // make clef invisible in vexflow. (only rendered to correct layout and staffentry boundingbox)
                 if (modifier.getCategory() === "clefs" && modifier.getPosition() === VF.StaveModifier.Position.END) {
-                    if ((modifier as any).type === vfclef.type) { // any = VF.Clef
+                    if ((modifier as VF.StaveModifier & {
+                      type: string;
+                    }).type === vfclef.type) { // any = VF.Clef
                         const transparentStyle = "#12345600";
-                        const originalStyle: any = modifier.getStyle();
+                        const originalStyle = modifier.getStyle();
                         if (originalStyle) {
-                            (modifier as any).originalStrokeStyle = originalStyle.strokeStyle;
-                            (modifier as any).originalFillStyle = originalStyle.fillStyle;
+                            (modifier as StaveModifierPlus).originalStrokeStyle = originalStyle.strokeStyle;
+                            (modifier as StaveModifierPlus).originalFillStyle = originalStyle.fillStyle;
                         }
                         modifier.setStyle({strokeStyle: transparentStyle, fillStyle: transparentStyle});
                     }
                 }
             } else {
                 // reset invisible style
-                const originalStrokeStyle: any = (modifier as any).originalStrokeStyle;
-                const originalFillStyle: any = (modifier as any).originalFillStyle;
+                const {
+                  originalFillStyle,
+                  originalStrokeStyle,
+                } = modifier as StaveModifierPlus;
                 if (modifier.getStyle()) {
                     if (originalStrokeStyle && originalFillStyle) {
                         modifier.getStyle().strokeStyle = originalStrokeStyle;
@@ -343,8 +358,15 @@ export class VexFlowMeasure extends GraphicalMeasure {
                     case SystemLinesEnum.BoldThinDots:
                         //customize the barline draw function if repeat is beginning of system
                         if (!renderInitialLine) {
-                            (this.stave as any).modifiers[0].draw = function(stave: VF.Stave): void {
-                                (stave as any).checkContext();
+                            (
+                              this.stave.getModifiers()[0] as
+                                VF.StaveModifier & {
+                                  draw?: (stave: VF.Stave) => void;
+                                }
+                            ).draw = function(stave: VF.Stave): void {
+                                (stave as VF.Stave & {
+                                  checkContext: () => void;
+                                }).checkContext();
                                 this.setRendered();
                                 switch (this.type) {
                                     case VF.Barline.type.SINGLE:
@@ -447,7 +469,9 @@ export class VexFlowMeasure extends GraphicalMeasure {
             instruction = VF.Repetition.type.FINE;
             break;
           case RepetitionInstructionEnum.ToCoda:
-            instruction = (VF.Repetition as any).type.TO_CODA;
+            instruction = (VF.Repetition.type as typeof VF.Repetition.type & {
+              TO_CODA: number;
+            }).TO_CODA;
             break;
           case RepetitionInstructionEnum.DaCapoAlFine:
             instruction = VF.Repetition.type.DC_AL_FINE;
@@ -541,7 +565,12 @@ export class VexFlowMeasure extends GraphicalMeasure {
                 const prevStaveModifiers: VF.StaveModifier[] = prevMeasure.stave.getModifiers();
                 for (let i = 0; i < prevStaveModifiers.length; i++) {
                     const nextStaveModifier: VF.StaveModifier = prevStaveModifiers[i];
-                    if (nextStaveModifier.hasOwnProperty("volta")) {
+                    if (
+                      Object.prototype.hasOwnProperty.call(
+                        nextStaveModifier,
+                        'volta',
+                      )
+                    ) {
                         const prevskyBottomLineCalculator: SkyBottomLineCalculator = prevMeasure.ParentStaffLine.SkyBottomLineCalculator;
                         const prevStart: number = prevMeasure.PositionAndShape.AbsolutePosition.x + prevMeasure.PositionAndShape.BorderMarginLeft + 0.4;
                         const prevEnd: number = Math.max(
@@ -554,7 +583,9 @@ export class VexFlowMeasure extends GraphicalMeasure {
                             vexFlowVoltaHeight += skylineDifference;
                             newSkylineValueForMeasure = prevMeasureSkyline;
                         } else { //otherwise, we are higher. Need to adjust prev
-                            (nextStaveModifier as any).y_shift = vexFlowVoltaHeight * EngravingRules.UnitToPx;
+                            (nextStaveModifier as VF.StaveModifier & {
+                              y_shift: number;
+                            }).y_shift = vexFlowVoltaHeight * EngravingRules.UnitToPx;
                             prevMeasure.ParentStaffLine.SkyBottomLineCalculator.updateSkyLineInRange(prevStart, prevEnd, newSkylineValueForMeasure);
                         }
                     }
@@ -599,7 +630,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
         this.stave.setContext(ctx).draw();
         // Draw all voices
         for (const voiceID in this.vfVoices) {
-            if (this.vfVoices.hasOwnProperty(voiceID)) {
+            if (Object.prototype.hasOwnProperty.call(this.vfVoices, voiceID)) {
                 ctx.save();
                 this.vfVoices[voiceID].draw(ctx, this.stave);
                 ctx.restore();
@@ -609,7 +640,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
         }
         // Draw beams
         for (const voiceID in this.vfbeams) {
-            if (this.vfbeams.hasOwnProperty(voiceID)) {
+            if (Object.prototype.hasOwnProperty.call(this.vfbeams, voiceID)) {
                 for (const beam of this.vfbeams[voiceID]) {
                     beam.setContext(ctx).draw();
                 }
@@ -629,19 +660,25 @@ export class VexFlowMeasure extends GraphicalMeasure {
             }
             // Draw tuplets
             for (const voiceID in this.vftuplets) {
-                if (this.vftuplets.hasOwnProperty(voiceID)) {
+                if (
+                  Object.prototype.hasOwnProperty.call(this.vftuplets, voiceID)
+                ) {
                     for (let i = 0; i < this.tuplets[voiceID].length; i++) {
                         const tuplet: Tuplet = this.tuplets[voiceID][i][0];
                         const vftuplet: VF.Tuplet = this.vftuplets[voiceID][i];
                         if (!tuplet.RenderTupletNumber) {
                             // (vftuplet as any).numerator_glyphs_stored = [...(vftuplet as any).numerator_glyphs];
                             // (vftuplet as any).numerator_glyphs = [];
-                            (vftuplet as any).RenderTupletNumber = false;
+                            (vftuplet as VF.Tuplet & {
+                              RenderTupletNumber: boolean;
+                            }).RenderTupletNumber = false;
                         } else {
                             // issue with restoring glyphs (version without vexflowpatch): need to deep copy array, otherwise the reference is overwritten
                             // (vftuplet as any).numerator_glyphs = [...(vftuplet as any).numerator_glyphs_stored];
                             // (vftuplet as any).numerator_glyphs_stored = undefined;
-                            (vftuplet as any).RenderTupletNumber = true;
+                            (vftuplet as VF.Tuplet & {
+                              RenderTupletNumber: boolean;
+                            }).RenderTupletNumber = true;
                         }
                         vftuplet.setContext(ctx).draw();
                     }
@@ -884,7 +921,7 @@ export class VexFlowMeasure extends GraphicalMeasure {
         this.vfbeams = {};
         const beamedNotes: StaveNote[] = []; // already beamed notes, will be ignored by this.autoBeamNotes()
         for (const voiceID in this.beams) {
-            if (this.beams.hasOwnProperty(voiceID)) {
+            if (Object.prototype.hasOwnProperty.call(this.beams, voiceID)) {
                 let vfbeams: VF.Beam[] = this.vfbeams[voiceID];
                 if (!vfbeams) {
                     vfbeams = this.vfbeams[voiceID] = [];

@@ -3,10 +3,10 @@ import VF = Vex.Flow;
 import {SourceMeasure} from "../../VoiceData/SourceMeasure";
 import {Staff} from "../../VoiceData/Staff";
 import {StaffLine} from "../StaffLine";
-import {Beam} from "../../VoiceData/Beam";
-import {GraphicalNote} from "../GraphicalNote";
-import {GraphicalStaffEntry} from "../GraphicalStaffEntry";
-import {Tuplet} from "../../VoiceData/Tuplet";
+// import {Beam} from "../../VoiceData/Beam";
+// import {GraphicalNote} from "../GraphicalNote";
+// import {GraphicalStaffEntry} from "../GraphicalStaffEntry";
+// import {Tuplet} from "../../VoiceData/Tuplet";
 import {GraphicalVoiceEntry} from "../GraphicalVoiceEntry";
 import {Voice} from "../../VoiceData/Voice";
 import {VexFlowMeasure} from "./VexFlowMeasure";
@@ -18,7 +18,7 @@ import {VexFlowMeasure} from "./VexFlowMeasure";
  *  Even though most of those functions aren't needed, apparently you can't remove the layoutStaffEntry function.
  */
 export class VexFlowMultiRestMeasure extends VexFlowMeasure {
-    private multiRestElement: any; // VexFlow: Element
+    private multiRestElement: VF.MultiMeasureRest; // VexFlow: Element
 
     constructor(staff: Staff, sourceMeasure: SourceMeasure = undefined, staffLine: StaffLine = undefined) {
         super(staff, sourceMeasure, staffLine);
@@ -51,7 +51,11 @@ export class VexFlowMultiRestMeasure extends VexFlowMeasure {
         this.stave.setContext(ctx).draw();
 
         this.multiRestElement.setStave(this.stave);
-        this.multiRestElement.setContext(ctx);
+        (this.multiRestElement as VF.MultiMeasureRest & {
+          // NOTE: Somehow Vexflow typing does not define Element type from
+          // which MultiMeasureRest is inherited, so this wokaround.
+          setContext: (context) => void;
+        }).setContext(ctx);
         this.multiRestElement.draw();
 
         // Draw vertical lines
@@ -75,7 +79,9 @@ export class VexFlowMultiRestMeasure extends VexFlowMeasure {
      * Returns all the graphicalVoiceEntries of a given Voice.
      * @param voice the voice for which the graphicalVoiceEntries shall be returned.
      */
-    public getGraphicalVoiceEntriesPerVoice(voice: Voice): GraphicalVoiceEntry[] {
+    public getGraphicalVoiceEntriesPerVoice(
+      // voice: Voice,
+    ): GraphicalVoiceEntry[] {
         return [];
     }
 
@@ -87,7 +93,9 @@ export class VexFlowMultiRestMeasure extends VexFlowMeasure {
      * And the graphical notes have to be analysed directly (and not the voiceEntries, as it actually should be -> needs refactoring)
      * @param voice the voice for which the ghost notes shall be searched.
      */
-    protected getRestFilledVexFlowStaveNotesPerVoice(voice: Voice): GraphicalVoiceEntry[] {
+    protected getRestFilledVexFlowStaveNotesPerVoice(
+      // voice: Voice,
+    ): GraphicalVoiceEntry[] {
         return [];
     }
 
@@ -96,11 +104,14 @@ export class VexFlowMultiRestMeasure extends VexFlowMeasure {
      * @param graphicalNote
      * @param beam
      */
-    public handleBeam(graphicalNote: GraphicalNote, beam: Beam): void {
+    public handleBeam(/* graphicalNote: GraphicalNote, beam: Beam */): void {
         return;
     }
 
-    public handleTuplet(graphicalNote: GraphicalNote, tuplet: Tuplet): void {
+    public handleTuplet(
+      // graphicalNote: GraphicalNote,
+      // tuplet: Tuplet,
+    ): void {
         return;
     }
 
@@ -119,7 +130,9 @@ export class VexFlowMultiRestMeasure extends VexFlowMeasure {
     }
 
     // this needs to exist, for some reason, or it won't be found, even though i can't find the usage.
-    public layoutStaffEntry(graphicalStaffEntry: GraphicalStaffEntry): void {
+    public layoutStaffEntry(
+      // graphicalStaffEntry: GraphicalStaffEntry,
+    ): void {
         return;
     }
 
@@ -142,7 +155,7 @@ export class VexFlowMultiRestMeasure extends VexFlowMeasure {
         return;
     }
 
-    protected createFingerings(voiceEntry: GraphicalVoiceEntry): void {
+    protected createFingerings(/* voiceEntry: GraphicalVoiceEntry */): void {
         return;
     }
 
