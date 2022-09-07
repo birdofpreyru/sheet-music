@@ -239,10 +239,15 @@ export class VoiceEntry {
     //public createVoiceEntriesForOrnament(activeKey: KeyInstruction): VoiceEntry[] {
     //    return this.createVoiceEntriesForOrnament(this, activeKey);
     //}
-    public createVoiceEntriesForOrnament(voiceEntryWithOrnament: VoiceEntry, activeKey: KeyInstruction): VoiceEntry[] {
-        if (!voiceEntryWithOrnament) {
-            voiceEntryWithOrnament = this;
-        }
+    public createVoiceEntriesForOrnament(
+      // NOTE: Original code assigned "this" as default "voiceEntryWithOrnament"
+      // value inside the body of the function using
+      // if (!voiceEntryWithOrnament) check, thus defaulting any falsy values,
+      // not only "undefined". Not sure, whether it is an issue or not.
+      voiceEntryWithOrnament: VoiceEntry = this,
+
+      activeKey: KeyInstruction,
+    ): VoiceEntry[] {
         const voiceEntries: VoiceEntry[] = [];
         if (!voiceEntryWithOrnament.ornamentContainer) {
             return;

@@ -19,7 +19,7 @@ export class AJAX {
             return Promise.reject(new Error("XMLHttp not supported."));
         }
         xhttp.timeout = timeout;
-        return new Promise((resolve: (value: string) => void, reject: (error: any) => void) => {
+        return new Promise((resolve: (value: string) => void, reject: (error: Error) => void) => {
             xhttp.onreadystatechange = (): void => {
                 if (xhttp.readyState === XMLHttpRequest.DONE) {
                     if (xhttp.status === 200) {
@@ -32,7 +32,7 @@ export class AJAX {
                     }
                 }
             };
-            xhttp.ontimeout = (e): void => {
+            xhttp.ontimeout = (): void => {
                 // For IE and node
                 reject(new Error("Server request Timeout"));
             };

@@ -187,7 +187,7 @@ export class ArticulationReader {
     };
 
     for (const xmlArticulation in xmlElementToArticulationEnum) {
-      if (!xmlElementToArticulationEnum.hasOwnProperty(xmlArticulation)) {
+      if (!Object.prototype.hasOwnProperty.call(xmlElementToArticulationEnum, xmlArticulation)) {
         continue;
       }
       const articulationEnum: ArticulationEnum = xmlElementToArticulationEnum[xmlArticulation];
@@ -280,7 +280,7 @@ export class ArticulationReader {
       };
 
       for (const ornamentElement in elementToOrnamentEnum) {
-        if (!elementToOrnamentEnum.hasOwnProperty(ornamentElement)) {
+        if (!Object.prototype.hasOwnProperty.call(elementToOrnamentEnum, ornamentElement)) {
           continue;
         }
         const node: IXmlElement = ornamentsNode.element(ornamentElement);

@@ -13,12 +13,15 @@ import { SourceMeasure } from "../../VoiceData/SourceMeasure";
 import { MultiExpression } from "../../VoiceData/Expressions/MultiExpression";
 import { RepetitionInstruction } from "../../VoiceData/Instructions/RepetitionInstruction";
 import { Beam } from "../../VoiceData/Beam";
-import { ClefInstruction } from "../../VoiceData/Instructions/ClefInstruction";
-import { OctaveEnum, OctaveShift } from "../../VoiceData/Expressions/ContinuousExpressions/OctaveShift";
+// import { ClefInstruction } from "../../VoiceData/Instructions/ClefInstruction";
+import {
+  // OctaveEnum,
+  OctaveShift,
+} from "../../VoiceData/Expressions/ContinuousExpressions/OctaveShift";
 import { Fraction } from "../../../Common/DataObjects/Fraction";
 import { LyricWord } from "../../VoiceData/Lyrics/LyricsWord";
-import { OrnamentContainer } from "../../VoiceData/OrnamentContainer";
-import { Articulation } from "../../VoiceData/Articulation";
+// import { OrnamentContainer } from "../../VoiceData/OrnamentContainer";
+// import { Articulation } from "../../VoiceData/Articulation";
 import { Tuplet } from "../../VoiceData/Tuplet";
 import { VexFlowMeasure } from "./VexFlowMeasure";
 import { VexFlowTextMeasurer } from "./VexFlowTextMeasurer";
@@ -26,7 +29,7 @@ import Vex from "vexflow";
 import VF = Vex.Flow;
 import log from "loglevel";
 import { VexFlowGraphicalNote } from "./VexFlowGraphicalNote";
-import { TechnicalInstruction } from "../../VoiceData/Instructions/TechnicalInstruction";
+// import { TechnicalInstruction } from "../../VoiceData/Instructions/TechnicalInstruction";
 import { GraphicalLyricEntry } from "../GraphicalLyricEntry";
 import { GraphicalLabel } from "../GraphicalLabel";
 import { LyricsEntry } from "../../VoiceData/Lyrics/LyricsEntry";
@@ -59,6 +62,8 @@ import { PlacementEnum } from "../../VoiceData/Expressions";
 import { GraphicalChordSymbolContainer } from "../GraphicalChordSymbolContainer";
 import { RehearsalExpression } from "../../VoiceData/Expressions/RehearsalExpression";
 
+import type { EditableVF } from './EditableVexFlowType';
+
 export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
   /** space needed for a dash for lyrics spacing, calculated once */
   private dashSpace: number;
@@ -76,11 +81,19 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     if (
       this.rules.DefaultVexFlowNoteFont.Family?.toLowerCase() === "gonville"
     ) {
-      (Vex.Flow as any).DEFAULT_FONT_STACK = [(Vex.Flow as any).Fonts?.Gonville, (Vex.Flow as any).Fonts?.Bravura, (Vex.Flow as any).Fonts?.Custom];
+      (Vex.Flow as EditableVF).DEFAULT_FONT_STACK = [
+        (Vex.Flow as EditableVF).Fonts?.Gonville,
+        (Vex.Flow as EditableVF).Fonts?.Bravura,
+        (Vex.Flow as EditableVF).Fonts?.Custom,
+      ];
     } else if (
       this.rules.DefaultVexFlowNoteFont.Family?.toLowerCase() === "petaluma"
     ) {
-      (Vex.Flow as any).DEFAULT_FONT_STACK = [(Vex.Flow as any).Fonts?.Petaluma, (Vex.Flow as any).Fonts?.Gonville, (Vex.Flow as any).Fonts?.Bravura];
+      (Vex.Flow as EditableVF).DEFAULT_FONT_STACK = [
+        (Vex.Flow as EditableVF).Fonts?.Petaluma,
+        (Vex.Flow as EditableVF).Fonts?.Gonville,
+        (Vex.Flow as EditableVF).Fonts?.Bravura,
+      ];
     }
     // else keep new vexflow default Bravura (more cursive, bold)
   }
@@ -109,13 +122,13 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
           (<VexFlowStaffEntry>staffEntry).calculateXPosition();
         }
         // const t0: number = performance.now();
-        if (true || this.beamsNeedUpdate) {
+        // if (true || this.beamsNeedUpdate) {
           // finalizeBeams takes a few milliseconds, so we can save some performance here sometimes,
           // but we'd have to check for every setting change that would affect beam rendering. See #843
           (measure as VexFlowMeasure).finalizeBeams(); // without this, when zooming a lot (e.g. 250%), beams keep their old, now wrong slope.
           // totalFinalizeBeamsTime += performance.now() - t0;
           // console.log("Total calls to finalizeBeams in VexFlowMusicSheetCalculator took " + totalFinalizeBeamsTime + " milliseconds.");
-        }
+        // }
       }
     }
     this.beamsNeedUpdate = false;
@@ -175,11 +188,16 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       const mvoices: { [voiceID: number]: VF.Voice } = (measure as VexFlowMeasure).vfVoices;
       const voices: VF.Voice[] = [];
       for (const voiceID in mvoices) {
-        if (mvoices.hasOwnProperty(voiceID)) {
-          const mvoice: any = mvoices[voiceID];
-          if (measure.hasOnlyRests && !mvoice.ticksUsed.equals(mvoice.totalTicks)) {
+        if (Object.prototype.hasOwnProperty.call(mvoices, voiceID)) {
+          const mvoice = mvoices[voiceID];
+          if (
+            measure.hasOnlyRests
+            && !mvoice.getTicksUsed().equals(mvoice.getTotalTicks())
+          ) {
             // fix layouting issues with whole measure rests in one staff and notes in other. especially in 12/8 rthythm (#1187)
-            mvoice.ticksUsed = mvoice.totalTicks;
+            (mvoice as VF.Voice & {
+              ticksUsed: VF.Fraction;
+            }).ticksUsed = mvoice.getTotalTicks();
             // Vexflow 1.2.93: needs VexFlowPatch for formatter.js (see #1187)
           }
           voices.push(mvoice);
@@ -317,7 +335,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       const mvoices: { [voiceID: number]: VF.Voice } = (measure as VexFlowMeasure).vfVoices;
       const voices: VF.Voice[] = [];
       for (const voiceID in mvoices) {
-        if (mvoices.hasOwnProperty(voiceID)) {
+        if (Object.prototype.hasOwnProperty.call(mvoices, voiceID)) {
           voices.push(mvoices[voiceID]);
         }
       }
@@ -335,9 +353,16 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     return minStaffEntriesWidth;
   }
 
-  private calculateElongationFactor(containers: (GraphicalLyricEntry|GraphicalChordSymbolContainer)[], staffEntry: GraphicalStaffEntry, lastEntryDict: any,
-                                    oldMinimumStaffEntriesWidth: number, elongationFactorForMeasureWidth: number,
-                                    measureNumber: number, oldMinSpacing: number, nextMeasureOverlap: number): number {
+  private calculateElongationFactor(
+    containers: (GraphicalLyricEntry|GraphicalChordSymbolContainer)[],
+    staffEntry: GraphicalStaffEntry,
+    lastEntryDict: any,
+    oldMinimumStaffEntriesWidth: number,
+    elongationFactorForMeasureWidth: number,
+    measureNumber: number,
+    oldMinSpacing: number,
+    nextMeasureOverlap: number,
+  ): number {
     let newElongationFactorForMeasureWidth: number = elongationFactorForMeasureWidth;
     let currentContainerIndex = 0;
 
@@ -568,8 +593,12 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
    * @param graphicalStaffEntry
    * @param hasPitchedNote
    */
-  protected layoutVoiceEntry(voiceEntry: VoiceEntry, graphicalNotes: GraphicalNote[], graphicalStaffEntry: GraphicalStaffEntry,
-                             hasPitchedNote: boolean): void {
+  protected layoutVoiceEntry(
+    voiceEntry: VoiceEntry,
+    graphicalNotes: GraphicalNote[],
+    // graphicalStaffEntry: GraphicalStaffEntry,
+    // hasPitchedNote: boolean,
+  ): void {
       for (let i = 0; i < graphicalNotes.length; i++) {
         graphicalNotes[i] = MusicSheetCalculator.stafflineNoteCalculator.positionNote(graphicalNotes[i]);
       }
@@ -597,7 +626,11 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
    * @param voiceEntry
    * @param graphicalStaffEntry
    */
-  protected layoutArticulationMarks(articulations: Articulation[], voiceEntry: VoiceEntry, graphicalStaffEntry: GraphicalStaffEntry): void {
+  protected layoutArticulationMarks(
+    // articulations: Articulation[],
+    // voiceEntry: VoiceEntry,
+    // graphicalStaffEntry: GraphicalStaffEntry,
+  ): void {
     // uncomment this when implementing:
     // let vfse: VexFlowStaffEntry = (graphicalStaffEntry as VexFlowStaffEntry);
 
@@ -1127,9 +1160,15 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
    * @param openTie
    * @param isLastTieNote
    */
-  protected handleTiedGraphicalNote(tiedGraphicalNote: GraphicalNote, beams: Beam[], activeClef: ClefInstruction,
-                                    octaveShiftValue: OctaveEnum, graphicalStaffEntry: GraphicalStaffEntry, duration: Fraction,
-                                    openTie: Tie, isLastTieNote: boolean): void {
+  protected handleTiedGraphicalNote(
+    // tiedGraphicalNote: GraphicalNote,
+    // beams: Beam[],
+    // activeClef: ClefInstruction,
+    // octaveShiftValue: OctaveEnum,
+    // graphicalStaffEntry: GraphicalStaffEntry, duration: Fraction,
+    // openTie: Tie,
+    // isLastTieNote: boolean,
+  ): void {
     return;
   }
 
@@ -1190,7 +1229,11 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     });
   }
 
-  protected handleVoiceEntryOrnaments(ornamentContainer: OrnamentContainer, voiceEntry: VoiceEntry, graphicalStaffEntry: GraphicalStaffEntry): void {
+  protected handleVoiceEntryOrnaments(
+    // ornamentContainer: OrnamentContainer,
+    // voiceEntry: VoiceEntry,
+    // graphicalStaffEntry: GraphicalStaffEntry,
+  ): void {
     return;
   }
 
@@ -1200,8 +1243,11 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
    * @param voiceEntry
    * @param graphicalStaffEntry
    */
-  protected handleVoiceEntryArticulations(articulations: Articulation[],
-                                          voiceEntry: VoiceEntry, staffEntry: GraphicalStaffEntry): void {
+  protected handleVoiceEntryArticulations(
+    // articulations: Articulation[],
+    // voiceEntry: VoiceEntry,
+    // staffEntry: GraphicalStaffEntry,
+  ): void {
     // uncomment this when implementing:
     // let vfse: VexFlowStaffEntry = (graphicalStaffEntry as VexFlowStaffEntry);
 
@@ -1214,8 +1260,11 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
    * @param voiceEntry
    * @param staffEntry
    */
-  protected handleVoiceEntryTechnicalInstructions(technicalInstructions: TechnicalInstruction[],
-                                                  voiceEntry: VoiceEntry, staffEntry: GraphicalStaffEntry): void {
+  protected handleVoiceEntryTechnicalInstructions(
+    // technicalInstructions: TechnicalInstruction[],
+    // voiceEntry: VoiceEntry,
+    // staffEntry: GraphicalStaffEntry,
+  ): void {
     // uncomment this when implementing:
     // let vfse: VexFlowStaffEntry = (graphicalStaffEntry as VexFlowStaffEntry);
     return;
@@ -1227,7 +1276,9 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
    * @param tuplet
    * @param openTuplets a list of all currently open tuplets
    */
-  protected handleTuplet(graphicalNote: GraphicalNote, tuplet: Tuplet, openTuplets: Tuplet[]): void {
+  protected handleTuplet(graphicalNote: GraphicalNote, tuplet: Tuplet,
+    // openTuplets: Tuplet[],
+  ): void {
     (graphicalNote.parentVoiceEntry.parentStaffEntry.parentMeasure as VexFlowMeasure).handleTuplet(graphicalNote, tuplet);
   }
 

@@ -24,7 +24,7 @@ if (!Array.prototype.last) {
 if (!Array.prototype.clear) {
     Object.defineProperty(Array.prototype, "clear", {
         enumerable: false,
-        value: function<T>(): void {
+        value: function(): void {
             this.length = 0;
         }
     });
@@ -44,16 +44,11 @@ if (!Array.prototype.contains) {
  */
 export class CollectionUtil {
 
-    public static contains2(array: any[], object: any): boolean {
-        for (let i = 0; i < array.length; i++) {
-            if (array[i] === object) {
-                return true;
-            }
-        }
-        return false;
+    public static contains2<T>(array: T[], object: T): boolean {
+      return array.includes(object);
     }
 
-    public static last(array: any[]): any {
+    public static last<T>(array: T[]): T {
         return array[array.length - 1];
     }
 

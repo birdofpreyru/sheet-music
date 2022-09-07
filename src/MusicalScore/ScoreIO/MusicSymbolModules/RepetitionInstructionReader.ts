@@ -119,7 +119,9 @@ export class RepetitionInstructionReader {
     return pieceEndingDetected;
   }
 
-  public handleRepetitionInstructionsFromWordsOrSymbols(directionTypeNode: IXmlElement, relativeMeasurePosition: number): boolean {
+  public handleRepetitionInstructionsFromWordsOrSymbols(directionTypeNode: IXmlElement,
+    // relativeMeasurePosition: number,
+  ): boolean {
     const wordsNode: IXmlElement = directionTypeNode.element("words");
     const measureIndex: number = this.currentMeasureIndex;
     if (wordsNode) {

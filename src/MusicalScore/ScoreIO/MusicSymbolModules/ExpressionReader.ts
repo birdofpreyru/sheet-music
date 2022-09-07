@@ -190,12 +190,14 @@ export class ExpressionReader {
                 const bpmNumber: number = parseFloat(bpm.value);
                 this.createNewTempoExpressionIfNeeded(currentMeasure);
                 const instantaneousTempoExpression: InstantaneousTempoExpression =
-                    new InstantaneousTempoExpression(undefined,
-                                                     this.placement,
-                                                     this.staffNumber,
-                                                     bpmNumber,
-                                                     this.currentMultiTempoExpression,
-                                                     true);
+                    new InstantaneousTempoExpression(
+                      undefined,
+                      this.placement,
+                      this.staffNumber,
+                      bpmNumber,
+                      this.currentMultiTempoExpression,
+                      // true,
+                    );
                 instantaneousTempoExpression.parentMeasure = currentMeasure;
                 this.soundTempo = bpmNumber;
                 // make sure to take dotted beats into account
@@ -235,13 +237,23 @@ export class ExpressionReader {
 
         dirContentNode = dirNode.element("wedge");
         if (dirContentNode) {
-            this.interpretWedge(dirContentNode, currentMeasure, inSourceMeasurePreviousFraction, currentMeasure.MeasureNumber);
+            this.interpretWedge(
+              dirContentNode,
+              currentMeasure,
+              inSourceMeasurePreviousFraction,
+              // currentMeasure.MeasureNumber,
+            );
             return;
         }
 
         dirContentNode = dirNode.element("rehearsal");
         if (dirContentNode) {
-            this.interpretRehearsalMark(dirContentNode, currentMeasure, inSourceMeasureCurrentFraction, currentMeasure.MeasureNumber);
+            this.interpretRehearsalMark(
+              dirContentNode,
+              currentMeasure,
+              // inSourceMeasureCurrentFraction,
+              // currentMeasure.MeasureNumber,
+            );
             return;
         }
     }
@@ -446,7 +458,9 @@ export class ExpressionReader {
         }
         return numberXml;
     }
-    private interpretWedge(wedgeNode: IXmlElement, currentMeasure: SourceMeasure, inSourceMeasureCurrentFraction: Fraction, currentMeasureIndex: number): void {
+    private interpretWedge(wedgeNode: IXmlElement, currentMeasure: SourceMeasure, inSourceMeasureCurrentFraction: Fraction,
+      // currentMeasureIndex: number,
+    ): void {
         if (wedgeNode !== undefined && wedgeNode.hasAttributes && wedgeNode.attribute("default-x")) {
             this.directionTimestamp = Fraction.createFromFraction(inSourceMeasureCurrentFraction);
         }
@@ -462,8 +476,11 @@ export class ExpressionReader {
         this.initialize();
     }
     private interpretRehearsalMark(
-        rehearsalNode: IXmlElement, currentMeasure: SourceMeasure,
-        inSourceMeasureCurrentFraction: Fraction, currentMeasureIndex: number): void {
+        rehearsalNode: IXmlElement,
+        currentMeasure: SourceMeasure,
+        // inSourceMeasureCurrentFraction: Fraction,
+        // currentMeasureIndex: number,
+      ): void {
         // TODO create multi expression? for now we just need to have a static rehearsal mark though.
         currentMeasure.rehearsalExpression = new RehearsalExpression(rehearsalNode.value, this.placement);
     }

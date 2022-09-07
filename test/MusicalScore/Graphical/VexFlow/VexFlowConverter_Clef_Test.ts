@@ -16,7 +16,7 @@ describe("Clef Converter MusicXML to VexFlow", () => {
     });
 
     it("reads treble key", (done: Done) => {
-      getMusicSheetWithClef("G").getStaffFromIndex(0);
+      getMusicSheetWithClef(/* "G" */).getStaffFromIndex(0);
       done();
     });
 
@@ -25,15 +25,24 @@ describe("Clef Converter MusicXML to VexFlow", () => {
      *
      * @see https://usermanuals.musicxml.com/MusicXML/Content/EL-MusicXML-clef.htm
      */
-    function getMusicSheetWithClef(sign: string, line?: number, clefOcatveChange?: number, additional?: string, size?: string): MusicSheet {
-      const doc: Document = parser.parseFromString(getMusicXmlWithClef(sign, line, clefOcatveChange, additional, size), "text/xml");
+    function getMusicSheetWithClef(
+      // sign: string, line?: number, clefOcatveChange?: number, additional?: string, size?: string
+    ): MusicSheet {
+      const doc: Document = parser.parseFromString(
+        getMusicXmlWithClef(
+          // sign, line, clefOcatveChange, additional, size
+        ),
+        "text/xml",
+      );
       chai.expect(doc).to.not.be.undefined;
       const score: IXmlElement = new IXmlElement(doc.getElementsByTagName("score-partwise")[0]);
       chai.expect(score).to.not.be.undefined;
       return reader.createMusicSheet(score, "template.xml");
     }
 
-    function getMusicXmlWithClef(sign: string, line?: number, clefOcatveChange?: number, additional?: string, size?: string): string {
+    function getMusicXmlWithClef(
+      // sign: string, line?: number, clefOcatveChange?: number, additional?: string, size?: string
+    ): string {
       // let modeElement: string = mode ? `<mode>${mode}</mode>` : "";
       // let fifthsElement: string = fifths ? `<fifths>${fifths}</fifths>` : "";
       return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>

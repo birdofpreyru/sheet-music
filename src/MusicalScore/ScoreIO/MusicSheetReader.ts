@@ -77,11 +77,9 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
         }
     }
 
-    private _removeFromArray(list: any[], elem: any): void {
+    private _removeFromArray<T>(list: T[], elem: T): void {
         const i: number = list.indexOf(elem);
-        if (i !== -1) {
-            list.splice(i, 1);
-        }
+        if (i !== -1) list.splice(i, 1);
     }
 
     // Trim from a string also newlines
@@ -581,7 +579,6 @@ export class MusicSheetReader /*implements IMusicSheetReader*/ {
                     }
                     const creditJustify: string = creditChild.attribute("justify")?.value;
                     const creditY: string = creditChild.attribute("default-y")?.value;
-                    // eslint-disable-next-line no-null/no-null
                     const creditYGiven: boolean = creditY !== undefined && creditY !== null;
                     const creditYInfo: number = creditYGiven ? parseFloat(creditY) : Number.MIN_VALUE;
                     if (creditYGiven && creditYInfo > systemYCoordinates) {

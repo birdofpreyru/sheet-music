@@ -1,5 +1,10 @@
 import { OpenSheetMusicDisplay } from "../../src/OpenSheetMusicDisplay/OpenSheetMusicDisplay";
 
+export type TestWindow = Window & typeof globalThis & {
+  __xml__: { [key: string]: Document };
+  __raw__: { [key: string]: string };
+};
+
 /**
  * This class collects useful methods to interact with test data.
  * During tests, XML and MXL documents are preprocessed by karma,
@@ -9,12 +14,12 @@ export class TestUtils {
 
     public static getScore(name: string): Document {
         const path: string = "test/data/" + name;
-        return ((window as any).__xml__)[path];
+        return ((window as TestWindow).__xml__)[path];
     }
 
     public static getMXL(scoreName: string): string {
         const path: string = "test/data/" + scoreName;
-        return ((window as any).__raw__)[path];
+        return ((window as TestWindow).__raw__)[path];
     }
 
     public static getDivElement(document: Document): HTMLElement {

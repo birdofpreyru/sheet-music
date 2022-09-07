@@ -516,14 +516,16 @@ export class InstrumentReader {
         } else if (xmlNode.name === "direction") {
           const directionTypeNode: IXmlElement = xmlNode.element("direction-type");
           // (*) MetronomeReader.readMetronomeInstructions(xmlNode, this.musicSheet, this.currentXmlMeasureIndex);
-          let relativePositionInMeasure: number = Math.min(1, currentFraction.RealValue);
-          if (this.activeRhythm !== undefined && this.activeRhythm.Rhythm) {
-            relativePositionInMeasure /= this.activeRhythm.Rhythm.RealValue;
-          }
+          // let relativePositionInMeasure: number = Math.min(1, currentFraction.RealValue);
+          // if (this.activeRhythm !== undefined && this.activeRhythm.Rhythm) {
+            // relativePositionInMeasure /= this.activeRhythm.Rhythm.RealValue;
+          // }
           let handeled = false;
           if (this.repetitionInstructionReader) {
-            handeled = this.repetitionInstructionReader.handleRepetitionInstructionsFromWordsOrSymbols( directionTypeNode,
-                                                                                                        relativePositionInMeasure);
+            handeled = this.repetitionInstructionReader.handleRepetitionInstructionsFromWordsOrSymbols(
+              directionTypeNode,
+              // relativePositionInMeasure,
+            );
           }
           if (!handeled) {
            let expressionReader: ExpressionReader = this.expressionReaders[0];
@@ -580,11 +582,13 @@ export class InstrumentReader {
           }
         } else if (xmlNode.name === "harmony") {
           // new chord, could be second chord on same staffentry/note
-          this.openChordSymbolContainers.push(ChordSymbolReader.readChordSymbol(xmlNode, this.musicSheet, this.activeKey));
+          this.openChordSymbolContainers.push(ChordSymbolReader.readChordSymbol(xmlNode, this.musicSheet,
+            // this.activeKey,
+          ));
         }
       }
       for (const j in this.voiceGeneratorsDict) {
-        if (this.voiceGeneratorsDict.hasOwnProperty(j)) {
+        if (Object.prototype.hasOwnProperty.call(this.voiceGeneratorsDict, j)) {
           const voiceGenerator: VoiceGenerator = this.voiceGeneratorsDict[j];
           voiceGenerator.checkForOpenBeam();
         }
@@ -647,7 +651,7 @@ export class InstrumentReader {
 
   public doCalculationsAfterDurationHasBeenSet(): void {
     for (const j in this.voiceGeneratorsDict) {
-      if (this.voiceGeneratorsDict.hasOwnProperty(j)) {
+      if (Object.prototype.hasOwnProperty.call(this.voiceGeneratorsDict, j)) {
         this.voiceGeneratorsDict[j].checkOpenTies();
       }
     }
@@ -979,8 +983,8 @@ export class InstrumentReader {
       const typeList: IXmlElement[] = [];
       for (let idx = 0, len: number = timeList.length; idx < len; ++idx) {
         const xmlNode: IXmlElement = timeList[idx];
-        beatsList.push.apply(beatsList, xmlNode.elements("beats"));
-        typeList.push.apply(typeList, xmlNode.elements("beat-type"));
+        beatsList.push(...xmlNode.elements("beats"));
+        typeList.push(...xmlNode.elements("beat-type"));
       }
       if (!senzaMisura) {
         try {

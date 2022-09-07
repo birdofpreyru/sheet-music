@@ -99,15 +99,8 @@ export class KeyInstruction extends AbstractNotationInstruction {
         return "Key: " + this.keyType + "" + this.mode;
     }
 
-    public OperatorEquals(key2: KeyInstruction): boolean {
-        const key1: KeyInstruction = this;
-        if (key1 === key2) {
-            return true;
-        }
-        if (!key1 || !key2) {
-            return false;
-        }
-        return (key1.Key === key2.Key && key1.Mode === key2.Mode);
+    public OperatorEquals(key: KeyInstruction): boolean {
+      return key && this.Key === key.Key && this.Mode === key.Mode;
     }
 
     public OperatorNotEqual(key2: KeyInstruction): boolean {

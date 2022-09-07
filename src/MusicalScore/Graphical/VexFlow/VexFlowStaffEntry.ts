@@ -41,7 +41,7 @@ export class VexFlowStaffEntry extends GraphicalStaffEntry {
                   // somehow, gve.vfStaveNote.getBoundingBox() is null for a TabNote (which is a StemmableNote).
                   this.PositionAndShape.RelativePosition.x = (
                     gve.vfStaveNote.getAbsoluteX()
-                      + (<any>gve.vfStaveNote).glyph.getWidth()
+                      + gve.vfStaveNote.getGlyph().getMetrics().width
                   ) / EngravingRules.UnitToPx;
                 } else {
                   this.PositionAndShape.RelativePosition.x = gve.vfStaveNote.getBoundingBox().getX() / EngravingRules.UnitToPx;

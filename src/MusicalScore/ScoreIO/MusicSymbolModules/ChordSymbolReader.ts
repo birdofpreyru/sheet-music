@@ -2,12 +2,14 @@ import {IXmlElement, IXmlAttribute} from "../../../Common/FileIO/Xml";
 import {MusicSheet} from "../../MusicSheet";
 import {ChordDegreeText, ChordSymbolContainer, ChordSymbolEnum, Degree} from "../../VoiceData/ChordSymbolContainer";
 import {AccidentalEnum, NoteEnum, Pitch} from "../../../Common/DataObjects/Pitch";
-import {KeyInstruction} from "../../VoiceData/Instructions/KeyInstruction";
+// import {KeyInstruction} from "../../VoiceData/Instructions/KeyInstruction";
 import {ITextTranslation} from "../../Interfaces/ITextTranslation";
 import * as log from "loglevel";
 
 export class ChordSymbolReader {
-    public static readChordSymbol(xmlNode: IXmlElement, musicSheet: MusicSheet, activeKey: KeyInstruction): ChordSymbolContainer {
+    public static readChordSymbol(xmlNode: IXmlElement, musicSheet: MusicSheet,
+      //  activeKey: KeyInstruction,
+    ): ChordSymbolContainer {
         const root: IXmlElement = xmlNode.element("root");
         const kind: IXmlElement = xmlNode.element("kind");
         const kindText: IXmlAttribute = kind.attribute("text");

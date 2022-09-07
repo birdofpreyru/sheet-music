@@ -5,6 +5,8 @@ import {MusicSheetReader} from "../../../src/MusicalScore/ScoreIO/MusicSheetRead
 import {MusicSheet} from "../../../src/MusicalScore/MusicSheet";
 import {IXmlElement} from "../../../src/Common/FileIO/Xml";
 
+import type { TestWindow } from '../../Util/TestUtils';
+
 describe("Music Sheet Reader", () => {
     const path = "test/data/MuzioClementi_SonatinaOpus36No1_Part1.xml";
     const reader: MusicSheetReader = new MusicSheetReader();
@@ -12,7 +14,7 @@ describe("Music Sheet Reader", () => {
     let sheet: MusicSheet;
 
     function getSheet(filename: string): Document {
-      return ((window as any).__xml__)[filename];
+      return ((window as TestWindow).__xml__)[filename];
     }
 
     before((): void => {

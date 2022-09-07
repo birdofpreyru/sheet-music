@@ -7,7 +7,7 @@ import { VexFlowMeasure } from "./VexFlowMeasure";
 import { PointF2D } from "../../../Common/DataObjects/PointF2D";
 import { GraphicalLabel } from "../GraphicalLabel";
 import { VexFlowTextMeasurer } from "./VexFlowTextMeasurer";
-import { MusicSystem } from "../MusicSystem";
+// import { MusicSystem } from "../MusicSystem";
 import { GraphicalObject } from "../GraphicalObject";
 import { GraphicalLayers } from "../DrawingEnums";
 import { GraphicalStaffEntry } from "../GraphicalStaffEntry";
@@ -32,6 +32,8 @@ import { GraphicalMusicPage } from "../GraphicalMusicPage";
 import { GraphicalMusicSheet } from "../GraphicalMusicSheet";
 import { GraphicalUnknownExpression } from "../GraphicalUnknownExpression";
 
+import type { EditableVF } from './EditableVexFlowType';
+
 export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     private backend: VexFlowBackend;
     private backends: VexFlowBackend[] = [];
@@ -49,17 +51,21 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
     public drawSheet(graphicalMusicSheet: GraphicalMusicSheet): void {
         // vexflow 3.x: change default font
         if (this.rules.DefaultVexFlowNoteFont.Family === "gonville") {
-            (Vex.Flow as any).DEFAULT_FONT_STACK = [(Vex.Flow as any).Fonts?.Gonville, (Vex.Flow as any).Fonts?.Bravura, (Vex.Flow as any).Fonts?.Custom];
+            (Vex.Flow as EditableVF).DEFAULT_FONT_STACK = [
+              (Vex.Flow as EditableVF).Fonts?.Gonville,
+              (Vex.Flow as EditableVF).Fonts?.Bravura,
+              (Vex.Flow as EditableVF).Fonts?.Custom,
+            ];
         } // else keep new vexflow default Bravura (more cursive, bold).
 
         // sizing defaults in Vexflow
-        (Vex.Flow as any).STAVE_LINE_THICKNESS
+        (Vex.Flow as EditableVF).STAVE_LINE_THICKNESS
           = this.rules.StaffLineWidth * EngravingRules.UnitToPx;
-        (Vex.Flow as any).STEM_WIDTH
+        (Vex.Flow as EditableVF).STEM_WIDTH
           = this.rules.StemWidth * EngravingRules.UnitToPx;
         // sets scale/size of notes/rest notes:
-        (Vex.Flow as any).DEFAULT_NOTATION_FONT_SCALE = this.rules.VexFlowDefaultNotationFontScale; // default 39
-        (Vex.Flow as any).DEFAULT_TAB_FONT_SCALE = this.rules.VexFlowDefaultTabFontScale; // default 39 // TODO doesn't seem to do anything
+        (Vex.Flow as EditableVF).DEFAULT_NOTATION_FONT_SCALE = this.rules.VexFlowDefaultNotationFontScale; // default 39
+        (Vex.Flow as EditableVF).DEFAULT_TAB_FONT_SCALE = this.rules.VexFlowDefaultTabFontScale; // default 39 // TODO doesn't seem to do anything
 
         this.pageIdx = 0;
         for (const graphicalMusicPage of graphicalMusicSheet.MusicPages) {
@@ -332,13 +338,19 @@ export class VexFlowMusicSheetDrawer extends MusicSheetDrawer {
         });
     }
 
-    protected drawInstrumentBrace(brace: GraphicalObject, system: MusicSystem): void {
+    protected drawInstrumentBrace(
+      brace: GraphicalObject,
+      // system: MusicSystem,
+    ): void {
         // Draw InstrumentBrackets at beginning of line
         const vexBrace: VexFlowInstrumentBrace = (brace as VexFlowInstrumentBrace);
         vexBrace.draw(this.backend.getContext());
     }
 
-    protected drawGroupBracket(bracket: GraphicalObject, system: MusicSystem): void {
+    protected drawGroupBracket(
+      bracket: GraphicalObject,
+      // system: MusicSystem,
+    ): void {
         // Draw InstrumentBrackets at beginning of line
         const vexBrace: VexFlowInstrumentBracket = (bracket as VexFlowInstrumentBracket);
         vexBrace.draw(this.backend.getContext());

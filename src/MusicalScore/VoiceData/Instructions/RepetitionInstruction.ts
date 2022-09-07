@@ -58,8 +58,7 @@ export class RepetitionInstruction /*implements IComparable*/ {
     public alignment: AlignmentType;
     public parentRepetition: Repetition;
 
-    public CompareTo(obj: Object): number {
-        const other: RepetitionInstruction = <RepetitionInstruction>obj;
+    public CompareTo(other: RepetitionInstruction): number {
         if (this.measureIndex > other.measureIndex) {
             return 1;
         } else if (this.measureIndex < other.measureIndex) {

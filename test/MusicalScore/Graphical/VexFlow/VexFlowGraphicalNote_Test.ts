@@ -14,7 +14,7 @@ describe("VexFlow GraphicalNote", () => {
         const osmd: OpenSheetMusicDisplay = TestUtils.createOpenSheetMusicDisplay(div);
         // we need this way of creating the score to get the SVG elements, doesn't work with creating MusicSheet by hand
         osmd.load(score).then(
-            (_: {}) => {
+            () => {
                  osmd.render();
                  const gm: GraphicalMeasure = osmd.GraphicSheet.findGraphicalMeasure(0, 0);
                  const note1: VexFlowGraphicalNote = (gm.staffEntries[0].graphicalVoiceEntries[0].notes[0] as VexFlowGraphicalNote);

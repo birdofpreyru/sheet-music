@@ -38,20 +38,16 @@ export class RhythmInstruction extends AbstractNotationInstruction {
         return new RhythmInstruction(this.rhythm.clone(), this.symbolEnum);
     }
 
-    public OperatorEquals(rhythm2: RhythmInstruction): boolean {
-        const rhythm1: RhythmInstruction = this;
-        if (rhythm1 === rhythm2) {
-            return true;
-        }
-        if (!rhythm1 || !rhythm2) {
-            return false;
-        }
-        return (rhythm1.numerator === rhythm2.numerator && rhythm1.denominator === rhythm2.denominator);
+    public OperatorEquals(rhythm: RhythmInstruction): boolean {
+      return rhythm
+        && rhythm.numerator === this.numerator
+        && rhythm.denominator === this.denominator;
     }
 
-    public OperatorNotEqual(rhythm2: RhythmInstruction): boolean {
-        const rhythm1: RhythmInstruction = this;
-        return !(rhythm1 === rhythm2);
+    public OperatorNotEqual(rhythm: RhythmInstruction): boolean {
+      // NOTE: It is not exactly a negative of "OperatorEquals",
+      // but that how it was in the original code.
+      return rhythm !== this;
     }
 
     public ToString(): string {

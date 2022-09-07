@@ -17,7 +17,11 @@ import * as log from "loglevel";
 import { MusicSheet } from "../MusicSheet";
 
 export class MusicPartManagerIterator {
-    constructor(musicSheet: MusicSheet, startTimestamp?: Fraction, endTimestamp?: Fraction) {
+    constructor(
+      musicSheet: MusicSheet,
+      startTimestamp?: Fraction,
+      // endTimestamp?: Fraction,
+    ) {
         try {
             this.frontReached = true;
             this.musicSheet = musicSheet;
@@ -146,8 +150,15 @@ export class MusicPartManagerIterator {
     /**
      * Creates a clone of this iterator which has the same actual position.
      */
-    public clone(startTimeStamp: Fraction = undefined, endTimeStamp: Fraction = undefined): MusicPartManagerIterator {
-        const ret: MusicPartManagerIterator = new MusicPartManagerIterator(this.musicSheet, startTimeStamp ?? this.currentTimeStamp, endTimeStamp);
+    public clone(
+      startTimeStamp: Fraction = undefined,
+      // endTimeStamp: Fraction = undefined,
+    ): MusicPartManagerIterator {
+        const ret: MusicPartManagerIterator = new MusicPartManagerIterator(
+          this.musicSheet,
+          startTimeStamp ?? this.currentTimeStamp,
+          // endTimeStamp,
+        );
         ret.currentVoiceEntryIndex = this.currentVoiceEntryIndex;
         ret.currentMappingPart = this.currentMappingPart;
         ret.currentPartIndex = this.currentPartIndex;

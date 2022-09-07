@@ -322,7 +322,7 @@ export class Cursor {
     const voiceEntries: VoiceEntry[]  = this.VoicesUnderCursor(instrument);
     const notes: Note[] = [];
     voiceEntries.forEach(voiceEntry => {
-      notes.push.apply(notes, voiceEntry.Notes);
+      notes.push(...voiceEntry.Notes);
     });
     return notes;
   }

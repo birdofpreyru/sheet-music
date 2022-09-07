@@ -18,7 +18,7 @@ export class VexFlowMusicSystem extends MusicSystem {
         this.rules = rules;
     }
 
-    public calculateBorders(rules: EngravingRules): void {
+    public calculateBorders(): void {
         if (this.staffLines.length === 0) {
             return;
         }

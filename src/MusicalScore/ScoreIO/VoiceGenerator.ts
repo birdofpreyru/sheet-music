@@ -284,7 +284,7 @@ export class VoiceGenerator {
   public checkOpenTies(): void {
     const openTieDict: { [key: number]: Tie } = this.openTieDict;
     for (const key in openTieDict) {
-      if (openTieDict.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(openTieDict, key)) {
         const tie: Tie = openTieDict[key];
         if (Fraction.plus(tie.StartNote.ParentStaffEntry.Timestamp, tie.Duration)
           .lt(tie.StartNote.SourceMeasure.Duration)) {
@@ -491,7 +491,9 @@ export class VoiceGenerator {
 
     this.addNoteInfo(note, noteTypeXml, printObject, isCueNote, normalNotes,
                      displayStepUnpitched, displayOctaveUnpitched,
-                     noteheadColorXml, noteheadColorXml);
+                     noteheadColorXml,
+      // noteheadColorXml,
+    );
     note.TypeLength = typeDuration;
     note.IsGraceNote = isGraceNote;
     note.StemDirectionXml = stemDirectionXml; // maybe unnecessary, also in VoiceEntry
@@ -536,7 +538,9 @@ export class VoiceGenerator {
         pitch = new Pitch(displayStep, displayOctave, AccidentalEnum.NONE);
     }
     const restNote: Note = new Note(this.currentVoiceEntry, this.currentStaffEntry, restFraction, pitch, this.currentMeasure, true);
-    this.addNoteInfo(restNote, noteTypeXml, printObject, isCueNote, normalNotes, displayStep, displayOctave, noteheadColorXml, noteheadColorXml);
+    this.addNoteInfo(restNote, noteTypeXml, printObject, isCueNote, normalNotes, displayStep, displayOctave, noteheadColorXml,
+      // noteheadColorXml,
+    );
     restNote.TypeLength = typeDuration; // needed for tuplet note type information
     //  (e.g. quarter rest - but length different due to tuplet). see MusicSheetCalculator.calculateTupletNumbers()
     this.currentVoiceEntry.Notes.push(restNote);
@@ -549,7 +553,9 @@ export class VoiceGenerator {
   // common for "normal" notes and rest notes
   private addNoteInfo(note: Note, noteTypeXml: NoteType, printObject: boolean, isCueNote: boolean, normalNotes: number,
                       displayStep: NoteEnum, displayOctave: number,
-                      noteheadColorXml: string, noteheadColor: string): void {
+                      noteheadColorXml: string,
+                      // noteheadColor: string
+  ): void {
       // common for normal notes and rest note
       note.NoteTypeXml = noteTypeXml;
       note.PrintObject = printObject;
@@ -1048,7 +1054,7 @@ export class VoiceGenerator {
   private findCurrentNoteInTieDict(candidateNote: Note): number {
     const openTieDict: { [_: number]: Tie } = this.openTieDict;
     for (const key in openTieDict) {
-      if (openTieDict.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(openTieDict, key)) {
         const tie: Tie = openTieDict[key];
         const tieTabNote: TabNote = tie.Notes[0] as TabNote;
         const tieCandidateNote: TabNote = candidateNote as TabNote;
