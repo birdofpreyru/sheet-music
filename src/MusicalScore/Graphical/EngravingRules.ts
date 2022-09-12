@@ -200,6 +200,8 @@ export class EngravingRules {
     public TieHeightInterpolationK: number;
     public TieHeightInterpolationD: number;
     public SlurNoteHeadYOffset: number;
+    public SlurEndArticulationYOffset: number;
+    public SlurStartArticulationYOffsetOfArticulation: number;
     public SlurStemXOffset: number;
     public SlurSlopeMaxAngle: number;
     public SlurTangentMinAngle: number;
@@ -547,6 +549,8 @@ export class EngravingRules {
         this.TieHeightInterpolationK = 0.0288;
         this.TieHeightInterpolationD = 0.136;
         this.SlurNoteHeadYOffset = 0.5;
+        this.SlurEndArticulationYOffset = 0.8;
+        this.SlurStartArticulationYOffsetOfArticulation = 0.5;
         this.SlurStemXOffset = 0.3;
         this.SlurSlopeMaxAngle = 15.0;
         this.SlurTangentMinAngle = 30.0;
@@ -766,12 +770,12 @@ export class EngravingRules {
      */
     public applyDefaultColorMusic(color: string): void {
         this.DefaultColorMusic = color;
-        this.DefaultColorNotehead = this.DefaultColorMusic;
-        this.DefaultColorRest = this.DefaultColorNotehead;
-        this.DefaultColorStem = this.DefaultColorNotehead;
-        this.DefaultColorLabel = this.DefaultColorNotehead;
-        this.DefaultColorTitle = this.DefaultColorNotehead;
-        this.LedgerLineColorDefault = this.DefaultColorNotehead;
+        this.DefaultColorNotehead = color;
+        this.DefaultColorRest = color;
+        this.DefaultColorStem = color;
+        this.DefaultColorLabel = color;
+        this.DefaultColorTitle = color;
+        this.LedgerLineColorDefault = color;
     }
 
     public addGraphicalNoteToNoteMap(note: Note, graphicalNote: GraphicalNote): void {
