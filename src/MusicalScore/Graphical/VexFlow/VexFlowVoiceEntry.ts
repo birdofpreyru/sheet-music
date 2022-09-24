@@ -12,8 +12,8 @@ import { GraphicalNote } from "../GraphicalNote";
 export class VexFlowVoiceEntry extends GraphicalVoiceEntry {
     private mVexFlowStaveNote: VF.StemmableNote;
 
-    constructor(parentVoiceEntry: VoiceEntry, parentStaffEntry: GraphicalStaffEntry) {
-        super(parentVoiceEntry, parentStaffEntry);
+    constructor(parentVoiceEntry: VoiceEntry, parentStaffEntry: GraphicalStaffEntry, rules?: EngravingRules) {
+        super(parentVoiceEntry, parentStaffEntry, rules);
     }
 
     public applyBordersFromVexflow(): void {

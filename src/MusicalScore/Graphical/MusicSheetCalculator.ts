@@ -3141,20 +3141,22 @@ export abstract class MusicSheetCalculator {
       y: number,
       lineHeight: number,
     ): void {
-      const dash: GraphicalLabel = new GraphicalLabel(
-        new Label("-"),
-        lineHeight,
-        TextAlignmentEnum.CenterBottom,
-        this.rules,
-      );
-      dash.setLabelPositionAndShapeBorders();
-      staffLine.LyricsDashes.push(dash);
-      if (this.staffLinesWithLyricWords.indexOf(staffLine) === -1) {
-          this.staffLinesWithLyricWords.push(staffLine);
-      }
-      dash.PositionAndShape.Parent = staffLine.PositionAndShape;
-      const relative: PointF2D = new PointF2D(startX + (endX - startX) / 2, y);
-      dash.PositionAndShape.RelativePosition = relative;
+        const label: Label = new Label("-");
+        label.colorDefault = this.rules.DefaultColorLyrics; // if undefined, no change. saves an if check
+        const dash: GraphicalLabel = new GraphicalLabel(
+            label,
+            lineHeight,
+            TextAlignmentEnum.CenterBottom,
+            this.rules,
+        );
+        dash.setLabelPositionAndShapeBorders();
+        staffLine.LyricsDashes.push(dash);
+        if (this.staffLinesWithLyricWords.indexOf(staffLine) === -1) {
+            this.staffLinesWithLyricWords.push(staffLine);
+        }
+        dash.PositionAndShape.Parent = staffLine.PositionAndShape;
+        const relative: PointF2D = new PointF2D(startX + (endX - startX) / 2, y);
+        dash.PositionAndShape.RelativePosition = relative;
     }
 
     /**
@@ -3249,6 +3251,7 @@ export abstract class MusicSheetCalculator {
         const lineStart: PointF2D = new PointF2D(startX, y);
         const lineEnd: PointF2D = new PointF2D(endX, y);
         const graphicalLine: GraphicalLine = new GraphicalLine(lineStart, lineEnd, this.rules.LyricUnderscoreLineWidth);
+        graphicalLine.colorHex = this.rules.DefaultColorLyrics; // if undefined, no change. saves an if check
         staffLine.LyricLines.push(graphicalLine);
         if (this.staffLinesWithLyricWords.indexOf(staffLine) === -1) {
             this.staffLinesWithLyricWords.push(staffLine);
@@ -3270,8 +3273,10 @@ export abstract class MusicSheetCalculator {
       y: number,
       lineHeight: number,
     ): number {
+      const leftLabel: Label = new Label("-");
+      leftLabel.colorDefault = this.rules.DefaultColorLyrics; // if undefined, no change. saves an if check
       const leftDash: GraphicalLabel = new GraphicalLabel(
-        new Label("-"),
+        leftLabel,
         lineHeight,
         TextAlignmentEnum.CenterBottom,
         this.rules,
@@ -3284,8 +3289,10 @@ export abstract class MusicSheetCalculator {
       leftDash.PositionAndShape.Parent = staffLine.PositionAndShape;
       const leftDashRelative: PointF2D = new PointF2D(startX, y);
       leftDash.PositionAndShape.RelativePosition = leftDashRelative;
+
+      const rightLabel: Label = new Label("-");
       const rightDash: GraphicalLabel = new GraphicalLabel(
-        new Label("-"),
+        rightLabel,
         lineHeight,
         TextAlignmentEnum.CenterBottom,
         this.rules,

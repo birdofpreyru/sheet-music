@@ -5,6 +5,7 @@ import {GraphicalStaffEntry} from "./GraphicalStaffEntry";
 import {Label} from "../Label";
 import {PointF2D} from "../../Common/DataObjects/PointF2D";
 import {TextAlignmentEnum} from "../../Common/Enums/TextAlignment";
+import { EngravingRules } from "./EngravingRules";
 
 /**
  * The graphical counterpart of a [[LyricsEntry]]
@@ -31,19 +32,22 @@ export class GraphicalLyricEntry {
             && lyricsTextAlignment === TextAlignmentEnum.LeftBottom) {
             // lyricsTextAlignment = TextAlignmentAndPlacement.CenterBottom;
         }
+        const label: Label = new Label(
+          lyricsEntry.Text,
+          undefined,
+          lyricsEntry.Font,
+          lyricsEntry.Color,
+          lyricsEntry.Uuid,
+        );
+        const rules: EngravingRules = this.graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules;
         this.graphicalLabel = new GraphicalLabel(
-            new Label(
-              lyricsEntry.Text,
-              undefined,
-              lyricsEntry.Font,
-              lyricsEntry.Color,
-              lyricsEntry.Uuid,
-            ),
+            label,
             lyricsHeight,
             lyricsTextAlignment,
-            this.graphicalStaffEntry.parentMeasure.parentSourceMeasure.Rules,
+            rules,
             graphicalStaffEntry.PositionAndShape,
         );
+        this.graphicalLabel.Label.colorDefault = rules.DefaultColorLyrics; // if undefined, no change. saves an if check
         this.graphicalLabel.PositionAndShape.RelativePosition = new PointF2D(0, staffHeight);
         if (lyricsTextAlignment === TextAlignmentEnum.LeftBottom) {
             this.graphicalLabel.PositionAndShape.RelativePosition.x -= 1; // make lyrics optically left-aligned

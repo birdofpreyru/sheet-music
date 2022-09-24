@@ -350,6 +350,10 @@ export class GraphicalContinuousDynamicExpression extends AbstractGraphicalExpre
     private addWedgeLines(wedgePoint: PointF2D, upperWedgeEnd: PointF2D, lowerWedgeEnd: PointF2D, wedgeLineWidth: number): void {
         const upperLine: GraphicalLine = new GraphicalLine(wedgePoint, upperWedgeEnd, wedgeLineWidth);
         const lowerLine: GraphicalLine = new GraphicalLine(wedgePoint, lowerWedgeEnd, wedgeLineWidth);
+        if (this.rules.DefaultColorMusic) {
+            upperLine.colorHex = this.rules.DefaultColorMusic;
+            lowerLine.colorHex = this.rules.DefaultColorMusic;
+        }
 
         this.lines.push(upperLine);
         this.lines.push(lowerLine);
@@ -366,6 +370,10 @@ export class GraphicalContinuousDynamicExpression extends AbstractGraphicalExpre
     private addDoubleLines(upperLineStart: PointF2D, upperLineEnd: PointF2D, lowerLineStart: PointF2D, lowerLineEnd: PointF2D, wedgeLineWidth: number): void {
         const upperLine: GraphicalLine = new GraphicalLine(upperLineStart, upperLineEnd, wedgeLineWidth);
         const lowerLine: GraphicalLine = new GraphicalLine(lowerLineStart, lowerLineEnd, wedgeLineWidth);
+        if (this.rules.DefaultColorMusic) {
+            upperLine.colorHex = this.rules.DefaultColorMusic;
+            lowerLine.colorHex = this.rules.DefaultColorMusic;
+        }
 
         this.lines.push(upperLine);
         this.lines.push(lowerLine);
