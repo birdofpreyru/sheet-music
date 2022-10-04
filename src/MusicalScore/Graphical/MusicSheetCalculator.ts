@@ -1639,6 +1639,7 @@ export abstract class MusicSheetCalculator {
       font: Font,
       placement: PlacementEnum,
       textAlignment: TextAlignmentEnum = TextAlignmentEnum.CenterBottom,
+      yPadding: number = 0,
     ): GraphicalLabel {
         const label: Label = new Label(combinedString, textAlignment);
         label.font = font;
@@ -1678,9 +1679,9 @@ export abstract class MusicSheetCalculator {
         let drawingHeight: number;
         const skyBottomLineCalculator: SkyBottomLineCalculator = staffLine.SkyBottomLineCalculator;
         if (placement === PlacementEnum.Below) {
-            drawingHeight = skyBottomLineCalculator.getBottomLineMaxInRange(left, right);
+            drawingHeight = skyBottomLineCalculator.getBottomLineMaxInRange(left, right) + yPadding;
         } else {
-            drawingHeight = skyBottomLineCalculator.getSkyLineMinInRange(left, right);
+            drawingHeight = skyBottomLineCalculator.getSkyLineMinInRange(left, right) - yPadding;
         }
 
         // set RelativePosition
@@ -1773,6 +1774,7 @@ export abstract class MusicSheetCalculator {
                   font,
                   entry.Expression.Placement,
                   textAlignment,
+                  this.rules.TempoYSpacing,
                 );
                 if (entry.Expression instanceof InstantaneousTempoExpression) {
                     //already added?

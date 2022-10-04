@@ -34,6 +34,10 @@ open group to get SVG group+class for key signature
 note.js (custom addition)
 adds posibility to set the minimum note width
 
+renderer.js (vexflow4: need to check if possible):
+CanvasContext: getContext(): use willReadFrequently option for marginal performance potential,
+and for preventing chrome warning (#1242)
+
 stave.js (merged/fixed vexflow 4):
 prevent a bug where a modifier width is NaN, leading to a VexFlow error (fixed vexflow 4)
 stave.setSection(section, y, xOffset = 0, fontSize = 12):
