@@ -415,6 +415,9 @@ export class ExpressionReader {
     private interpretWords(wordsNode: IXmlElement, currentMeasure: SourceMeasure, inSourceMeasureCurrentFraction: Fraction): void {
         const text: string = wordsNode.value;
         const font: Font = new Font();
+        if (currentMeasure.Rules.IgnoreBracketsWords && /^\(\s*\)$/.test(text)) { // regex: brackets with arbitrary white space in-between
+            return;
+        }
         const fontStyleAttr: Attr = wordsNode.attribute("font-style");
         if (fontStyleAttr) {
             const fontStyleText: string = fontStyleAttr.value;

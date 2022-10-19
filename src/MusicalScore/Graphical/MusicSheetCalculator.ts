@@ -972,13 +972,14 @@ export abstract class MusicSheetCalculator {
                 musicSystem.PositionAndShape.RelativePosition =
                     new PointF2D(musicSystem.PositionAndShape.RelativePosition.x, musicSystem.PositionAndShape.RelativePosition.y - distance);
             }
-            for (let idx2: number = 0, len2: number = graphicalMusicPage.MusicSystems.length; idx2 < len2; ++idx2) {
-                const musicSystem: MusicSystem = graphicalMusicPage.MusicSystems[idx2];
-                for (let idx3: number = 0, len3: number = musicSystem.StaffLines.length; idx3 < len3; ++idx3) {
-                    const staffLine: StaffLine = musicSystem.StaffLines[idx3];
-                    staffLine.addActivitySymbolClickArea();
-                }
-            }
+            // add ActivitySymbolClickArea - currently unused, extends boundingbox of MusicSystem unnecessarily -> PageRightMargin 0 impossible
+            // for (let idx2: number = 0, len2: number = graphicalMusicPage.MusicSystems.length; idx2 < len2; ++idx2) {
+            //     const musicSystem: MusicSystem = graphicalMusicPage.MusicSystems[idx2];
+            //     for (let idx3: number = 0, len3: number = musicSystem.StaffLines.length; idx3 < len3; ++idx3) {
+            //         const staffLine: StaffLine = musicSystem.StaffLines[idx3];
+            //         staffLine.addActivitySymbolClickArea();
+            //     }
+            // }
 
             // calculate TopBottom Borders for all elements recursively
             //   necessary for composer label (page labels) for high notes in first system
@@ -2163,6 +2164,7 @@ export abstract class MusicSheetCalculator {
     protected calculatePageLabels(page: GraphicalMusicPage): void {
         if (this.rules.RenderSingleHorizontalStaffline) {
             page.PositionAndShape.BorderRight = page.PositionAndShape.Size.width;
+            //page.PositionAndShape.BorderRight = page.PositionAndShape.Size.width + this.rules.PageRightMargin;
             page.PositionAndShape.calculateBoundingBox();
             this.graphicalMusicSheet.ParentMusicSheet.pageWidth = page.PositionAndShape.Size.width;
         }
@@ -2174,7 +2176,7 @@ export abstract class MusicSheetCalculator {
             firstSystemAbsoluteTopMargin = firstMusicSystem.PositionAndShape.RelativePosition.y + firstMusicSystem.PositionAndShape.BorderTop;
         }
         //const firstStaffLine: StaffLine = this.graphicalMusicSheet.MusicPages[0].MusicSystems[0].StaffLines[0];
-        if (this.graphicalMusicSheet.Title) {
+        if (this.graphicalMusicSheet.Title && this.rules.RenderTitle) {
             const title: GraphicalLabel = this.graphicalMusicSheet.Title;
             title.PositionAndShape.Parent = page.PositionAndShape;
             //title.PositionAndShape.Parent = firstStaffLine.PositionAndShape;
@@ -2185,7 +2187,7 @@ export abstract class MusicSheetCalculator {
             title.PositionAndShape.RelativePosition = relative;
             page.Labels.push(title);
         }
-        if (this.graphicalMusicSheet.Subtitle) {
+        if (this.graphicalMusicSheet.Subtitle && this.rules.RenderTitle && this.rules.RenderSubtitle) {
             const subtitle: GraphicalLabel = this.graphicalMusicSheet.Subtitle;
             //subtitle.PositionAndShape.Parent = firstStaffLine.PositionAndShape;
             subtitle.PositionAndShape.Parent = page.PositionAndShape;
@@ -2202,7 +2204,7 @@ export abstract class MusicSheetCalculator {
         //   we don't need a skybottomcalculator currently, labels are put above system skyline anyways.
         const composer: GraphicalLabel = this.graphicalMusicSheet.Composer;
         let composerRelativeY: number;
-        if (composer) {
+        if (composer && this.rules.RenderComposer) {
             composer.PositionAndShape.Parent = page.PositionAndShape; // if using pageWidth. (which can currently be too wide) TODO fix pageWidth (#578)
             //composer.PositionAndShape.Parent = topStaffline.PositionAndShape; // if using firstStaffLine...width.
             //      y-collision problems, harder to y-align with lyrics
@@ -2244,7 +2246,7 @@ export abstract class MusicSheetCalculator {
             page.Labels.push(composer);
         }
         const lyricist: GraphicalLabel = this.graphicalMusicSheet.Lyricist;
-        if (lyricist) {
+        if (lyricist && this.rules.RenderLyricist) {
             lyricist.PositionAndShape.Parent = page.PositionAndShape;
             lyricist.setLabelPositionAndShapeBorders();
             const relative: PointF2D = new PointF2D();
