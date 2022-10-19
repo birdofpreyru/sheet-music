@@ -15,6 +15,14 @@ jobs:
           key: node-modules-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
+
+            # This is where "puppeteer" test suite downloads Chrome binaries
+            # when the package is installed. When "node_modules" folder is
+            # restored from the cache, the "puppeteer" does not have to be
+            # reinstalled, thus it won't re-download Chrome, by default,
+            # and thus we better save this cache folder.
+            - ~/.cache/puppeteer
+
       - run: npm run build
       - run: npm test
       - persist_to_workspace:
