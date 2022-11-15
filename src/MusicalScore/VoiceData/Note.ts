@@ -268,7 +268,7 @@ export class Note {
             this.sourceMeasure.AbsoluteTimestamp
         );
     }
-    public checkForDoubleSlur(slur: Slur): boolean {
+    public isDuplicateSlur(slur: Slur): boolean {
         for (let idx: number = 0, len: number = this.slurs.length; idx < len; ++idx) {
             const noteSlur: Slur = this.slurs[idx];
             if (
@@ -276,7 +276,8 @@ export class Note {
               noteSlur.EndNote !== undefined &&
               slur.StartNote !== undefined &&
               slur.StartNote === noteSlur.StartNote &&
-              noteSlur.EndNote === this
+              noteSlur.EndNote === this &&
+              slur.PlacementXml === noteSlur.PlacementXml
             ) { return true; }
         }
         return false;

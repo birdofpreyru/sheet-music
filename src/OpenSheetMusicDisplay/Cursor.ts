@@ -81,6 +81,7 @@ export class Cursor {
   public hidden: boolean = true;
   public currentPageNumber: number = 1;
   private cursorOptions: CursorOptions;
+  private skipInvisibleNotes: boolean = true;
 
   /** Initialize the cursor. Necessary before using functions like show() and next(). */
   public init(manager: MusicPartManager, graphic: GraphicalMusicSheet): void {
@@ -123,6 +124,8 @@ export class Cursor {
     }
 
     this.iterator = this.manager.getIterator();
+    // remember SkipInvisibleNotes setting, which otherwise gets reset to default value
+    this.iterator.SkipInvisibleNotes = this.skipInvisibleNotes;
   }
 
   private getStaffEntryFromVoiceEntry(voiceEntry: VoiceEntry): VexFlowStaffEntry {
@@ -289,6 +292,14 @@ export class Cursor {
   }
 
   /**
+   * Go to previous entry
+   */
+   public previous(): void {
+    this.iterator.moveToPreviousVisibleVoiceEntry(false);
+    this.update();
+  }
+
+  /**
    * Go to next entry
    */
   public next(): void {
@@ -359,5 +370,14 @@ export class Cursor {
       }
     }
     return 1;
+  }
+
+  public get SkipInvisibleNotes(): boolean {
+    return this.skipInvisibleNotes;
+  }
+
+  public set SkipInvisibleNotes(value: boolean) {
+    this.skipInvisibleNotes = value;
+    this.iterator.SkipInvisibleNotes = value;
   }
 }
