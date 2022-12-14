@@ -380,4 +380,12 @@ export class Cursor {
     this.skipInvisibleNotes = value;
     this.iterator.SkipInvisibleNotes = value;
   }
+
+  public get CursorOptions(): CursorOptions {
+    return this.cursorOptions;
+  }
+
+  public set CursorOptions(value: CursorOptions) {
+    this.cursorOptions = value;
+  }
 }

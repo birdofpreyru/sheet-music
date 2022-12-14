@@ -261,6 +261,8 @@ export class EngravingRules {
      *  (E.g. in a 4/4 time signature, a measure that repeats after the 3rd beat, continuing with a pickup measure)
      */
     public PickupMeasureRepetitionSpacing: number;
+    /** Multiplier for PickupMeasureRepetitionSpacing if there is only one note in the pickup measure. This usually needs a lot more space. */
+    public PickupMeasureSpacingSingleNoteAddend: number;
     public DisplacedNoteMargin: number;
     public MinNoteDistance: number;
     public SubMeasureXSpacingThreshold: number;
@@ -328,9 +330,12 @@ export class EngravingRules {
     public RenderClefsAtBeginningOfStaffline: boolean;
     public RenderKeySignatures: boolean;
     public RenderTimeSignatures: boolean;
+    public RenderPedals: boolean;
     public DynamicExpressionMaxDistance: number;
     public DynamicExpressionSpacer: number;
     public ArticulationPlacementFromXML: boolean;
+    /** Percent distance of breath marks to next note or end of staff, e.g. 0.8 = 80%. */
+    public BreathMarkDistance: number;
     /** Where to draw fingerings (Above, Below, AboveOrBelow, Left, Right, or Auto).
      * Default AboveOrBelow. Auto experimental. */
     public FingeringPosition: PlacementEnum;
@@ -599,7 +604,7 @@ export class EngravingRules {
         this.MaximumLyricsElongationFactor = 2.5;
 
         // expressions variables
-        this.TempoYSpacing = 0.0;
+        this.TempoYSpacing = 0.5; // note this is correlated with MetronomeMarkYShift: one-sided change can cause collisions
         this.InstantaneousTempoTextHeight = 2.3;
         this.ContinuousDynamicTextHeight = 2.3;
         this.MoodTextHeight = 2.3;
@@ -646,6 +651,7 @@ export class EngravingRules {
         this.VoiceSpacingAddendVexflow = 3.0;
         this.PickupMeasureWidthMultiplier = 1.0;
         this.PickupMeasureRepetitionSpacing = 0.8;
+        this.PickupMeasureSpacingSingleNoteAddend = 1.6;
         this.DisplacedNoteMargin = 0.1;
         this.MinNoteDistance = 2.0;
         this.SubMeasureXSpacingThreshold = 35;
@@ -653,7 +659,7 @@ export class EngravingRules {
         this.WholeRestXShiftVexflow = -1.5; // VexFlow draws rest notes too far to the right
         this.MetronomeMarksDrawn = true;
         this.MetronomeMarkXShift = -6; // our unit, is taken * unitInPixels
-        this.MetronomeMarkYShift = -0.5;
+        this.MetronomeMarkYShift = -1.0; // note this is correlated with TempoYSpacing: one-sided change can cause collisions
         this.SoftmaxFactorVexFlow = 15; // only applies to Vexflow 3.x. 15 seems like the sweet spot. Vexflow default is 100.
         // if too high, score gets too big, especially half notes. with half note quarter quarter, the quarters get squeezed.
         // if too low, smaller notes aren't positioned correctly.
@@ -713,7 +719,9 @@ export class EngravingRules {
         this.RenderClefsAtBeginningOfStaffline = true;
         this.RenderKeySignatures = true;
         this.RenderTimeSignatures = true;
+        this.RenderPedals = true;
         this.ArticulationPlacementFromXML = true;
+        this.BreathMarkDistance = 0.8;
         this.FingeringPosition = PlacementEnum.AboveOrBelow; // AboveOrBelow = correct bounding boxes
         this.FingeringPositionFromXML = true;
         this.FingeringPositionGrace = PlacementEnum.Left;

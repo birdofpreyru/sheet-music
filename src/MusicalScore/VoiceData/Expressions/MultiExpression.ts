@@ -8,6 +8,7 @@ import {UnknownExpression} from "./UnknownExpression";
 import {AbstractExpression} from "./AbstractExpression";
 import {PlacementEnum} from "./AbstractExpression";
 import {Font} from "../../../Common/DataObjects/Font";
+import {Pedal} from "./ContinuousExpressions/Pedal";
 
 export class MultiExpression {
 
@@ -30,6 +31,8 @@ export class MultiExpression {
     private combinedExpressionsText: string;
     private octaveShiftStart: OctaveShift;
     private octaveShiftEnd: OctaveShift;
+    public PedalStart: Pedal;
+    public PedalEnd: Pedal;
 
     public get SourceMeasureParent(): SourceMeasure {
         return this.sourceMeasure;
