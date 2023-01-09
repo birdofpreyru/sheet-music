@@ -6,8 +6,13 @@ import shortid from "shortid";
 
 export class LyricsEntry {
     constructor(
-      text: string, verseNumber: number, word: LyricWord, parent: VoiceEntry, syllableNumber: number = -1, font: Font = undefined) {
-        this.font = font;
+      text: string,
+      verseNumber: string,
+      word: LyricWord,
+      parent: VoiceEntry,
+      syllableNumber: number = -1,
+      font: Font = undefined
+    ) {
         this.text = text;
         this.word = word;
         this.parent = parent;
@@ -16,6 +21,19 @@ export class LyricsEntry {
         if (syllableNumber >= 0) {
             this.syllableIndex = syllableNumber;
         }
+
+        // OSMD@1.7.1 added .FontStyle prop to LyricsEntry, which returns
+        // "italic" or "regular" font based on whether the entry is chorus or
+        // translation, or neither. With our custom and better font handling,
+        // we removed that new prop, and instead we calculate the font style
+        // here, following the same logic, and we apply it modifying the font.
+        // NOTE: This relies on .verseNumber field value set.
+        const italic: boolean = this.IsChorus || this.IsTranslation;
+        this.font = font;
+        if (this.font.Italic !== italic) {
+          this.font = this.font.clone();
+          this.font.Italic = italic;
+        }
     }
     private color: string;
     private font: Font;
@@ -23,7 +41,7 @@ export class LyricsEntry {
     private uuid: string;
     private word: LyricWord;
     private parent: VoiceEntry;
-    private verseNumber: number;
+    private verseNumber: string;
     private syllableIndex: number;
     public extend: boolean;
 
@@ -54,11 +72,19 @@ export class LyricsEntry {
         this.parent = value;
     }
 
-    public get VerseNumber(): number {
+    public get VerseNumber(): string {
         return this.verseNumber;
     }
 
     public get SyllableIndex(): number {
         return this.syllableIndex;
+    }
+
+    public get IsTranslation(): boolean {
+        return this.VerseNumber.endsWith("translation");
+    }
+
+    public get IsChorus(): boolean {
+        return this.VerseNumber.startsWith("chorus");
     }
 }

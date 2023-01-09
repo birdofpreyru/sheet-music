@@ -28,7 +28,6 @@ import { GraphicalContinuousDynamicExpression } from "./GraphicalContinuousDynam
 // eslint-disable-next-line
 import { VexFlowContinuousDynamicExpression, VexFlowGraphicalNote, VexFlowInstrumentBracket, VexFlowMeasure, VexFlowStaffEntry, VexFlowStaffLine, VexFlowVoiceEntry } from "./VexFlow";
 import { StaffLineActivitySymbol } from "./StaffLineActivitySymbol";
-// import { FontStyles } from "../../Common/Enums/FontStyles";
 
 /**
  * Draw a [[GraphicalMusicSheet]] (through the .drawSheet method)
