@@ -251,14 +251,13 @@ export class MusicPartManagerIterator {
     // move to previous
     public moveToPrevious(): void {
         // this.forwardJumpOccurred = this.backJumpOccurred = false;
-        if (this.frontReached) { return; }
+        if (this.frontReached) {
+            return;
+        }
         if (this.currentVoiceEntries) {
             this.currentVoiceEntries = [];
         }
-        if (this.currentTimeStamp.RealValue < this.musicSheet.SourceMeasures.length) {
-            this.recursiveMoveBack();
-            return;
-        }
+        this.recursiveMoveBack();
     }
 
     public moveToPreviousVisibleVoiceEntry(notesOnly: boolean): void {
@@ -272,13 +271,17 @@ export class MusicPartManagerIterator {
     public moveToNext(): void {
         this.forwardJumpOccurred = this.backJumpOccurred = false;
         if (this.endReached) { return; }
-        if (this.frontReached) { this.frontReached = false; }
+        if (this.frontReached) {
+            this.frontReached = false;
+            this.currentVoiceEntryIndex = -1;
+        }
         if (this.currentVoiceEntries) {
             this.currentVoiceEntries = [];
         }
         this.recursiveMove();
         if (!this.currentMeasure) {
             this.currentTimeStamp = new Fraction(99999, 1);
+            this.currentMeasure = this.musicSheet.SourceMeasures.last();
         }
     }
     public moveToNextVisibleVoiceEntry(notesOnly: boolean): void {
@@ -558,6 +561,12 @@ export class MusicPartManagerIterator {
             this.currentVerticalContainerInMeasureTimestamp = currentContainer.Timestamp;
             this.currentTimeStamp = Fraction.plus(this.currentMeasure.AbsoluteTimestamp, this.currentVerticalContainerInMeasureTimestamp);
             this.activateCurrentDynamicOrTempoInstructions();
+            // re-check endReached
+            const selectionEnd: Fraction = this.musicSheet.SelectionEnd;
+            if (selectionEnd && this.currentTimeStamp.lt(selectionEnd)) {
+                this.endReached = false;
+            }
+            this.currentMeasureIndex = this.musicSheet.SourceMeasures.indexOf(this.CurrentMeasure);
             return;
         }
         else if (this.currentVoiceEntryIndex === 0  && this.currentMeasureIndex !== 0) {
@@ -568,12 +577,18 @@ export class MusicPartManagerIterator {
             this.currentVoiceEntries = this.getVoiceEntries(currentContainer);
             this.currentVerticalContainerInMeasureTimestamp = currentContainer.Timestamp;
             this.currentVoiceEntryIndex = m.VerticalSourceStaffEntryContainers.length-1;
-            this.currentTimeStamp = currentContainer.Timestamp;
+            this.currentTimeStamp = Fraction.plus(this.currentMeasure.AbsoluteTimestamp, currentContainer.Timestamp);
             this.activateCurrentDynamicOrTempoInstructions();
+            // re-check endReached
+            const selectionEnd: Fraction = this.musicSheet.SelectionEnd;
+            if (selectionEnd && this.currentTimeStamp.lt(selectionEnd)) {
+                this.endReached = false;
+            }
             return;
         }
         // we reached the beginning
         this.frontReached = true;
+        this.currentTimeStamp = new Fraction(-1, 1);
     }
 
     private recursiveMove(): void {

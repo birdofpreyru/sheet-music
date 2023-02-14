@@ -144,15 +144,40 @@ export class Cursor {
     const iterator: MusicPartManagerIterator = this.iterator;
     // TODO when measure draw range (drawUpToMeasureNumber) was changed, next/update can fail to move cursor. but of course it can be reset before.
 
-    const voiceEntries: VoiceEntry[] = iterator.CurrentVisibleVoiceEntries();
-    if (iterator.EndReached || !iterator.CurrentVoiceEntries || voiceEntries.length === 0) {
-      return;
-    }
+    let voiceEntries: VoiceEntry[] = iterator.CurrentVisibleVoiceEntries();
+    let currentMeasureIndex: number = iterator.CurrentMeasureIndex;
     let x: number = 0, y: number = 0, height: number = 0;
     let musicSystem: MusicSystem;
     let gseArr: VexFlowStaffEntry[] = [];
-    if (iterator.CurrentMeasure.isReducedToMultiRest) {
-      const multiRestGMeasure: GraphicalMeasure = this.graphic.findGraphicalMeasure(iterator.CurrentMeasureIndex, 0);
+    if (voiceEntries.length === 0 && !iterator.FrontReached && !iterator.EndReached) {
+      // e.g. when the note at the current position is in an instrument that's now invisible, and there's no other note at this position, vertically
+      iterator.moveToPrevious();
+      voiceEntries = iterator.CurrentVisibleVoiceEntries();
+      iterator.moveToNext();
+      // after this, the else condition below should trigger, positioning the cursor at the left-most note. See #1312
+    }
+    if (iterator.FrontReached && voiceEntries.length === 0) {
+      // show beginning of first measure (of stafflines, to create a visual difference to the first note position)
+      //   this position is technically before the sheet/first note - e.g. cursor.Iterator.CurrentTimestamp.RealValue = -1
+      iterator.moveToNext();
+      voiceEntries = iterator.CurrentVisibleVoiceEntries();
+      const firstVisibleMeasure: GraphicalMeasure = this.findVisibleGraphicalMeasure(iterator.CurrentMeasureIndex);
+      x = firstVisibleMeasure.PositionAndShape.AbsolutePosition.x;
+      musicSystem = firstVisibleMeasure.ParentMusicSystem;
+      iterator.moveToPrevious();
+    } else if (iterator.EndReached || !iterator.CurrentVoiceEntries || voiceEntries.length === 0) {
+      // show end of last measure (of stafflines, to create a visual difference to the first note position)
+      //   this position is technically after the sheet/last note - e.g. cursor.Iterator.CurrentTimestamp.RealValue = 99999
+      iterator.moveToPrevious();
+    voiceEntries = iterator.CurrentVisibleVoiceEntries();
+      currentMeasureIndex = iterator.CurrentMeasureIndex;
+      const lastVisibleMeasure: GraphicalMeasure = this.findVisibleGraphicalMeasure(iterator.CurrentMeasureIndex);
+      x = lastVisibleMeasure.PositionAndShape.AbsolutePosition.x + lastVisibleMeasure.PositionAndShape.Size.width;
+      musicSystem = lastVisibleMeasure.ParentMusicSystem;
+      iterator.moveToNext();
+    } else if (iterator.CurrentMeasure.isReducedToMultiRest) {
+      // multiple measure rests aren't used when one
+      const multiRestGMeasure: GraphicalMeasure = this.findVisibleGraphicalMeasure(iterator.CurrentMeasureIndex);
       const totalRestMeasures: number = multiRestGMeasure.parentSourceMeasure.multipleRestMeasures;
       const currentRestMeasureNumber: number = iterator.CurrentMeasure.multipleRestMeasureNumber;
       const progressRatio: number = currentRestMeasureNumber / (totalRestMeasures + 1);
@@ -161,32 +186,32 @@ export class Cursor {
 
       musicSystem = multiRestGMeasure.ParentMusicSystem;
     } else {
-          // get all staff entries inside the current voice entry
-          gseArr = voiceEntries.map(ve => this.getStaffEntryFromVoiceEntry(ve));
-          // sort them by x position and take the leftmost entry
-          const gse: VexFlowStaffEntry =
-                gseArr.sort((a, b) => a?.PositionAndShape?.AbsolutePosition?.x <= b?.PositionAndShape?.AbsolutePosition?.x ? -1 : 1 )[0];
-          x = gse.PositionAndShape.AbsolutePosition.x;
-          musicSystem = gse.parentMeasure.ParentMusicSystem;
+      // get all staff entries inside the current voice entry
+      gseArr = voiceEntries.map(ve => this.getStaffEntryFromVoiceEntry(ve));
+      // sort them by x position and take the leftmost entry
+      const gse: VexFlowStaffEntry =
+            gseArr.sort((a, b) => a?.PositionAndShape?.AbsolutePosition?.x <= b?.PositionAndShape?.AbsolutePosition?.x ? -1 : 1 )[0];
+      x = gse.PositionAndShape.AbsolutePosition.x;
+      musicSystem = gse.parentMeasure.ParentMusicSystem;
 
-          // debug: change color of notes under cursor (needs re-render)
-          // for (const gve of gse.graphicalVoiceEntries) {
-          //   for (const note of gve.notes) {
-          //     note.sourceNote.NoteheadColor = "#0000FF";
-          //   }
-          // }
+      // debug: change color of notes under cursor (needs re-render)
+      // for (const gve of gse.graphicalVoiceEntries) {
+      //   for (const note of gve.notes) {
+      //     note.sourceNote.NoteheadColor = "#0000FF";
+      //   }
+      // }
     }
     if (!musicSystem) {
       return;
     }
     /* TODO: The cursor height and pos (i.e. what exactly it highlights)
      * should be modifiable through options. */
-    // y is common for both multirest and non-multirest, given the MusicSystem
+    //   note: StaffLines[0] is guaranteed to exist in this.findVisibleGraphicalMeasure
     y = musicSystem.PositionAndShape.AbsolutePosition.y
-      + (musicSystem.StaffLines[0]?.PositionAndShape.RelativePosition.y ?? 0)
+      + musicSystem.StaffLines[0].PositionAndShape.RelativePosition.y
       + musicSystem.PositionAndShape.BorderTop;
-    const bottomStaffline: StaffLine = musicSystem.StaffLines[musicSystem.StaffLines.length - 1];
     let endY: number = musicSystem.PositionAndShape.AbsolutePosition.y;
+    const bottomStaffline: StaffLine = musicSystem.StaffLines[musicSystem.StaffLines.length - 1];
     if (bottomStaffline) { // can be undefined if drawFromMeasureNumber changed after cursor was shown
       endY += bottomStaffline.PositionAndShape.RelativePosition.y + bottomStaffline.StaffHeight;
     }
@@ -210,7 +235,7 @@ export class Cursor {
     // height += 10;
 
     // Update the graphical cursor
-    const measurePositionAndShape: BoundingBox = this.graphic.findGraphicalMeasure(iterator.CurrentMeasureIndex, 0).PositionAndShape;
+    const measurePositionAndShape: BoundingBox = this.graphic.findGraphicalMeasure(currentMeasureIndex, 0).PositionAndShape;
     this.updateWidthAndStyle(measurePositionAndShape, x, y, height, width);
 
     if (this.openSheetMusicDisplay.FollowCursor && this.cursorOptions.follow) {
@@ -224,6 +249,15 @@ export class Cursor {
     // Show cursor
     // // Old cursor: this.graphic.Cursors.push(cursor);
     this.cursorElement.style.display = "";
+  }
+
+  private findVisibleGraphicalMeasure(measureIndex: number): GraphicalMeasure {
+    for (let i: number = 0; i < this.graphic.NumberOfStaves; i++) {
+      const measure: GraphicalMeasure = this.graphic.findGraphicalMeasure(this.iterator.CurrentMeasureIndex, i);
+      if (measure?.ParentStaff.ParentInstrument.Visible) {
+        return measure;
+      }
+    }
   }
 
   public updateWidthAndStyle(
@@ -351,7 +385,10 @@ export class Cursor {
    *  This is only necessary if using PageFormat (multiple pages).
    */
   public updateCurrentPage(): number {
-    const timestamp: Fraction = this.iterator.currentTimeStamp;
+    let timestamp: Fraction = this.iterator.currentTimeStamp;
+    if (timestamp.RealValue < 0) {
+      timestamp = new Fraction(0, 0);
+    }
     for (const page of this.graphic.MusicPages) {
       const lastSystemTimestamp: Fraction = page.MusicSystems.last().GetSystemsLastTimeStamp();
       if (lastSystemTimestamp.gt(timestamp)) {
