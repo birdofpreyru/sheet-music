@@ -334,7 +334,15 @@ describe("OpenSheetMusicDisplay Main Export", () => {
                 chai.expect(cursor.NotesUnderCursor().length).to.greaterThanOrEqual(1);
                 chai.expect(cursor.Iterator.currentTimeStamp.RealValue).to.equal(0);
                 // go past end of sheet
-                for (let i: number = 1; i <= 260; i++) {
+                // NOTE: Unlike in the upstream, in this fork the cursor has
+                // been patch to respect repetions in the music sheet when
+                // moving forward and backward. In Clementi 36/1/1 the melody
+                // consists of two parts, each of them repeated twice. Thus,
+                // in this fork the cursor has to effectively traverse twice
+                // the amount of positions, compared to the upstream, when
+                // next() is called repeatedly. Thus, 520 is used as
+                // the limit below, instead of 260 in the upstream.
+                for (let i: number = 1; i <= 520; i++) {
                     cursor.next(); // go past end of sheet: after 258 times in Clementi 36/1/1, the last timestamp is reached
                 }
                 chai.expect(cursor.Iterator.EndReached).to.equal(true);
