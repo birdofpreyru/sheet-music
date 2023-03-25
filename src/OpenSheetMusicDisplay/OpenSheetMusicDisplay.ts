@@ -703,7 +703,11 @@ export class OpenSheetMusicDisplay {
             this.rules.ColoringMode = ColoringModes.XML;
             return;
         }
-        const noteIndices: NoteEnum[] = [NoteEnum.C, NoteEnum.D, NoteEnum.E, NoteEnum.F, NoteEnum.G, NoteEnum.A, NoteEnum.B, -1];
+        // The type was changed from NodeEnum[] in the upstream to number[]
+        // because with typescript v5 the previous typing causes an error if
+        // we try to add "-1" element into enum array.
+        const noteIndices: number[] = [NoteEnum.C, NoteEnum.D, NoteEnum.E, NoteEnum.F, NoteEnum.G, NoteEnum.A, NoteEnum.B, -1];
+
         let colorSetString: string[];
         if (options.coloringMode === ColoringModes.CustomColorSet) {
             if (!options.coloringSetCustom || options.coloringSetCustom.length !== 8) {
