@@ -244,6 +244,7 @@ export class EngravingRules {
     public SystemRepetitionEndingLineWidth: number;
     public SystemDotWidth: number;
     public MultipleRestMeasureDefaultWidth: number;
+    public MultipleRestMeasureAddKeySignature: boolean;
     public DistanceBetweenVerticalSystemLines: number;
     public DistanceBetweenDotAndLine: number;
     public RepeatEndStartPadding: number;
@@ -652,6 +653,7 @@ export class EngravingRules {
         this.GraceLineWidth = this.StaffLineWidth * this.GraceNoteScalingFactor;
 
         this.MultipleRestMeasureDefaultWidth = 4;
+        this.MultipleRestMeasureAddKeySignature = true;
 
         // Line Widths
         this.MinimumCrossedBeamDifferenceMargin = 0.0001;
