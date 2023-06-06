@@ -965,12 +965,14 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
 
       if (endStaffLine !== startStaffLine) {
         graphicalOctaveShift.endsOnDifferentStaffLine = true;
-        let lastMeasureOfFirstShift: GraphicalMeasure = startStaffLine.Measures[startStaffLine.Measures.length - 1];
-        if (lastMeasureOfFirstShift === undefined) { // TODO handle this case correctly (when drawUpToMeasureNumber etc set)
+        let lastMeasureOfFirstShift: GraphicalMeasure = this.findLastStafflineMeasure(startStaffLine);
+        if (lastMeasureOfFirstShift === undefined) { // TODO handle this case correctly (e.g. when no staffentries found above or drawUpToMeasureNumber set)
           lastMeasureOfFirstShift = endMeasure;
         }
         const lastNoteOfFirstShift: GraphicalStaffEntry = lastMeasureOfFirstShift.staffEntries[lastMeasureOfFirstShift.staffEntries.length - 1];
         graphicalOctaveShift.setEndNote(lastNoteOfFirstShift);
+        graphicalOctaveShift.graphicalEndAtMeasureEnd = true;
+        graphicalOctaveShift.endMeasure = lastMeasureOfFirstShift;
 
         const systemsInBetweenCount: number = endStaffLine.ParentMusicSystem.Id - startStaffLine.ParentMusicSystem.Id;
         if (systemsInBetweenCount > 0) {
@@ -982,14 +984,13 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
             const nextShiftFirstMeasure: GraphicalMeasure = nextShiftStaffline.Measures[0];
             // Shift starts on the first measure
             const nextOctaveShift: VexFlowOctaveShift = new VexFlowOctaveShift(octaveShift, nextShiftFirstMeasure.PositionAndShape);
+            let nextShiftLastMeasure: GraphicalMeasure = this.findLastStafflineMeasure(nextShiftStaffline);
 
-            if (i < systemsInBetweenCount) {
+            if (i < systemsInBetweenCount - 1) {
+              // if not - 1, the last octaveshift will always go to the end of the staffline
               nextOctaveShift.endsOnDifferentStaffLine = true;
-            }
-
-            let nextShiftLastMeasure: GraphicalMeasure = nextShiftStaffline.Measures[nextShiftStaffline.Measures.length - 1];
-            if (nextShiftLastMeasure.IsExtraGraphicalMeasure) { // key/rhythm change measure
-              nextShiftLastMeasure = nextShiftStaffline.Measures[nextShiftStaffline.Measures.length - 2];
+              nextOctaveShift.graphicalEndAtMeasureEnd = true;
+              nextOctaveShift.endMeasure = nextShiftLastMeasure;
             }
             const firstNote: GraphicalStaffEntry = nextShiftFirstMeasure.staffEntries[0];
             let lastNote: GraphicalStaffEntry = nextShiftLastMeasure.staffEntries[nextShiftLastMeasure.staffEntries.length - 1];
@@ -998,6 +999,15 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
             if (endMeasure.ParentStaffLine === nextShiftStaffline) {
               nextShiftLastMeasure = endMeasure;
               lastNote = endStaffEntry;
+            }
+
+            if (lastNote.graphicalVoiceEntries.length === 1 &&
+              lastNote.graphicalVoiceEntries[0].notes.length === 1 &&
+              lastNote.graphicalVoiceEntries[0].notes[0].sourceNote.isWholeMeasureNote()
+            ) {
+              // also draw octaveshift until end of measure if we have a whole note that goes over the whole measure
+              nextOctaveShift.graphicalEndAtMeasureEnd = true;
+              nextOctaveShift.endMeasure = nextShiftLastMeasure;
             }
 
             const logPrefix: string = "VexFlowMusicSheetCalculator.calculateSingleOctaveShift: ";
@@ -1022,6 +1032,18 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       startStaffLine.OctaveShifts.push(graphicalOctaveShift);
     } else {
       log.warn("End measure or staffLines for octave shift are undefined! This should not happen!");
+    }
+  }
+
+  /** Finds the last staffline measure that has staffentries. (staffentries necessary for octaveshift and pedal) */
+  protected findLastStafflineMeasure(staffline: StaffLine): GraphicalMeasure {
+    for (let i: number = staffline.Measures.length - 1; i >= 0; i--) {
+      const measure: GraphicalMeasure = staffline.Measures[i];
+      if (measure.staffEntries.length > 0) {
+        return measure;
+        // a measure can have no staff entries if e.g. measure.IsExtraGraphicalMeasure, used to show key/rhythm changes.
+      }
+      // else continue with the measure before this one
     }
   }
 
@@ -1125,7 +1147,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
           nextPedal.DepressText = " ";
           this.calculatePedalSkyBottomLine(nextPedal.startVfVoiceEntry, nextPedal.endVfVoiceEntry, nextPedal, endStaffLine);
         } else {
-          let lastMeasureOfFirstShift: GraphicalMeasure = startStaffLine.Measures[startStaffLine.Measures.length - 1];
+          let lastMeasureOfFirstShift: GraphicalMeasure = this.findLastStafflineMeasure(startStaffLine);
           if (lastMeasureOfFirstShift === undefined) { // TODO handle this case correctly (when drawUpToMeasureNumber etc set)
             lastMeasureOfFirstShift = endMeasure;
           }
@@ -1159,7 +1181,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
               } else {
                 nextPedal.ChangeEnd = false;
               }
-              let nextPedalLastMeasure: GraphicalMeasure = nextPedalStaffline.Measures[nextPedalStaffline.Measures.length - 1];
+              let nextPedalLastMeasure: GraphicalMeasure = this.findLastStafflineMeasure(nextPedalStaffline);
               const firstNote: GraphicalStaffEntry = nextPedalFirstMeasure.staffEntries[0];
               let lastNote: GraphicalStaffEntry = nextPedalLastMeasure.staffEntries[nextPedalLastMeasure.staffEntries.length - 1];
 
@@ -1358,8 +1380,12 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       log.warn("octaveshift: no endStaffEntry");
       return;
     }
+    let endBbox: BoundingBox = endStaffEntry.PositionAndShape;
+    if (vfOctaveShift.graphicalEndAtMeasureEnd) {
+      endBbox = endStaffEntry.parentMeasure.PositionAndShape;
+    }
     let startXOffset: number = startStaffEntry.PositionAndShape.Size.width;
-    let endXOffset: number = endStaffEntry.PositionAndShape.Size.width;
+    let endXOffset: number = endBbox.Size.width;
 
     //Vexflow renders differently with rests
     if (startStaffEntry.hasOnlyRests()) {
@@ -1368,17 +1394,19 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       startXOffset /= 2;
     }
 
-    if (!endStaffEntry.hasOnlyRests()) {
-      endXOffset /= 2;
-    } else {
-      endXOffset *= 2;
+    if (!vfOctaveShift.graphicalEndAtMeasureEnd) {
+      if (!endStaffEntry.hasOnlyRests()) {
+        endXOffset /= 2;
+      } else {
+        endXOffset *= 2;
+      }
+      if (startStaffEntry === endStaffEntry) {
+        endXOffset *= 2;
+      }
     }
 
-    if (startStaffEntry === endStaffEntry) {
-      endXOffset *= 2;
-    }
     let startX: number = startStaffEntry.PositionAndShape.AbsolutePosition.x - startXOffset;
-    let stopX: number = endStaffEntry.PositionAndShape.AbsolutePosition.x + endXOffset;
+    let stopX: number = endBbox.AbsolutePosition.x + endXOffset;
     if (startX > stopX) {
       // very rare case of the start staffentry being before end staffentry. would lead to error in skybottomline. See #1281
       // reverse startX and endX
@@ -1387,7 +1415,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       stopX = oldStartX;
     }
 
-    vfOctaveShift.PositionAndShape.Size.width = startX - stopX;
+    vfOctaveShift.PositionAndShape.Size.width = stopX - startX;
     const textBracket: VF.TextBracket = vfOctaveShift.getTextBracket();
     const fontSize: number = (textBracket as any).font.size / 10;
 

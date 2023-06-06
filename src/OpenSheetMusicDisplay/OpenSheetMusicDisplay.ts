@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.7.5-release"; // getter: this.Version
+    protected version: string = "1.7.6-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -588,6 +588,9 @@ export class OpenSheetMusicDisplay {
         if (options.newSystemFromXML !== undefined) {
             this.rules.NewSystemAtXMLNewSystemAttribute = options.newSystemFromXML;
         }
+        if (options.newSystemFromNewPageInXML !== undefined) {
+            this.rules.NewSystemAtXMLNewPageAttribute = options.newSystemFromNewPageInXML;
+        }
         if (options.newPageFromXML !== undefined) {
             this.rules.NewPageAtXMLNewPageAttribute = options.newPageFromXML;
         }
@@ -682,8 +685,8 @@ export class OpenSheetMusicDisplay {
         if (options.stretchLastSystemLine !== undefined) {
             this.rules.StretchLastSystemLine = options.stretchLastSystemLine;
         }
-        if (options.autoGenerateMutipleRestMeasuresFromRestMeasures !== undefined) {
-            this.rules.AutoGenerateMutipleRestMeasuresFromRestMeasures = options.autoGenerateMutipleRestMeasuresFromRestMeasures;
+        if (options.autoGenerateMultipleRestMeasuresFromRestMeasures !== undefined) {
+            this.rules.AutoGenerateMultipleRestMeasuresFromRestMeasures = options.autoGenerateMultipleRestMeasuresFromRestMeasures;
         }
         if (options.cursorsOptions !== undefined) {
             this.cursorsOptions = options.cursorsOptions;
@@ -703,16 +706,12 @@ export class OpenSheetMusicDisplay {
             this.rules.ColoringMode = ColoringModes.XML;
             return;
         }
-        // The type was changed from NodeEnum[] in the upstream to number[]
-        // because with typescript v5 the previous typing causes an error if
-        // we try to add "-1" element into enum array.
-        const noteIndices: number[] = [NoteEnum.C, NoteEnum.D, NoteEnum.E, NoteEnum.F, NoteEnum.G, NoteEnum.A, NoteEnum.B, -1];
-
+        const noteIndices: NoteEnum[] = [NoteEnum.C, NoteEnum.D, NoteEnum.E, NoteEnum.F, NoteEnum.G, NoteEnum.A, NoteEnum.B];
         let colorSetString: string[];
         if (options.coloringMode === ColoringModes.CustomColorSet) {
             if (!options.coloringSetCustom || options.coloringSetCustom.length !== 8) {
                 throw new Error("Invalid amount of colors: With coloringModes.customColorSet, " +
-                    "you have to provide a coloringSetCustom parameter with 8 strings (C to B, rest note).");
+                    "you have to provide a coloringSetCustom parameter (array) with 8 strings (C to B, rest note).");
             }
             // validate strings input
             for (const colorString of options.coloringSetCustom) {
@@ -734,9 +733,8 @@ export class OpenSheetMusicDisplay {
         for (let i: number = 0; i < noteIndices.length; i++) {
             coloringSetCurrent.setValue(noteIndices[i], colorSetString[i]);
         }
-        coloringSetCurrent.setValue(-1, colorSetString[7]);
+        coloringSetCurrent.setValue(-1, colorSetString.last()); // index 7. Unfortunately -1 is not a NoteEnum value, so we can't put it into noteIndices
         this.rules.ColoringSetCurrent = coloringSetCurrent;
-
         this.rules.ColoringMode = options.coloringMode;
     }
 

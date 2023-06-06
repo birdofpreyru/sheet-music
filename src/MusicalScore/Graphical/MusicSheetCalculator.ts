@@ -198,7 +198,7 @@ export abstract class MusicSheetCalculator {
             }
         }
 
-        if (this.rules.AutoGenerateMutipleRestMeasuresFromRestMeasures && this.rules.RenderMultipleRestMeasures) {
+        if (this.rules.AutoGenerateMultipleRestMeasuresFromRestMeasures && this.rules.RenderMultipleRestMeasures) {
             //track number of multirests
             let beginMultiRestMeasure: SourceMeasure = undefined;
             let multiRestCount: number = 0;
@@ -297,6 +297,7 @@ export abstract class MusicSheetCalculator {
         //this.graphicalMusicSheet.MusicPages[0].PositionAndShape.BorderMarginBottom += 9;
 
         // transform Relative to Absolute Positions
+        //This is called for each measure in calculate music systems (calculateLines -> calculateSkyBottomLines)
         GraphicalMusicSheet.transformRelativeToAbsolutePosition(this.graphicalMusicSheet);
     }
 
@@ -314,12 +315,31 @@ export abstract class MusicSheetCalculator {
             minimumStaffEntriesWidth = this.calculateMeasureWidthFromStaffEntries(measures, minimumStaffEntriesWidth);
             MusicSheetCalculator.setMeasuresMinStaffEntriesWidth(measures, minimumStaffEntriesWidth);
             // minLength = minimumStaffEntriesWidth * 1.2 + maxInstrNameLabelLength + maxInstructionsLength;
+            let maxWidth: number = 0;
             for (let i: number = 1; i < this.graphicalMusicSheet.MeasureList.length; i++) {
                 measures = this.graphicalMusicSheet.MeasureList[i];
                 minimumStaffEntriesWidth = this.calculateMeasureXLayout(measures);
                 minimumStaffEntriesWidth = this.calculateMeasureWidthFromStaffEntries(measures, minimumStaffEntriesWidth);
+                if (minimumStaffEntriesWidth > maxWidth) {
+                    maxWidth = minimumStaffEntriesWidth;
+                }
+                //console.log(`min width for measure ${measures[0].MeasureNumber}: ${minimumStaffEntriesWidth}`);
                 MusicSheetCalculator.setMeasuresMinStaffEntriesWidth(measures, minimumStaffEntriesWidth);
                 // minLength = Math.max(minLength, minimumStaffEntriesWidth * 1.2 + maxInstructionsLength);
+            }
+            if (this.rules.FixedMeasureWidth) {
+                // experimental: use the same measure width for all measures
+                //   here we take the maximum measure width for now,
+                //   otherwise Vexflow's layout can get completely messed up and place everything on top of each other,
+                //   if it gets less width than it says it needs as a minimum for a measure. (formatter.preCalculateMinTotalWidth)
+                let targetWidth: number = maxWidth;
+                if (this.rules.FixedMeasureWidthFixedValue) {
+                    targetWidth = this.rules.FixedMeasureWidthFixedValue;
+                }
+                for (let i: number = 1; i < this.graphicalMusicSheet.MeasureList.length; i++) {
+                    measures = this.graphicalMusicSheet.MeasureList[i];
+                    MusicSheetCalculator.setMeasuresMinStaffEntriesWidth(measures, targetWidth);
+                }
             }
         }
         // this.graphicalMusicSheet.MinAllowedSystemWidth = minLength; // currently unused
@@ -891,7 +911,7 @@ export abstract class MusicSheetCalculator {
         }
 
 
-        // build the MusicSystems
+        // build the MusicSystems (and StaffLines)
         const musicSystemBuilder: MusicSystemBuilder = new MusicSystemBuilder();
         musicSystemBuilder.initialize(this.graphicalMusicSheet, visibleMeasureList, numberOfStaffLines);
         this.musicSystems = musicSystemBuilder.buildMusicSystems();
@@ -2090,6 +2110,16 @@ export abstract class MusicSheetCalculator {
         } else if (!this.rules.RenderLyricist) {
             this.graphicalMusicSheet.Lyricist = undefined;
         }
+        if (musicSheet.Copyright !== undefined && this.rules.RenderCopyright) {
+            const copyright: GraphicalLabel = new GraphicalLabel(
+                musicSheet.Copyright, this.rules.SheetCopyrightHeight, TextAlignmentEnum.CenterBottom, this.rules);
+                copyright.Label.IsCreditLabel = true;
+                copyright.Label.colorDefault = defaultColorTitle;
+            this.graphicalMusicSheet.Copyright = copyright;
+            copyright.setLabelPositionAndShapeBorders();
+        } else if (!this.rules.RenderCopyright) {
+            this.graphicalMusicSheet.Copyright = undefined;
+        }
     }
 
     protected checkMeasuresForWholeRestNotes(): void {
@@ -2218,9 +2248,12 @@ export abstract class MusicSheetCalculator {
         // The PositionAndShape child elements of page need to be manually connected to the lyricist, composer, subtitle, etc.
         // because the page is only available now
         let firstSystemAbsoluteTopMargin: number = 10;
+        let lastSystemAbsoluteBottomMargin: number = -1;
         if (page.MusicSystems.length > 0) {
             const firstMusicSystem: MusicSystem = page.MusicSystems[0];
             firstSystemAbsoluteTopMargin = firstMusicSystem.PositionAndShape.RelativePosition.y + firstMusicSystem.PositionAndShape.BorderTop;
+            const lastMusicSystem: MusicSystem = page.MusicSystems[page.MusicSystems.length - 1];
+            lastSystemAbsoluteBottomMargin = lastMusicSystem.PositionAndShape.RelativePosition.y + lastMusicSystem.PositionAndShape.BorderBottom;
         }
         //const firstStaffLine: StaffLine = this.graphicalMusicSheet.MusicPages[0].MusicSystems[0].StaffLines[0];
         if (this.graphicalMusicSheet.Title && this.rules.RenderTitle) {
@@ -2311,6 +2344,17 @@ export abstract class MusicSheetCalculator {
             //relative.y = Math.max(relative.y, composer.PositionAndShape.RelativePosition.y);
             lyricist.PositionAndShape.RelativePosition = relative;
             page.Labels.push(lyricist);
+        }
+        const copyright: GraphicalLabel = this.graphicalMusicSheet.Copyright;
+        if (copyright && this.rules.RenderCopyright) {
+            copyright.PositionAndShape.Parent = page.PositionAndShape;
+            copyright.setLabelPositionAndShapeBorders();
+            const relative: PointF2D = new PointF2D();
+            relative.x = page.PositionAndShape.Size.width / 2;
+            relative.y = lastSystemAbsoluteBottomMargin + this.rules.SheetCopyrightMargin;
+            relative.y -= copyright.PositionAndShape.BorderTop;
+            copyright.PositionAndShape.RelativePosition = relative;
+            page.Labels.push(copyright);
         }
     }
 
@@ -2536,9 +2580,16 @@ export abstract class MusicSheetCalculator {
         const octaveShifts: MultiExpression[] = [];
         for (let idx: number = 0, len: number = sourceMeasure.StaffLinkedExpressions[staffIndex].length; idx < len; ++idx) {
             const multiExpression: MultiExpression = sourceMeasure.StaffLinkedExpressions[staffIndex][idx];
+            let targetOctaveShift: OctaveShift;
             if (multiExpression.OctaveShiftStart) {
+                targetOctaveShift = multiExpression.OctaveShiftStart;
+            } else if (multiExpression.OctaveShiftEnd) {
+                // also check for octave shift that is ending here but starting in earlier measure, see test_octaveshift_notes_shifted_octave_shift_end.musicxml
+                targetOctaveShift = multiExpression.OctaveShiftEnd;
+            }
+            if (targetOctaveShift) {
                 octaveShifts.push(multiExpression);
-                const openOctaveShift: OctaveShift = multiExpression.OctaveShiftStart;
+                const openOctaveShift: OctaveShift = targetOctaveShift;
                 let absoluteEnd: Fraction = openOctaveShift?.ParentEndMultiExpression?.AbsoluteTimestamp;
                 if (!openOctaveShift?.ParentEndMultiExpression) {
                     const measureEndTimestamp: Fraction = Fraction.plus(sourceMeasure.AbsoluteTimestamp, sourceMeasure.Duration);
@@ -2548,7 +2599,8 @@ export abstract class MusicSheetCalculator {
                     // TODO check if octaveshift end exists, otherwise set to last measure end. only necessary if xml was cut manually and is incomplete
                 }
                 openOctaveShifts[staffIndex] = new OctaveShiftParams(
-                    openOctaveShift, multiExpression?.AbsoluteTimestamp,
+                    openOctaveShift, openOctaveShift.ParentStartMultiExpression.AbsoluteTimestamp,
+                    //openOctaveShift, multiExpression?.AbsoluteTimestamp,
                     absoluteEnd
                 );
             }
@@ -2591,9 +2643,15 @@ export abstract class MusicSheetCalculator {
                 if (octaveShiftValue === OctaveEnum.NONE) {
                     // check for existing octave shifts outside openOctaveShifts
                     for (const octaveShift of octaveShifts) {
-                        if (octaveShift.OctaveShiftStart?.ParentStartMultiExpression?.AbsoluteTimestamp.lte(sourceStaffEntry.AbsoluteTimestamp) &&
-                            !octaveShift.OctaveShiftStart?.ParentEndMultiExpression?.AbsoluteTimestamp.lt(sourceStaffEntry.AbsoluteTimestamp)) {
-                                octaveShiftValue = octaveShift.OctaveShiftStart.Type;
+                        let targetOctaveShift: OctaveShift;
+                        if (octaveShift.OctaveShiftStart) {
+                            targetOctaveShift = octaveShift.OctaveShiftStart;
+                        } else if (octaveShift.OctaveShiftEnd) {
+                            targetOctaveShift = octaveShift.OctaveShiftEnd;
+                        }
+                        if (targetOctaveShift?.ParentStartMultiExpression?.AbsoluteTimestamp.lte(sourceStaffEntry.AbsoluteTimestamp) &&
+                            !targetOctaveShift.ParentEndMultiExpression?.AbsoluteTimestamp.lt(sourceStaffEntry.AbsoluteTimestamp)) {
+                                octaveShiftValue = targetOctaveShift.Type;
                                 break;
                             }
                     }
