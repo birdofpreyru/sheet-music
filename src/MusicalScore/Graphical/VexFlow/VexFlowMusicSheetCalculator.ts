@@ -515,7 +515,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
 
     // for all staffEntries i, each containing the lyric entry for all verses at that timestamp in the measure
     for (const staffEntry of staffEntries) {
-      if (staffEntry.LyricsEntries.length > 0) {
+      if (staffEntry.LyricsEntries.length > 0 && this.rules.RenderLyrics) {
         newElongationFactorForMeasureWidth =
           this.calculateElongationFactor(
             staffEntry.LyricsEntries,
@@ -528,7 +528,7 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
             this.rules.LyricOverlapAllowedIntoNextMeasure,
           );
       }
-      if (staffEntry.graphicalChordContainers.length > 0) {
+      if (staffEntry.graphicalChordContainers.length > 0 && this.rules.RenderChordSymbols) {
         newElongationFactorForMeasureWidth =
           this.calculateElongationFactor(
             staffEntry.graphicalChordContainers,
@@ -742,11 +742,17 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
     const startMeasure: GraphicalMeasure = measures[staffIndex];
 
     // start position in staffline:
+    // const useStaffEntryBorderLeft: boolean = multiExpression.StartingContinuousDynamic?.DynamicType === ContDynamicEnum.diminuendo;
+    const continuousDynamic: ContinuousDynamicExpression = multiExpression.StartingContinuousDynamic;
+    const useStaffEntryBorderLeft: boolean = continuousDynamic !== undefined && !continuousDynamic.IsStartOfSoftAccent;
     const dynamicStartPosition: PointF2D = this.getRelativePositionInStaffLineFromTimestamp(
       absoluteTimestamp,
       staffIndex,
       staffLine,
-      staffLine?.isPartOfMultiStaffInstrument());
+      staffLine?.isPartOfMultiStaffInstrument(),
+      undefined,
+      useStaffEntryBorderLeft
+      );
     if (dynamicStartPosition.x <= 0) {
       dynamicStartPosition.x = startMeasure.beginInstructionsWidth + this.rules.RhythmRightMargin;
     }
@@ -760,10 +766,9 @@ export class VexFlowMusicSheetCalculator extends MusicSheetCalculator {
       this.calculateGraphicalInstantaneousDynamicExpression(graphicalInstantaneousDynamic, dynamicStartPosition, absoluteTimestamp);
       this.dynamicExpressionMap.set(absoluteTimestamp.RealValue, graphicalInstantaneousDynamic.PositionAndShape);
     }
-    if (multiExpression.StartingContinuousDynamic) {
-      const continuousDynamic: ContinuousDynamicExpression = multiExpression.StartingContinuousDynamic;
+    if (continuousDynamic) {
       const graphicalContinuousDynamic: VexFlowContinuousDynamicExpression = new VexFlowContinuousDynamicExpression(
-        multiExpression.StartingContinuousDynamic,
+        continuousDynamic,
         staffLine,
         startMeasure.parentSourceMeasure);
       graphicalContinuousDynamic.StartMeasure = startMeasure;

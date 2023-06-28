@@ -3,7 +3,7 @@ import {Fraction} from "../../../Common/DataObjects/Fraction";
 import {MultiTempoExpression} from "../../VoiceData/Expressions/MultiTempoExpression";
 import {ContDynamicEnum, ContinuousDynamicExpression} from "../../VoiceData/Expressions/ContinuousExpressions/ContinuousDynamicExpression";
 import {ContinuousTempoExpression} from "../../VoiceData/Expressions/ContinuousExpressions/ContinuousTempoExpression";
-import {InstantaneousDynamicExpression} from "../../VoiceData/Expressions/InstantaneousDynamicExpression";
+import {DynamicEnum, InstantaneousDynamicExpression} from "../../VoiceData/Expressions/InstantaneousDynamicExpression";
 import {OctaveShift} from "../../VoiceData/Expressions/ContinuousExpressions/OctaveShift";
 import {Instrument} from "../../Instrument";
 import {MultiExpression} from "../../VoiceData/Expressions/MultiExpression";
@@ -474,20 +474,24 @@ export class ExpressionReader {
                 expressionText = dynamicsNode.elements()[0].value;
             }
             if (expressionText) {
-                // // ToDo: add doublettes recognition again as a afterReadingModule, as we can't check here if there is a repetition:
-                // // Make here a comparison with the active dynamic expression and only add it, if there is a change in dynamic
-                // // Exception is when there starts a repetition, where this might be different when repeating.
-                // // see PR #767 where this was removed
-                // let dynamicEnum: DynamicEnum;
-                // try {
-                //     dynamicEnum = DynamicEnum[expressionText];
-                // } catch (err) {
-                //     const errorMsg: string = ITextTranslation.translateText("ReaderErrorMessages/DynamicError", "Error while reading dynamic.");
-                //     this.musicSheet.SheetErrors.pushMeasureError(errorMsg);
-                //     return;
-                // }
-                // if (!this.activeInstantaneousDynamic ||
-                //     (this.activeInstantaneousDynamic && this.activeInstantaneousDynamic.DynEnum !== dynamicEnum)) {
+                // ToDo: make duplicate recognition an afterReadingModule, as we can't definitively check here if there is a repetition:
+                // Compare with the active dynamic expression and only add it if there is a change in dynamic
+                // Exception is when a repetition starts here, where the "repeated" dynamic might be desired.
+                // see PR #767 where this was removed
+                if (currentMeasure.Rules?.IgnoreRepeatedDynamics) {
+                    let dynamicEnum: DynamicEnum;
+                    try {
+                        dynamicEnum = DynamicEnum[expressionText];
+                    } catch (err) {
+                        const errorMsg: string = ITextTranslation.translateText("ReaderErrorMessages/DynamicError", "Error while reading dynamic.");
+                        this.musicSheet.SheetErrors.pushMeasureError(errorMsg);
+                        return;
+                    }
+                    if (this.activeInstantaneousDynamic?.DynEnum === dynamicEnum) {
+                        // repeated dynamic
+                        return;
+                    }
+                }
                 if (!fromNotation) {
                     this.createNewMultiExpressionIfNeeded(currentMeasure, numberXml);
                 } else {
@@ -531,6 +535,13 @@ export class ExpressionReader {
               font.Italic = true;
             }
         }
+        let defaultYXml: number;
+        if (currentMeasure.Rules.PlaceWordsInsideStafflineFromXml) {
+            const defaultYString: string = wordsNode.attribute("default-y")?.value;
+            if (defaultYString?.length > 0) {
+                defaultYXml = Number.parseInt(defaultYString, 10);
+            }
+        }
         if (text.length > 0) {
             if (wordsNode.hasAttributes && wordsNode.attribute("default-x")) {
                 this.directionTimestamp = Fraction.createFromFraction(inSourceMeasureCurrentFraction);
@@ -543,6 +554,7 @@ export class ExpressionReader {
               currentMeasure,
               inSourceMeasureCurrentFraction,
               font,
+              defaultYXml,
             );
             this.initialize();
         }
@@ -665,6 +677,7 @@ export class ExpressionReader {
       currentMeasure: SourceMeasure,
       inSourceMeasureCurrentFraction: Fraction,
       font: Font,
+      defaultYXml: number = undefined
     ): void {
         if (!inputString) {
             return;
@@ -681,6 +694,7 @@ export class ExpressionReader {
           inSourceMeasureCurrentFraction,
           inputString,
           font,
+          defaultYXml,
         );
         //}
     }
@@ -720,6 +734,7 @@ export class ExpressionReader {
         inSourceMeasureCurrentFraction,
         inputString: string,
         font: Font,
+        defaultYXml: number = undefined
     ): boolean {
         if (InstantaneousTempoExpression.isInputStringInstantaneousTempo(stringTrimmed) ||
             ContinuousTempoExpression.isInputStringContinuousTempo(stringTrimmed)) {
@@ -832,6 +847,7 @@ export class ExpressionReader {
         const unknownExpression: UnknownExpression = new UnknownExpression(
             stringTrimmed, this.placement, textAlignment, this.staffNumber);
         unknownExpression.font = font;
+        unknownExpression.defaultYXml = defaultYXml;
         unknownMultiExpression.addExpression(unknownExpression, prefix);
         return false;
     }
