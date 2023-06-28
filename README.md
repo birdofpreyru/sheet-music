@@ -2,7 +2,9 @@
 
 [![Latest NPM Release](https://img.shields.io/npm/v/@dr.pogodin/sheet-music.svg)](https://www.npmjs.com/package/@dr.pogodin/sheet-music)
 [![NPM Downloads](https://img.shields.io/npm/dm/@dr.pogodin/sheet-music.svg)](https://www.npmjs.com/package/@dr.pogodin/sheet-music)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/birdofpreyru/sheet-music/tree/master.svg?style=shield)](https://app.circleci.com/pipelines/github/birdofpreyru/sheet-music)
 [![GitHub Repo stars](https://img.shields.io/github/stars/birdofpreyru/sheet-music?style=social)](https://github.com/birdofpreyru/sheet-music)
+[![Dr. Pogodin Studio](https://raw.githubusercontent.com/birdofpreyru/sheet-music/master/.README/logo-dr-pogodin-studio.svg)](https://dr.pogodin.studio/docs/sheet-music)
 
 _A customized fork of
 [OpenSheetMusicDisplay](https://www.npmjs.com/package/opensheetmusicdisplay)
