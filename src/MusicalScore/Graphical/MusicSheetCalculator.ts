@@ -3323,7 +3323,7 @@ export abstract class MusicSheetCalculator {
     ): void {
         const label: Label = new Label("-");
         label.colorDefault = this.rules.DefaultColorLyrics; // if undefined, no change. saves an if check
-        let textHeight: number = this.rules.LyricsHeight;
+        let textHeight: number = this.rules.DefaultLyricsHeight;
         if (endX - startX < 0.8) {
             textHeight *= 0.8;
             y -= 0.1 * textHeight; // dash moves downwards when textHeight is reduced. counteract that.
