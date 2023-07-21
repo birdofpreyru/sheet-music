@@ -2,7 +2,7 @@ import {Font} from "../../../Common/DataObjects/Font";
 import {LyricWord} from "./LyricsWord";
 import {VoiceEntry} from "../VoiceEntry";
 
-import shortid from "shortid";
+import {nanoid} from "nanoid";
 
 export class LyricsEntry {
     constructor(
@@ -16,7 +16,7 @@ export class LyricsEntry {
         this.text = text;
         this.word = word;
         this.parent = parent;
-        this.uuid = shortid();
+        this.uuid = nanoid(8);
         this.verseNumber = verseNumber;
         if (syllableNumber >= 0) {
             this.syllableIndex = syllableNumber;
