@@ -2,7 +2,7 @@ import {Font} from "../../../Common/DataObjects/Font";
 import {LyricWord} from "./LyricsWord";
 import {VoiceEntry} from "../VoiceEntry";
 
-import {nanoid} from "nanoid";
+let lastId: number = 0;
 
 export class LyricsEntry {
     constructor(
@@ -16,7 +16,13 @@ export class LyricsEntry {
         this.text = text;
         this.word = word;
         this.parent = parent;
-        this.uuid = nanoid(8);
+
+        // Note: For our purposes here, we don't really need true UUIDs,
+        // simple consequtive IDs will do just fine, and don't require extra
+        // dependencies.
+        if (++lastId === Number.MAX_SAFE_INTEGER) { lastId = 1; }
+        this.uuid = `lyrics-entry-${lastId}`;
+
         this.verseNumber = verseNumber;
         if (syllableNumber >= 0) {
             this.syllableIndex = syllableNumber;
