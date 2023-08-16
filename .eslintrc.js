@@ -79,7 +79,7 @@ module.exports = {
         "@typescript-eslint/no-empty-function": "error",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-inferrable-types": "off",
-        "@typescript-eslint/no-parameter-properties": "error",
+        "@typescript-eslint/parameter-properties": "error",
         "@typescript-eslint/no-require-imports": "off",
         "@typescript-eslint/no-shadow": [
             "error",
