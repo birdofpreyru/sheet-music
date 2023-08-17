@@ -642,10 +642,17 @@ export abstract class MusicSheetCalculator {
         }
         for (const staffEntry of lyricsStaffEntriesList) {
           for (let i: number = 0; i < staffEntry.LyricsEntries.length; i++) {
-            const entry: LyricsEntry = staffEntry.LyricsEntries[i].LyricsEntry;
+            // NOTE: The difference from the upstream here is to patch
+            // the rendering of multi-line lyric entries, if any. Accounting
+            // for the number of lines we calculate the correct entry height,
+            // thus verseLineHeight becomes equal to the height of the tallest
+            // lyric entry in the verse.
+            const lyricEntry: GraphicalLyricEntry = staffEntry.LyricsEntries[i];
+            const numLines: number = lyricEntry.GraphicalLabel.TextLines.length;
+            const entry: LyricsEntry = lyricEntry.LyricsEntry;
             const font: Font = entry.Font;
-            const size: number = (font && font.Size)
-              || this.rules.DefaultLyricsHeight;
+            const size: number = ((font && font.Size)
+              || this.rules.DefaultLyricsHeight) * numLines;
             const verseIndex: number =
               lyricVersesNumber.indexOf(entry.VerseNumber);
             if (verseLineHeight[verseIndex] < size) {
@@ -697,9 +704,25 @@ export abstract class MusicSheetCalculator {
                   verseNumber,
                 );
 
+                // NOTE: The difference from the upstream here is to correctly
+                // render multi-line lyric entries, if any. The related patch
+                // earlier in the function ensured that entire verse is shifted
+                // down, to ensure that multi-line lyric entries do not collide
+                // with the staff. Here, for every lyric entry that has fewer
+                // lines than the tallest entry in the verse, we shift it up
+                // by the correct distance, to ensure that all entries in
+                // the verse are top-aligned, even if they have different
+                // height.
+                const font: Font = lyricsEntryLabel.Label.font;
+                const numLines: number = lyricsEntryLabel.TextLines.length;
+                const lineH: number = ((font && font.Size)
+                  || this.rules.DefaultLyricsHeight);
+                const entryH: number = numLines * lineH;
+                const dY: number = entryH - verseLineHeight[verseIndex];
+
                 // Y-position calculated according to aforementioned mapping
                 const previousRelativeX: number = lyricsEntryLabel.PositionAndShape.RelativePosition.x;
-                lyricsEntryLabel.PositionAndShape.RelativePosition = new PointF2D(previousRelativeX, versePosY[verseIndex]);
+                lyricsEntryLabel.PositionAndShape.RelativePosition = new PointF2D(previousRelativeX, versePosY[verseIndex] + dY);
                 lyricsEntryLabel.Label.font = lyricEntry.LyricsEntry.Font;
                 maxPosition = Math.max(maxPosition, versePosY[verseIndex]);
             }

@@ -16,3 +16,4 @@ library._
     that can be caused by lyrics width. If lyrics of neighbour notes overlap,
     this parameter should be increased.
 - A sane fonts management.
+- Patched to correctly render multi-line lyric entries, if any.
