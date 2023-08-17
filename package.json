@@ -62,6 +62,10 @@
   ],
   "author": "Dr. Sergey Pogodin <doc@pogodin.studio> (https://dr.pogodin.studio)",
   "license": "(MIT AND BSD-3-Clause)",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/birdofpreyru"
+  },
   "bugs": {
     "url": "https://github.com/birdofpreyru/sheet-music/issues"
   },

@@ -10,6 +10,8 @@ _A customized fork of
 [OpenSheetMusicDisplay](https://www.npmjs.com/package/opensheetmusicdisplay)
 library._
 
+[![Sponsor](https://raw.githubusercontent.com/birdofpreyru/sheet-music/master/.README/sponsor.svg)](https://github.com/sponsors/birdofpreyru)
+
 ### Changes vs. Upstream
 - Adds the following parameters to OSMD constructor:
   - `maximumLyricsElongationFactor = 2.5` &ndash; The limit of measure extension
