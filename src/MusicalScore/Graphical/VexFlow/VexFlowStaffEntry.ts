@@ -59,7 +59,7 @@ export class VexFlowStaffEntry extends GraphicalStaffEntry {
                 } else {
                     bboxToAdjust.RelativePosition.x = gve.vfStaveNote.getBoundingBox().getX() / EngravingRules.UnitToPx;
                     if (isSecondaryWholeRest) {
-                        bboxToAdjust.RelativePosition.x -= stave.getNoteStartX() / unitInPixels;
+                        bboxToAdjust.RelativePosition.x -= stave.getNoteStartX() / EngravingRules.UnitToPx;
                         bboxToAdjust.RelativePosition.x -= 1.3;
                         // fix whole rest bounding box for these cases, slightly hacky admittedly, probably depends on WholeRestXShiftVexflow
                     }
