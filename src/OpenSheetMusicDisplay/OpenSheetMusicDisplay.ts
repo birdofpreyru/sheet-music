@@ -30,7 +30,7 @@ import { NoteEnum } from "../Common/DataObjects/Pitch";
  * After the constructor, use load() and render() to load and render a MusicXML file.
  */
 export class OpenSheetMusicDisplay {
-    protected version: string = "1.8.3-release"; // getter: this.Version
+    protected version: string = "1.8.4-release"; // getter: this.Version
     // at release, bump version and change to -release, afterwards to -dev again
 
     /**
@@ -184,6 +184,9 @@ export class OpenSheetMusicDisplay {
               // error loading sheet, probably already logged, do nothing
               return Promise.reject(new Error("given music sheet was incomplete or could not be loaded."));
           }
+          // if (this.sheet.TitleString === "osmd.Version") {
+          //     this.sheet.TitleString = "OSMD version: " + this.Version; // useful for debug e.g. when console not available
+          // }
           log.info(`[OSMD] Loaded sheet ${this.sheet.TitleString} successfully.`);
 
           this.needBackendUpdate = true;
@@ -211,6 +214,9 @@ export class OpenSheetMusicDisplay {
             this.cursors.forEach(cursor => {
                 cursor.init(this.sheet.MusicPartManager, this.graphic);
             });
+        }
+        if (this.drawingParameters.DrawingParametersEnum === DrawingParametersEnum.leadsheet) {
+            this.graphic.LeadSheet = true;
         }
     }
 
@@ -293,6 +299,9 @@ export class OpenSheetMusicDisplay {
             // }
             if (this.drawer.Backends[0]) {
                 this.drawer.Backends[0].removeAllChildrenFromContainer(this.container);
+            }
+            for (const backend of this.drawer.Backends) {
+                backend.free();
             }
             this.drawer.Backends.clear();
         }
