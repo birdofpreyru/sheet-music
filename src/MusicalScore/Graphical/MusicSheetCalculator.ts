@@ -649,7 +649,12 @@ export abstract class MusicSheetCalculator {
             // thus verseLineHeight becomes equal to the height of the tallest
             // lyric entry in the verse.
             const lyricEntry: GraphicalLyricEntry = staffEntry.LyricsEntries[i];
-            const numLines: number = lyricEntry.GraphicalLabel.TextLines.length;
+
+            // TODO: There can be no text lines in some cases, e.g. when
+            // the only symbol is ' '. I guess, for text lines to be defined,
+            // it is necessary to have some non-whitespace symbols? Should be
+            // further investigated, just in case.
+            const numLines: number = lyricEntry.GraphicalLabel.TextLines?.length ?? 1;
             const entry: LyricsEntry = lyricEntry.LyricsEntry;
             const font: Font = entry.Font;
             const size: number = ((font && font.Size)
@@ -715,7 +720,12 @@ export abstract class MusicSheetCalculator {
                 // the verse are top-aligned, even if they have different
                 // height.
                 const font: Font = lyricsEntryLabel.Label.font;
-                const numLines: number = lyricsEntryLabel.TextLines.length;
+
+                // TODO: There can be no text lines in some cases, e.g. when
+                // the only symbol is ' '. I guess, for text lines to be defined,
+                // it is necessary to have some non-whitespace symbols? Should be
+                // further investigated, just in case.
+                const numLines: number = lyricsEntryLabel.TextLines?.length ?? 1;
                 const lineH: number = ((font && font.Size)
                   || this.rules.DefaultLyricsHeight);
                 const entryH: number = numLines * lineH;
