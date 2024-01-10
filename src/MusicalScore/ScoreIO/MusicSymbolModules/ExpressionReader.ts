@@ -529,11 +529,25 @@ export class ExpressionReader {
             return;
         }
         const fontStyleAttr: Attr = wordsNode.attribute("font-style");
+        let fontStyleText: string;
+        let fontWeightText: string;
+        let fontColor: string;
         if (fontStyleAttr) {
-            const fontStyleText: string = fontStyleAttr.value;
+            fontStyleText = fontStyleAttr.value;
             if (fontStyleText === "italic") {
               font.Italic = true;
             }
+        }
+        const fontWeightAttr: Attr = wordsNode.attribute("font-weight");
+        if (fontWeightAttr) {
+            fontWeightText = fontWeightAttr.value;
+            if (fontWeightText === "bold") {
+                font.Weight = "bold";
+            }
+        }
+        const colorAttr: Attr = wordsNode.attribute("color");
+        if (colorAttr) {
+            fontColor = colorAttr.value;
         }
         let defaultYXml: number;
         if (currentMeasure.Rules.PlaceWordsInsideStafflineFromXml) {
@@ -549,13 +563,7 @@ export class ExpressionReader {
             if (this.checkIfWordsNodeIsRepetitionInstruction(text)) {
                 return;
             }
-            this.fillMultiOrTempoExpression(
-              text,
-              currentMeasure,
-              inSourceMeasureCurrentFraction,
-              font,
-              defaultYXml,
-            );
+            this.fillMultiOrTempoExpression(text, currentMeasure, inSourceMeasureCurrentFraction, font, fontColor, defaultYXml);
             this.initialize();
         }
     }
@@ -658,9 +666,8 @@ export class ExpressionReader {
                 } else if (type === "stop") {
                     for (const openCont of this.openContinuousDynamicExpressions) {
                         if (openCont.NumberXml === numberXml) {
-                            if (openCont.NumberXml === numberXml) {
-                                this.closeOpenContinuousDynamic(openCont, currentMeasure, inSourceMeasureCurrentFraction);
-                            }
+                            // if (openCont.NumberXml === numberXml) { // was there supposed to be another check here? someone wrote the same check twice.
+                            this.closeOpenContinuousDynamic(openCont, currentMeasure, inSourceMeasureCurrentFraction);
                         }
                     }
                 }
@@ -677,6 +684,7 @@ export class ExpressionReader {
       currentMeasure: SourceMeasure,
       inSourceMeasureCurrentFraction: Fraction,
       font: Font,
+      fontColor: string,
       defaultYXml: number = undefined
     ): void {
         if (!inputString) {
@@ -694,6 +702,7 @@ export class ExpressionReader {
           inSourceMeasureCurrentFraction,
           inputString,
           font,
+          fontColor,
           defaultYXml,
         );
         //}
@@ -734,6 +743,7 @@ export class ExpressionReader {
         inSourceMeasureCurrentFraction,
         inputString: string,
         font: Font,
+        fontColor: string,
         defaultYXml: number = undefined
     ): boolean {
         if (InstantaneousTempoExpression.isInputStringInstantaneousTempo(stringTrimmed) ||
@@ -757,6 +767,7 @@ export class ExpressionReader {
                                                                                                                       this.staffNumber,
                                                                                                                       this.soundTempo,
                                                                                                                       this.currentMultiTempoExpression);
+                instantaneousTempoExpression.ColorXML = fontColor;
                 this.currentMultiTempoExpression.addExpression(instantaneousTempoExpression, prefix);
                 return true;
             }
@@ -766,6 +777,7 @@ export class ExpressionReader {
                     this.placement,
                     this.staffNumber,
                     this.currentMultiTempoExpression);
+                continuousTempoExpression.ColorXML = fontColor;
                 this.currentMultiTempoExpression.addExpression(continuousTempoExpression, prefix);
                 return true;
             }
@@ -796,6 +808,7 @@ export class ExpressionReader {
                     currentMeasure,
                     -1,
                     stringTrimmed);
+            continuousDynamicExpression.ColorXML = fontColor;
             const openWordContinuousDynamic: MultiExpression = this.getMultiExpression;
             if (openWordContinuousDynamic) {
                 this.closeOpenContinuousDynamic(openWordContinuousDynamic.StartingContinuousDynamic, currentMeasure, inSourceMeasureCurrentFraction);
@@ -814,6 +827,7 @@ export class ExpressionReader {
             currentMeasure.hasMoodExpressions = true;
             const moodExpression: MoodExpression = new MoodExpression(stringTrimmed, this.placement, this.staffNumber);
             moodExpression.font = font;
+            moodExpression.ColorXML = fontColor;
             multiExpression.addExpression(moodExpression, prefix);
             return true;
         }
@@ -847,6 +861,7 @@ export class ExpressionReader {
         const unknownExpression: UnknownExpression = new UnknownExpression(
             stringTrimmed, this.placement, textAlignment, this.staffNumber);
         unknownExpression.font = font;
+        unknownExpression.ColorXML = fontColor;
         unknownExpression.defaultYXml = defaultYXml;
         unknownMultiExpression.addExpression(unknownExpression, prefix);
         return false;

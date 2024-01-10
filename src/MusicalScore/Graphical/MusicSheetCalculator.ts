@@ -1482,7 +1482,12 @@ export abstract class MusicSheetCalculator {
         const startCollideBox: BoundingBox =
             this.dynamicExpressionMap.get(graphicalContinuousDynamic.ContinuousDynamic.StartMultiExpression.AbsoluteTimestamp.RealValue);
         if (startCollideBox) {
-            startPosInStaffline.x = startCollideBox.RelativePosition.x + startCollideBox.BorderMarginRight + this.rules.WedgeHorizontalMargin;
+            startPosInStaffline.x = startCollideBox.RelativePosition.x + this.rules.WedgeHorizontalMargin;
+            if ((startCollideBox.DataObject as any).ParentStaffLine === staffLine) {
+                // TODO the dynamicExpressionMap doesn't distinguish between staffLines, so we may react to a different staffline otherwise
+                //   so the more fundamental solution would be to fix dynamicExpressionMap mapping across stafflines.
+                startPosInStaffline.x += startCollideBox.BorderMarginRight;
+            }
         }
         //currentMusicSystem and currentStaffLine
         const musicSystem: MusicSystem = staffLine.ParentMusicSystem;
@@ -2019,20 +2024,25 @@ export abstract class MusicSheetCalculator {
                 if (this.rules.CompactMode) {
                     textAlignment = TextAlignmentEnum.LeftBottom;
                 }
+
                 let font: Font = multiTempoExpression.getFontOfFirstEntry();
                 if (font.Size === undefined) {
                   font = font.clone();
                   font.Size = this.rules.UnknownTextHeight;
                 }
-                const graphLabel: GraphicalLabel = this.calculateLabel(
-                  staffLine,
-                  relative,
-                  entry.label,
-                  font,
-                  entry.Expression.Placement,
-                  textAlignment,
-                  this.rules.TempoYSpacing,
-                );
+
+                const graphLabel: GraphicalLabel = this.calculateLabel(staffLine,
+                    relative,
+                    entry.label,
+                    font,
+                    entry.Expression.Placement,
+                    textAlignment,
+                    this.rules.TempoYSpacing);
+
+                if (entry.Expression.ColorXML && this.rules.ExpressionsUseXMLColor) {
+                    graphLabel.ColorXML = entry.Expression.ColorXML;
+                }
+
                 if (entry.Expression instanceof InstantaneousTempoExpression) {
                     //already added?
                     for (const expr of staffLine.AbstractExpressions) {
@@ -3107,6 +3117,9 @@ export abstract class MusicSheetCalculator {
         for (const system of this.musicSystems) {
             for (const line of system.StaffLines) {
                 for (const measure of line.Measures) {
+                    if (measure.isTabMeasure && !this.rules.TabFingeringsRendered) {
+                        continue; // don't duplicate fingerings into tab measures. tab notes are already
+                    }
                     const placement: PlacementEnum = this.getFingeringPlacement(measure);
                     for (const gse of measure.staffEntries) {
                         gse.FingeringEntries = [];

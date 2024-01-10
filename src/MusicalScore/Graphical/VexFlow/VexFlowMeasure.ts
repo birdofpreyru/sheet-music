@@ -60,7 +60,6 @@ export class VexFlowMeasure extends GraphicalMeasure {
         this.resetLayout();
     }
 
-    public isTabMeasure: boolean = false;
     /** octaveOffset according to active clef */
     public octaveOffset: number = 3;
     /** The VexFlow Voices in the measure */
@@ -271,6 +270,12 @@ export class VexFlowMeasure extends GraphicalMeasure {
         if (!this.rules.RenderKeySignatures || !this.ShowKeySignature) {
             return;
         }
+        if (this.isTabMeasure && !this.rules.TabKeySignatureRendered && !this.rules.TabKeySignatureSpacingAdded) {
+            return;
+            // This will ignore key signatures completely, so for non-tab-only scores, vertical x-alignment will be prevented.
+            //   If we want to x-align the startX / note startX, just not rendering the modifier is not enough.
+            //   For tab-only scores, this is more compact though.
+        }
         if (this.parentSourceMeasure?.isReducedToMultiRest && !this.rules.MultipleRestMeasureAddKeySignature) {
             return;
         }
@@ -279,6 +284,16 @@ export class VexFlowMeasure extends GraphicalMeasure {
             VexFlowConverter.keySignature(previousKey),
             undefined
         );
+        if (this.isTabMeasure && !this.rules.TabKeySignatureRendered) {
+            const modifiers: VF.StaveModifier[] = this.stave.getModifiers();
+            for (const modifier of modifiers) {
+                if (modifier instanceof VF.KeySignature) {
+                    modifier.setStyle({ fillStyle: "#00000000"}); // transparent. requires VexflowPatch
+                    // instead of not rendering the key signature, technically, we render it, but with transparent color. this helps layout / x-alignment.
+                    break;
+                }
+            }
+        }
         this.updateInstructionWidth();
     }
 
@@ -288,14 +303,22 @@ export class VexFlowMeasure extends GraphicalMeasure {
      * @param rhythm
      */
     public addRhythmAtBegin(rhythm: RhythmInstruction): void {
+        if (this.isTabMeasure && !this.rules.TabTimeSignatureRendered && !this.rules.TabTimeSignatureSpacingAdded) {
+            return;
+            // This will ignore time signatures completely, so for non-tab-only scores, vertical x-alignment will be prevented.
+            //   If we want to x-align the startX / note startX, just not rendering the modifier is not enough.
+            //   For tab-only scores, this is more compact though.
+        }
         const timeSig: VF.TimeSignature = VexFlowConverter.TimeSignature(rhythm);
         this.stave.addModifier(
             timeSig,
             VF.StaveModifier.Position.BEGIN
         );
-        if (!this.ShowTimeSignature) {
+        if (!this.ShowTimeSignature ||
+            this.isTabMeasure && !this.rules.TabTimeSignatureRendered) {
             // extends Element is missing from class StaveModifier in DefinitelyTyped definitions, so setStyle isn't found
             timeSig.setStyle({ fillStyle: "#00000000"}); // transparent. requires VexflowPatch
+            // instead of not rendering the time signature, technically, we render it, but with transparent color. this helps layout / x-alignment.
         }
         this.updateInstructionWidth();
     }
@@ -647,7 +670,8 @@ export class VexFlowMeasure extends GraphicalMeasure {
                         if (!vftuplet) { // see #1330, potentially to be investigated. why undefined?
                             continue;
                         }
-                        if (!tuplet.RenderTupletNumber) {
+                        if (!tuplet.RenderTupletNumber ||
+                            tuplet.ShowNumberNoneGivenInXml && this.rules.TupletNumberUseShowNoneXMLValue) {
                             // (vftuplet as any).numerator_glyphs_stored = [...(vftuplet as any).numerator_glyphs];
                             // (vftuplet as any).numerator_glyphs = [];
                             (vftuplet as any).RenderTupletNumber = false;
