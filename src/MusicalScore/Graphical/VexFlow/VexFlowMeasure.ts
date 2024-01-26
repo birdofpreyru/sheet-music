@@ -133,7 +133,11 @@ export class VexFlowMeasure extends GraphicalMeasure {
         // the correct bar types seem to be set later
 
         this.staffEntries.forEach((staffEntry) => {
-          for (let i: number  = 0; i < staffEntry.LyricsEntries.length; ++i) {
+          const iEnd: number = Math.min(
+            staffEntry.graphicalVoiceEntries.length,
+            staffEntry.LyricsEntries.length,
+          );
+          for (let i: number  = 0; i < iEnd; ++i) {
             const lyrics: GraphicalLyricEntry = staffEntry.LyricsEntries[i];
             const width: number = lyrics.GraphicalLabel.PositionAndShape.Size.width * EngravingRules.UnitToPx;
             const vfGraphicalNote: VexFlowGraphicalNote =
