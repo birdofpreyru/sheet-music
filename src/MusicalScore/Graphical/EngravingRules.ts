@@ -39,6 +39,12 @@ export class EngravingRules {
     public SheetAuthorHeight: number;
     public SheetCopyrightHeight: number;
     public SheetCopyrightMargin: number;
+    /** Whether to use the (deprecated) OSMD < 1.8.6 way of parsing and displaying subtitles and composer,
+     * which did not read multiple lines from XML credit-words tags.
+     * Option will probably be removed soon.
+     * @deprecated
+     */
+    public SheetComposerSubtitleUseLegacyParsing: boolean;
     public CompactMode: boolean;
     public PagePlacementEnum: PagePlacementEnum;
     public PageHeight: number;
@@ -224,18 +230,25 @@ export class EngravingRules {
     public LyricsExtraXShiftForShortLyrics: number;
     /** Threshold of the lyric entry's width below which the x-shift is applied. Default 1.4. */
     public LyricsExtraXShiftForShortLyricsWidthThreshold: number;
-    /** Whether to enable x padding (to the right) for short notes, see LyricsXPaddingFactorForLongLyrics for the degree. */
-    public LyricsUseXPaddingForShortNotes: boolean;
+    /** Whether to enable x padding (to the right) for notes with long lyrics, see LyricsXPaddingFactorForLongLyrics for the degree.
+     * This helps avoid overlaps and shorten measures, because otherwise the whole measure needs to be stretched to avoid overlaps,
+     * see MaximumLyricsElongationFactor */
+    public LyricsUseXPaddingForLongLyrics: boolean;
     /** How much spacing/padding should be added after notes with long lyrics on short notes
      * (>4 characters on <8th note),
      * so that the measure doesn't need to be elongated too much to avoid lyrics collisions.
-     * Default 0.8 = 8 pixels */
+     * Default 1 = 10 pixels */
     public LyricsXPaddingFactorForLongLyrics: number;
     /** How wide a text needs to be to trigger lyrics padding for short notes.
-     * This is visual width, not number of characters, as e.g. 'zzz' is about as wide as 'iiii'.
+     * This is visual width, not number of characters, as e.g. 'zzz' is wider than 'iii'.
      * Default 3.3.
      */
     public LyricsXPaddingWidthThreshold: number;
+    /** Long notes need less padding than short ones, by default we use 0.7 less padding. */
+    public LyricsXPaddingReductionForLongNotes: number;
+    /** Last note in measure needs less padding because of measure bar and bar start/end padding. */
+    public LyricsXPaddingReductionForLastNoteInMeasure: number;
+    public LyricsXPaddingForLastNoteInMeasure: boolean;
     public VerticalBetweenLyricsDistance: number;
     public HorizontalBetweenLyricsDistance: number;
     public BetweenSyllableMaximumDistance: number;
@@ -397,6 +410,8 @@ export class EngravingRules {
     public RenderCopyright: boolean;
     public RenderPartNames: boolean;
     public RenderPartAbbreviations: boolean;
+    /** Whether two render system labels on page 2+. This doesn't affect the default endless PageFormat. */
+    public RenderSystemLabelsAfterFirstPage: boolean;
     public RenderFingerings: boolean;
     public RenderMeasureNumbers: boolean;
     public RenderMeasureNumbersOnlyAtSystemStart: boolean;
@@ -498,6 +513,7 @@ export class EngravingRules {
         this.SheetAuthorHeight = 2.0;
         this.SheetCopyrightHeight = 1.5;
         this.SheetCopyrightMargin = 2.0;
+        this.SheetComposerSubtitleUseLegacyParsing = false;
 
         // Staff sizing Variables
         this.CompactMode = false;
@@ -715,9 +731,12 @@ export class EngravingRules {
         this.LyricsYMarginToBottomLine = 0.2;
         this.LyricsExtraXShiftForShortLyrics = 0.5; // also see ChordSymbolExtraXShiftForShortChordSymbols, same principle
         this.LyricsExtraXShiftForShortLyricsWidthThreshold = 1.4; // width of '+': 1.12, 'II': 1.33 (benefits from x-shift), 'III': 1.99 (doesn't benefit)
-        this.LyricsUseXPaddingForShortNotes = true;
-        this.LyricsXPaddingFactorForLongLyrics = 0.8;
-        this.LyricsXPaddingWidthThreshold = 3.3;
+        this.LyricsUseXPaddingForLongLyrics = true;
+        this.LyricsXPaddingFactorForLongLyrics = 1.0;
+        this.LyricsXPaddingWidthThreshold = 1.7; // generateImages script with png might need more for 8th notes, e.g. Chloe
+        this.LyricsXPaddingReductionForLongNotes = 0.7;
+        this.LyricsXPaddingReductionForLastNoteInMeasure = 1.2;
+        this.LyricsXPaddingForLastNoteInMeasure = true;
         this.VerticalBetweenLyricsDistance = 0.5;
         this.HorizontalBetweenLyricsDistance = 0.2;
         this.BetweenSyllableMaximumDistance = 10.0;
@@ -841,6 +860,7 @@ export class EngravingRules {
         this.RenderCopyright = false;
         this.RenderPartNames = true;
         this.RenderPartAbbreviations = true;
+        this.RenderSystemLabelsAfterFirstPage = true;
         this.RenderFingerings = true;
         this.RenderMeasureNumbers = true;
         this.RenderMeasureNumbersOnlyAtSystemStart = false;

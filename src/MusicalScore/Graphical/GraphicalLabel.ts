@@ -63,13 +63,15 @@ export class GraphicalLabel extends Clickable {
           const line: string = lines[i].trim();
           const widthToHeightRatio: number =
             MusicSheetCalculator.TextMeasurer.computeTextWidthToHeightRatio(
-              line,
-              this.Label.font,
-            );
-          const currWidth: number = this.Label.font.Size * widthToHeightRatio;
-          maxWidth = Math.max(maxWidth, currWidth);
-          // here push only text and width of the text:
-          this.TextLines.push({text: line, xOffset: 0, width: currWidth});
+                line,
+                this.Label.font,
+              );
+              const currWidth: number = this.Label.font.Size * widthToHeightRatio;
+              // const currWidth: number = MusicSheetCalculator.TextMeasurer.computeTextWidth(
+              //     line, this.Label.font);
+              maxWidth = Math.max(maxWidth, currWidth);
+              // here push only text and width of the text:
+              this.TextLines.push({text: line, xOffset: 0, width: currWidth});
         }
         // maxWidth is calculated ->
         // now also set the x-offsets:
