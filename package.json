@@ -102,7 +102,7 @@
     "karma-xml2js-preprocessor": "^0.1.0",
     "mocha": "^10.2.0",
     "ncp": "^2.0.0",
-    "puppeteer": "^21.10.0",
+    "puppeteer": "^21.11.0",
     "svg2pdf.js": "^2.2.3",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
