@@ -6,7 +6,7 @@ import { GraphicalStaffEntry } from "../GraphicalStaffEntry";
 import { EngravingRules } from "../EngravingRules";
 import { NoteEnum } from "../../../Common/DataObjects/Pitch";
 import { Note } from "../../VoiceData/Note";
-import { ColoringModes } from "./../DrawingParameters";
+import { ColoringModes } from "../../../Common/Enums/ColoringModes";
 import { GraphicalNote } from "../GraphicalNote";
 
 export class VexFlowVoiceEntry extends GraphicalVoiceEntry {

@@ -302,6 +302,9 @@ export class Note {
         }
         return false;
     }
+    public hasTabEffects(): boolean {
+        return false; // override in TabNote
+    }
 }
 
 export enum Appearance {

@@ -1,4 +1,5 @@
-import { DrawingParametersEnum, ColoringModes } from "../MusicalScore/Graphical/DrawingParameters";
+import { ColoringModes } from "../Common/Enums/ColoringModes";
+import { DrawingParametersEnum } from "../Common/Enums/DrawingParametersEnum";
 
 export enum CursorType {
     Standard = 0,
