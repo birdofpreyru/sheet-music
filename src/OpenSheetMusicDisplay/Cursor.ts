@@ -311,11 +311,11 @@ export class Cursor {
         break;
     }
 
-    if (newWidth !== cursorElement.width) {
+    // if (newWidth !== cursorElement.width) { // this `if` is unnecessary and prevents updating color
       cursorElement.width = newWidth;
       cursorElement.style.background = this.cursorOptions.color;
       cursorElement.style.opacity = this.cursorOptions.alpha.toString();
-    }
+    // }
   }
 
   /**
