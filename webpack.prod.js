@@ -5,6 +5,7 @@ var common = require('./webpack.common.js')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = merge(common, {
+    devtool: 'source-map',
     output: {
         filename: '[name].min.js',
         path: path.resolve(__dirname, 'build'),

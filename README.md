@@ -13,6 +13,7 @@ library._
 [![Sponsor](https://raw.githubusercontent.com/birdofpreyru/sheet-music/master/.README/sponsor.svg)](https://github.com/sponsors/birdofpreyru)
 
 ### Changes vs. Upstream
+- Adds source maps into generated package.
 - Adds the following parameters to OSMD constructor:
   - `maximumLyricsElongationFactor = 2.5` &ndash; The limit of measure extension
     that can be caused by lyrics width. If lyrics of neighbour notes overlap,
