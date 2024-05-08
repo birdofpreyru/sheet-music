@@ -77,7 +77,7 @@
   "devDependencies": {
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.11",
     "chai": "^4.4.1",
     "clean-webpack-plugin": "^4.0.0",
     "cross-blob": "^3.0.2",
